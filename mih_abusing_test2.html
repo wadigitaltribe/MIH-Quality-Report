@@ -715,12 +715,20 @@
       renderGrid();
     }
 
+    function getSampleIdFromUrl() {
+      const m = location.hash.match(/^#sample-(\d+)$/i);
+      if (m) return Number(m[1]);
+      const q = new URLSearchParams(location.search).get('sample');
+      return q ? Number(q) : null;
+    }
+
     function showDashboard() {
       document.getElementById('dashboard-view').classList.remove('hidden');
       document.getElementById('detail-view').classList.add('hidden');
       document.getElementById('detail-view').innerHTML = '';
       document.getElementById('back-btn').classList.add('hidden');
       window.scrollTo(0, 0);
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
       lucide.createIcons();
     }
 
@@ -735,7 +743,13 @@
       detail.classList.remove('hidden');
       document.getElementById('back-btn').classList.remove('hidden');
       window.scrollTo(0, 0);
+      history.replaceState(null, '', '#sample-' + id);
       lucide.createIcons();
+    }
+
+    function openSampleFromUrl() {
+      const id = getSampleIdFromUrl();
+      if (id && samplesData.some(s => s.id === id)) openSample(id);
     }
 
     function renderGrid() {
@@ -780,6 +794,7 @@
     }
 
     renderGrid();
+    openSampleFromUrl();
   </script>
 </body>
 </html>

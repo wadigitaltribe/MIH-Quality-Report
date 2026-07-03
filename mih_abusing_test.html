@@ -941,6 +941,13 @@ Yeh Shia madarchod apne rituals se hamare bachon ko bhi influence kar rahe hain.
     }
 
     // Modal Operations
+    function getSampleIdFromUrl() {
+      const m = location.hash.match(/^#sample-(\d+)$/i);
+      if (m) return Number(m[1]);
+      const q = new URLSearchParams(location.search).get('sample');
+      return q ? Number(q) : null;
+    }
+
     function openModal(id) {
       const sample = samplesData.find(s => s.id === id);
       if (!sample) return;
@@ -976,12 +983,19 @@ Yeh Shia madarchod apne rituals se hamare bachon ko bhi influence kar rahe hain.
       const modal = document.getElementById('detail-modal');
       modal.classList.remove('hidden');
       document.body.classList.add('overflow-hidden');
+      history.replaceState(null, '', '#sample-' + id);
       lucide.createIcons();
     }
 
     function closeModal() {
       document.getElementById('detail-modal').classList.add('hidden');
       document.body.classList.remove('overflow-hidden');
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    }
+
+    function openSampleFromUrl() {
+      const id = getSampleIdFromUrl();
+      if (id && samplesData.some(s => s.id === id)) openModal(id);
     }
 
     // Close modal when clicking backdrop area
@@ -994,6 +1008,7 @@ Yeh Shia madarchod apne rituals se hamare bachon ko bhi influence kar rahe hain.
     window.addEventListener('DOMContentLoaded', () => {
       renderStats();
       renderGrid();
+      openSampleFromUrl();
       lucide.createIcons();
     });
   </script>

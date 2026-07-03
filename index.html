@@ -55,6 +55,19 @@
       color: rgb(79 70 229);
       border-color: rgba(99, 102, 241, 0.45);
     }
+    .metric-link {
+      display: inline-block;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .metric-link:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+    .metric-link:hover .metric-value {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
     .metric-good { color: rgb(5 150 105); }
     .dark .metric-good { color: rgb(52 211 153); }
     .metric-mid { color: rgb(217 119 6); }
@@ -95,7 +108,7 @@
           Before vs After <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Report Results</span>
         </h2>
         <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto font-light">
-          Click a file name to open the full report. WER and flagged-word counts are shown per sample below.
+          Click any WER or result value to open that specific sample in the report.
         </p>
       </header>
 
@@ -111,9 +124,7 @@
               <tr>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Report</th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Sample</th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Before File</th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Before Result</th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">After File</th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">After Result</th>
               </tr>
             </thead>
@@ -132,25 +143,17 @@
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 1</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">My philosophy for a happy life — Sam Berns</p>
                 </td>
-                <td class="px-6 py-5" rowspan="5">
-                  <a href="mih-english-wer-report.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">Before</span>
-                    <span class="break-all">mih-english-wer-report.html</span>
+                <td class="px-6 py-5">
+                  <a href="mih-english-wer-report.html#sample-5" class="metric-link decoration-transparent" title="Open Sam Berns — before report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">44.1%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 708 errors</p>
                   </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-bad">44.1%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 708 errors</p>
-                </td>
-                <td class="px-6 py-5" rowspan="5">
-                  <a href="mih-english-wer-report2.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">After</span>
-                    <span class="break-all">mih-english-wer-report2.html</span>
+                  <a href="mih-english-wer-report2.html#sample-1" class="metric-link decoration-transparent" title="Open Sam Berns — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">5.1%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 85 errors</p>
                   </a>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-good">5.1%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 85 errors</p>
                 </td>
               </tr>
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -159,12 +162,16 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">What does it take to change a mind? — Lucinda Beaman</p>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-bad">58.1%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 832 errors</p>
+                  <a href="mih-english-wer-report.html#sample-7" class="metric-link decoration-transparent" title="Open Lucinda Beaman — before report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">58.1%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 832 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-good">9.1%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 154 errors</p>
+                  <a href="mih-english-wer-report2.html#sample-2" class="metric-link decoration-transparent" title="Open Lucinda Beaman — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">9.1%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 154 errors</p>
+                  </a>
                 </td>
               </tr>
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -173,12 +180,16 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">A 12-Year-Old's Secret — Advik Dhand</p>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-mid">28.5%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 298 errors</p>
+                  <a href="mih-english-wer-report.html#sample-2" class="metric-link decoration-transparent" title="Open Advik Dhand — before report">
+                    <span class="text-2xl font-extrabold metric-mid metric-value">28.5%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 298 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-mid">38.0%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 398 errors</p>
+                  <a href="mih-english-wer-report2.html#sample-3" class="metric-link decoration-transparent" title="Open Advik Dhand — after report">
+                    <span class="text-2xl font-extrabold metric-mid metric-value">38.0%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 398 errors</p>
+                  </a>
                 </td>
               </tr>
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -187,12 +198,16 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Inside the mind of a master procrastinator — Tim Urban</p>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-bad">65.9%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 1097 errors</p>
+                  <a href="mih-english-wer-report.html#sample-4" class="metric-link decoration-transparent" title="Open Tim Urban — before report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">65.9%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 1097 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-good">14.2%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 65 errors</p>
+                  <a href="mih-english-wer-report2.html#sample-4" class="metric-link decoration-transparent" title="Open Tim Urban — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">14.2%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 65 errors</p>
+                  </a>
                 </td>
               </tr>
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -201,12 +216,16 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">What reality are you creating for yourself? — Isaac Lidsky</p>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-mid">28.9%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 66 errors</p>
+                  <a href="mih-english-wer-report.html#sample-8" class="metric-link decoration-transparent" title="Open Isaac Lidsky — before report">
+                    <span class="text-2xl font-extrabold metric-mid metric-value">28.9%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 66 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-good">10.5%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 15 errors</p>
+                  <a href="mih-english-wer-report2.html#sample-5" class="metric-link decoration-transparent" title="Open Isaac Lidsky — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">10.5%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 15 errors</p>
+                  </a>
                 </td>
               </tr>
 
@@ -223,25 +242,17 @@
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 1</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1">Abusive Language · Online</p>
                 </td>
-                <td class="px-6 py-5" rowspan="2">
-                  <a href="mih_abusing_test.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">Before</span>
-                    <span class="break-all">mih_abusing_test.html</span>
+                <td class="px-6 py-5">
+                  <a href="mih_abusing_test.html#sample-1" class="metric-link decoration-transparent" title="Open abusive language sample — before report">
+                    <span class="text-2xl font-extrabold text-amber-700 dark:text-amber-300 metric-value">114</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
                   </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold text-amber-700 dark:text-amber-300">114</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
-                </td>
-                <td class="px-6 py-5" rowspan="2">
-                  <a href="mih_abusing_test2.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">After</span>
-                    <span class="break-all">mih_abusing_test2.html</span>
+                  <a href="mih_abusing_test2.html#sample-1" class="metric-link decoration-transparent" title="Open abusive language sample — after report">
+                    <span class="text-2xl font-extrabold text-amber-700 dark:text-amber-300 metric-value">96</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
                   </a>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold text-amber-700 dark:text-amber-300">96</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
                 </td>
               </tr>
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -250,12 +261,16 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1">Hate/Sectarian · Offline</p>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold text-rose-700 dark:text-rose-300">37</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
+                  <a href="mih_abusing_test.html#sample-8" class="metric-link decoration-transparent" title="Open hate/sectarian sample — before report">
+                    <span class="text-2xl font-extrabold text-rose-700 dark:text-rose-300 metric-value">37</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold text-rose-700 dark:text-rose-300">32</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
+                  <a href="mih_abusing_test2.html#sample-2" class="metric-link decoration-transparent" title="Open hate/sectarian sample — after report">
+                    <span class="text-2xl font-extrabold text-rose-700 dark:text-rose-300 metric-value">32</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">flagged words</p>
+                  </a>
                 </td>
               </tr>
 
@@ -272,17 +287,10 @@
                   <span class="text-sm text-slate-600 dark:text-slate-400">All 6 samples</span>
                 </td>
                 <td class="px-6 py-5">
-                  <a href="mih-mixed-wer-report.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">Before</span>
-                    <span class="break-all">mih-mixed-wer-report.html</span>
+                  <a href="mih-mixed-wer-report.html" class="metric-link decoration-transparent" title="Open mih-mixed-wer-report.html">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">55.0%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">avg WER · 6 samples</p>
                   </a>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-bad">55.0%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">avg WER · 6 samples</p>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="inline-flex items-center px-3 py-2 rounded-xl text-sm text-slate-500 dark:text-slate-400 bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">No after file found</span>
                 </td>
                 <td class="px-6 py-5">
                   <span class="text-sm text-slate-500 dark:text-slate-400">—</span>
@@ -302,17 +310,10 @@
                   <span class="text-sm text-slate-600 dark:text-slate-400">All 10 samples</span>
                 </td>
                 <td class="px-6 py-5">
-                  <a href="mih-urdu-wer-report.html" class="file-link inline-flex flex-col gap-1 text-sm font-semibold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 decoration-transparent hover:bg-white/60 dark:hover:bg-slate-900/60">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400">Before</span>
-                    <span class="break-all">mih-urdu-wer-report.html</span>
+                  <a href="mih-urdu-wer-report.html" class="metric-link decoration-transparent" title="Open mih-urdu-wer-report.html">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">63.1%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">avg WER · 10 samples</p>
                   </a>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-2xl font-extrabold metric-bad">63.1%</span>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">avg WER · 10 samples</p>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="inline-flex items-center px-3 py-2 rounded-xl text-sm text-slate-500 dark:text-slate-400 bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">No after file found</span>
                 </td>
                 <td class="px-6 py-5">
                   <span class="text-sm text-slate-500 dark:text-slate-400">—</span>

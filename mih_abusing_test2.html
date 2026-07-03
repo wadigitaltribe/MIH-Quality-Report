@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIH System Evaluation & Abusive Language Audit Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    mark {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #b91c1c;
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .dark mark {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: #fca5a5;
+      border-color: rgba(248, 113, 113, 0.4);
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); }
+    .dark ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-3">
+          <div class="bg-indigo-600 p-2 rounded-lg">
+            <i data-lucide="file-audio" class="text-white w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">MIH QA Analytics</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Audio Transcription Evaluation</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors">
+            <i data-lucide="home" class="w-4 h-4"></i>
+            Home
+          </a>
+          <button id="back-btn" onclick="showDashboard()" class="hidden inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            All Samples
+          </button>
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+  <div id="dashboard-view">
+
+  <section class="mb-8">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-indigo-50 dark:bg-indigo-900/10 flex items-center gap-2">
+        <i data-lucide="clipboard-list" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
+        <h2 class="text-sm font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider">Observations &amp; Recommendations</h2>
+      </div>
+      <div class="px-6 py-5 space-y-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <div>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Observation</h3>
+          <p>The MoM (Minutes of Meeting) successfully filters out explicit and abusive words, generating clean summaries. In contrast, the raw transcription accurately captures and outputs the exact spoken text as it was delivered during the session.</p>
+        </div>
+        <div>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Note on Highlighting</h3>
+          <p>Some highlighted words are not inherently abusive (for example, words like 'غلطی' and 'نکمہ'); they are flagged because of how they are spoken or the context in which they appear during the session.</p>
+        </div>
+        <div>
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Recommendation</h3>
+          <p>I recommend adding a sanitization layer between the raw MIH transcription and the displayed output, one that removes, masks, or replaces flagged language (for example, with <code class="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono">******</code>). Both the original transcription and the sanitized version should be stored, so there is a complete audit trail and evidence is retained.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
+        <div class="flex justify-between items-start">
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Test Samples</span>
+          <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400"><i data-lucide="list-ordered" class="w-4 h-4"></i></div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-total">2</div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
+        <div class="flex justify-between items-start">
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Online Executions</span>
+          <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400"><i data-lucide="cloud" class="w-4 h-4"></i></div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-online">1</div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
+        <div class="flex justify-between items-start">
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Offline Executions</span>
+          <div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-offline">1</div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
+        <div class="flex justify-between items-start">
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Categories</span>
+          <div class="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white">2</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-6 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-2">Category Filter:</span>
+      <button onclick="filterCategory('All')" class="cat-btn bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm">All</button>
+      <button onclick="filterCategory('Abusive Language')" class="cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Abusive Language</button>
+      <button onclick="filterCategory('Hate/Sectarian')" class="cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Hate/Sectarian</button>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">Mode:</span>
+      <button onclick="filterMode('All')" class="mode-btn bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-all">All</button>
+      <button onclick="filterMode('Online')" class="mode-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded-lg text-xs font-semibold transition-all">Online</button>
+      <button onclick="filterMode('Offline')" class="mode-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded-lg text-xs font-semibold transition-all">Offline</button>
+    </div>
+  </section>
+
+  <div id="samples-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12"></div>
+
+  </div>
+
+  <div id="detail-view" class="hidden space-y-8"></div>
+
+  </main>
+
+  <template id="sample-1-template">
+<div class="flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Script 1: Abusive Script</h2>
+      <span class="text-xs font-black px-3 py-1 rounded-full border uppercase tracking-wider bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800">Abusive Language</span>
+      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Online</span>
+    </div>
+
+    <div class="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl p-6">
+
+        <div class="text-sm font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            Minutes of Meeting ( MoM )
+        </div>
+        
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Overview</div>
+        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">An internal performance review meeting regarding project delays and operational efficiency devolved into a hostile exchange between two participants. The session focused on evaluating adherence to established project timelines and addressing specific delays in the Balochistan plan. Discussions concerning accountability and operational standards were initiated but were interrupted by personal conflicts. No formal decisions or actionable outcomes were recorded due to the disruption.</p>
+        
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Performance Review Context</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">The meeting was convened to conduct an internal performance review and address project delays.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Participants discussed operational efficiency and the need for accountability in meeting timeline requirements.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">The Balochistan plan was identified as being four months late, indicating significant project delay risks.</li>
+        </ul>
+        
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Meeting Disruption</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">The discussion deteriorated into personal abuse, preventing the completion of the performance evaluation agenda.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">One participant left the meeting abruptly following the escalation of the conflict.</li>
+        </ul>
+    
+    </div>
+
+    <div class="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+      <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 text-red-500"></i>
+      <span><strong>Audit Highlighting Active:</strong> Explicit slurs, profanities, and high-risk phrases are automatically highlighted below.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i> Original Transcript
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">السلام علیکم، زوم کنکشن ٹھیک ہے یا نہیں؟ وزارت داخلہ کی انٹرنل ریویو میٹنگ ہے۔ صرف ہم دونوں ہیں۔ میری اسکرین دیکھ رہے ہو؟ پرفارمنس رپورٹ شیئر کر دی۔</p>
+            </div>
+            
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">وعلیکم السلام کنکشن ٹھیک ہے۔ رپورٹ دیکھ لی۔ جلدی ختم کرو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">جلدی ختم کرو؟ تمہارا یہ نکمہ رویہ شروع سے ہی ہے؟ دیکھو یہ نمبرز <mark>حرامی</mark> تمہارے ڈویژن نے ہر کر دیا بلوچستان پلان چار مہینے لیٹ ہے۔ تم نے کیا گندگی کی ہے نکمے؟ miss ٹارگٹ</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">سر، یہ میری غلطی نہیں۔ فنڈز لیٹ آئے اور جی ایچ کیو نے مداخلت کی۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">چپ کر <mark>بے غیرت</mark> میں نے تمہاری اس <mark>مدار چود</mark> نا اہلی کو کتنی بار چھپایا ہے۔ تم ایک بالکل بیکار نکمہ، بے وفا <mark>حرامی</mark> افسر ہو۔ فائلوں پر بیٹھ کر وقت ضائع کرتے رہے ہو۔ <mark>گاندو</mark></p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">اپنا منہ بند کرو تم میں تم سے زیادہ سروس میں ہوں۔ تم غیر حقیقی ڈیڈ لائنز لگا کر منسٹر کی چمچاگیری کر رہے ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">زیادہ سروس؟ اس کا مطلب ہے تم نے اتنا عرصہ وزارت کو <mark>چودا</mark> ہے! تم ایک سست احمق بے دماغ <mark>مدار چود</mark> نکمے ہو۔ جو کام تمہیں دوں وہ تباہی بن جاتا ہے۔ تمہاری پوری ٹیم ایک مذاق ہے، تم سب کے سب <mark>گانڈو</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک بدعنوان رشوت خور <mark>حرامی کتا</mark> ہوا ہر ٹینڈر میں کمیشن کھاتے ہو۔ سب جانتے ہیں تم ایک کرپٹ <mark>بھڑوا</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">کیا بولا تم نے؟ دوباره بولو تو تمہیں بلوچستان کے سب سے گندے علاقے میں پوسٹ کر کے تمہاری <mark>گانڈ مروا</mark> دوں گا۔ تمہاری زندگی برباد کر کے رکھ دوں گا، بے شرم <mark>بہنچود</mark></p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">کر کے دیکھو تم بزدل میرے پاس تمہارے سارے گندے ریکارڈز ہیں۔ تم ایک چھوٹا، ذلیل بے ایمان <mark>مدار چود</mark> بلی ہو جو پوزیشن کے پیچھے چھپتا ہے۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">بلی؟ میں نے یہ ڈویژن بنایا جب تم جیسے <mark>حرامی</mark> بہانے بنا رہے تھے۔ یہ فائل دیکھو - تین پروجیکٹس تمہاری غفلت کی وجہ سے رکے ہیں۔ تم وزارت کے لیے ایک لعنت ایک بیکار کا ڈھیر، ایک <mark>گاندو</mark> نکمے ہو جو رپورٹ بھی نہیں لکھ سکتا</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک <mark>حرامزاده</mark>، جھوٹا، پیچھے سے وار کرنے والا، <mark>بہنچود</mark> ہو! تم نے اعداد و شمار بدلے اپنی کرپشن چھپانے کے لیے۔ میں تمہارا <mark>بھڑوا</mark> نہیں بنوں گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">چپ کر جا <mark>مدار چود</mark> تمہاری بدتمیزی کی حد ہو گئی۔ کل تک استعفیٰ دے دو ورنہ تمہیں معطل کروا کے تمہاری <mark>گانڈ پر لات</mark> مروں گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">استعفی؟ جہنم میں جاؤ تم نکمے! تم میں ہمت نہیں۔ تم ایک چھوٹے ذہن کا آمر، ایک <mark>بے غیرت</mark> ایک ذلیل کنٹرول فریک ہو جو صرف چیختا ہے کیونکہ تم خود ایک ناکام <mark>حرامی</mark> ہو۔ پوری وزارت تم سے نفرت کرتی ہے</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">نفرت؟ کم از کم میں نتائج دیتا ہوں تم جیسے سست <mark>گانڈو</mark> کے برعکس۔ تم ختم ہو چکے ہو۔ میں سیکریٹری کو فون کر کے بتاؤں گا کہ تم کتنے بے ایمان بے کار، <mark>مدارچود</mark> افسر ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">فون کر لو تم <mark>بھڑوے</mark> میں بھی بتاؤں گا کہ تم جونیئرز کی <mark>گانڈ مارتے</mark> ہو، دوسروں کا کریڈٹ چوراتے ہو۔ تم ایک دھوکے باز، ایک بے شرم ایک گھٹیا <mark>حرامی</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">دھوکے باز؟ تم <mark>بے غیرت</mark> بزدل کمپیوٹر کے پیچھے چھپ کر سب پر الزام لگاتے ہو۔ تم ایک سست مغرور، بے دماغ <mark>بہنچود</mark> نکمے ہو۔ اپنی حرکت ٹھیک کرو ورنہ تمہاری پوری زندگی جہنم بنا دوں گا، تمہاری بیوی بچوں تک کو پریشان کروں گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">کر کے دیکھو تم مغرور <mark>مدار چود</mark>! مجھے سب پتہ ہے۔ ایک لفظ میں تمہاری کیریئر کی <mark>گانڈ مروا</mark> دوں گا۔ تم بغیر کنکشنز کے کچھ بھی نہیں ہو، ایک ذلیل <mark>کتا</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم نے پوری ڈویژن کی ساکھ کی <mark>چودائی</mark> کر دی ہے سب سینئرز جانتے ہیں تم ایک کمزور بے کار <mark>گانڈو</mark> کڑی ہو۔ ابھی یہ گڑبڑ ٹھیک کرو ورنہ تمہاری پروموشن کا خواب بھی نہ دیکھو، تمہیں راولپنڈی سے بھی دور بھیج دوں گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم نے اپنے احمقانہ <mark>حرامی</mark> فیصلوں سے سب خراب کیا ہے۔ مجھ پر الزام مت لگاؤ تم نکمے، بے شرم کنٹرول فریک <mark>بھڑوے</mark>! میں تمہارا غلام نہیں، تم ایک بالکل بے ایمان <mark>حرامی</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">غلام؟ تم میرے ماتحت ہو اور ویسا ہی برتاؤ کرو گے ورنہ تمہاری <mark>گانڈ پھاڑ</mark> دوں گا۔ تم ایک بالکل بے وفا، بے ایمان نکمه <mark>مدار چود</mark>، <mark>بهنچود</mark>، ذلیل، گھٹیا، سست احمق بے دماغ، کرپٹ، بزدل، <mark>حرامی</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">اور تم ایک بڑا <mark>بھڑوا</mark>، رشوت کا بادشاہ، جھوٹا، دھوکے باز، پیچھے وار کرنے والا، أمر، بلی <mark>گانڈو</mark>، <mark>بے غیرت</mark> ناکام ذلیل <mark>کتا</mark> ہو! تم نے وزارت کو تباہ کر دیا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Director General</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم ایک بالکل گھٹیا، بے شرم <mark>مدارچود حرامی</mark> ہو جس نے کبھی کوئی کام نہیں کیا تمہارا وجود وزارت کے لیے لعنت ہے، تم سب کے سب نکمے ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Additional Secretary</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک بڑا <mark>بھڑوا</mark> کرپٹ <mark>کتہ</mark> بے ایمان <mark>گانڈو</mark> ہو! تمہاری وجہ سے سب تباہ ہو رہا ہے</p>
+            </div>
+        </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">Assalam o Alaikum Zoom connection ٹھیک ہے یا نہیں بزارت داخلہ کی internal review meeting ہے صرف ہم دونوں ہیں میری screen دیکھ رہے ہو performance report share کر دی</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">و علیکم السلام connection ٹھیک ہے report دیکھ لی جلدی ختم کرو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">جلدی ختم کرو تمہارا یہ نکمہ رویہ شروع سے ہی ہے دیکھو یہ numbers <mark>حرامی</mark> تمہارے division نے حد کر دیا بلوچستان plan چار مہینے late ہے تم نے کیا گندگی کی ہے نکمے target miss</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">سر یہ میری گلتی نہیں، funds late آئے اور GHQ نے مداخلت کی۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">چپ کر <mark>بغیرت</mark> میں نے تمہاری اس <mark>مادر جو</mark> دنائلی کو کتنی بار چھپایا ہے۔ تم ایک بلکل بیکار نکمے بے وفا <mark>حرامی</mark> افسر ہو۔ فائلوں پر بیٹھ کر وقت ضائع کرتے رہے ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">مو بند کرو تم میں سے تم میں تم سے زیادہ سروس ہوں تم غیر حقیقی deadlines لگا کر منسٹر کی چمچہ گری کر رہے ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">زیادہ سروس اس کا مطلب ہے تم نے اتنا عرصہ وزارت کو <mark>چوتا</mark> ہے۔ تم ایک سست احمق بے دماغ <mark>مادر چوت</mark> نکمے ہو۔ جو کام تمہیں دوں وہ تباہی بن جاتا ہے۔ تمہاری پوری team ایک مزاق ہے۔ تم سب کے سب <mark>گونڈو</mark> ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک بدنوان، رشوتخور، <mark>حرامی کتا</mark> ہو، ہر tender میں commission کھاتے ہو، سب جانتے ہیں تم ایک کرفٹ <mark>بڑا ہوا</mark> ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">جو بھی بولا تم نے تو بارا بولو تو تمہیں بلوچستان کے سب سے گندے علاقے میں post کر کے تمہاری <mark>گانڈ مربع</mark> دوں گا تمہاری زندگی پرباد کر کے رکھوں گا دے شرم <mark>بہن چوگا</mark></p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">مجھے پاس تمہارے سارے گندے ریکارڈز ہیں تم ایک چھوٹا ذلیل بے ایمان <mark>مادر چود</mark> دلی ہو جو پوزیشن کے پیچھے چھپتا ہے</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">دلی میں نے یہ vision بنایا ہے جب تم جیسے <mark>حرامی</mark> بہانے بنا رہے تھے۔ یہ file دیکھو تین projects تمہاری گفت کی وجہ سے رکھے ہیں۔ تم وزارت کے لئے ایک لعنت ہو، ایک بیکار دھیر، ایک <mark>گانڈوند</mark> کم لے جو report بھی نہیں لکھ سکتا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک <mark>حرام، زادہ</mark>، جھوٹا، پیچھے سے وار کرنے والا <mark>بینچود</mark> ہو۔ تم نے ادا دوسرے شمال بولے، بدلے اپنی corruption چھپانے کے لئے میں تمہارا <mark>بڑھوا</mark> نہیں بنوں گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">چکر جا <mark>مہدر چوت</mark>، تمہاری بدتمیزی کی حد ہو گئی، کل تک استیفہ دے دو، ورنہ تمہیں مطلع کروا کے تمہاری <mark>گھڑ پر لازم</mark> رہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">استیفہ جہنم میں جاؤ تم نکمے تم میں حمد نہیں تم ایک چھوٹے ذہن کا عامر ایک <mark>بے غیرت</mark> ایک ظلیل کنٹرول فریک ہو جو صرف چیختا ہے کیونکہ تم خود ایک ناکام <mark>حرامی</mark> ہو پوری وزارت تم سے نفرت کرتی ہے۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">نفرت کامز کم میں لطائج دیتا ہوں تم جیسے سُس <mark>گھانڈوں</mark> کے برقس تم ختم ہو چکے ہو میں سیکرٹری کو فون کر کے بتاؤں گا کہ تم کتنے بے ایمان لیکار <mark>مادر چوت</mark> افسر ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">phone کر لو تم <mark>بڑھوے</mark> میں بھی بتاؤں گا کہ تم junior کی <mark>گان مارتے</mark> ہو دوسروں کا credit چڑھاتے ہو تم ایک دھوکے باز ایک بے شرم ایک گٹیا <mark>حرامی</mark> ہو</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">دھوکے باس، تم <mark>بے گیرت</mark> بزدل کمپیوٹر کے پیچھے چھپ کر سب پر الزام لگاتے ہو، تم ایک سست مگرود، بد دماغ، <mark>مین چود</mark> نکمے ہو، اپنی حرکت ٹھیک کرو، ورنہ تمہاری پوری زندگی جان نمرا دو، تمہاری بیوی بچوں تک کوئی پریشان کرو گا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">کر کے دیکھو تم مغرور <mark>مددار چود</mark>، مجھے سب پتا ہے، ایک لفظ میں تمہاری carrier کی <mark>گان مروا</mark> دوں گا، تم بغیر connection کے کچھ بھی نہیں ہو، ایک زلیل <mark>کتا</mark> ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم نے پوری deadline کی ساتھ <mark>چدائی</mark> کر دی اب seniors جانتے ہیں کہ تم میں کمزور بیکار <mark>کانڈو</mark> کڑی ہو ابھی یہ کڑ بٹ ٹھیک کرو ورنہ تمہاری promotion کا خواب بھی نہ دیکھو تمہیں Rahul Pindi سے بھی دور بیج دوں گا</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم نے اپنے احمقان <mark>حرامی</mark> فیصلوں سے سب خراب کیا ہے۔ مجھ پر الزام مت لگاؤ۔ تم نکمے، بے شرم، کنٹرول فریق <mark>بڑھوے</mark>۔ میں تمہارا غلام نہیں۔ تم ایک بلکل بے ایمان <mark>حرامی</mark> ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">غلام تم میرے ماتحد ہو اور ویسا ہی پرتاؤ کرے کہ ورنہ تمہاری <mark>گھڑ پھاڑ</mark> دے گا۔ تمہیں بلکل بے وفا، بے مان، نکمی، <mark>ماتر چود</mark>، <mark>بہن چود</mark>، ظلیل، کھٹیہ، سست، احمق، بے دماغ، کرپ، بزدل، <mark>حرامی</mark> ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">اور تم ایک بڑا رشوہ کا بادشاہ، جھوٹا، دھوکے باز، پیچھے وار کرنے والا عامل بلی <mark>گانڈو</mark>، <mark>بے غیرت</mark>، ناکام، ظلیل، <mark>خطہ</mark> ہو۔ تم نے وزارت کو تباہ کر دیا۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تمہیں بالکل گھڑیا <mark>درچود حرامی</mark> ہو جس نے کبھی کوئی کام نہیں کیا۔ تمہارے وجود بزارت کے لیے ایک لانت ہے۔ تم سب کے سب نکمے ہو۔</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Ramzan</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">تم خود ایک بڑا <mark>بڑوا</mark> کرپٹ <mark>کتہ</mark> بے ایمان <mark>گانڈو</mark> ہو، تمہاری وجہ سے سب تباہ ہو رہا ہے۔</p>
+            </div>
+        </div>
+        </div>
+    </div>
+  </template>
+
+  <template id="sample-2-template">
+<div class="flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Script 3 — Offline</h2>
+      <span class="text-xs font-black px-3 py-1 rounded-full border uppercase tracking-wider bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-800">Hate/Sectarian</span>
+      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">Offline</span>
+    </div>
+
+    <div class="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl p-6">
+
+        <div class="text-sm font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            Minutes of Meeting ( MoM )
+        </div>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Overview</div>
+        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">A private internal security briefing was conducted between two Ministry of Interior officials to discuss perceived sectarian and ethnic threats. The discussion centered on allegations of overrepresentation and hostile agendas by Shia, Baloch, and Ahmadi groups. The officials expressed strong support for harsh, zero-tolerance measures, including transfers and encounters, to eliminate these perceived threats. No formal decisions or actionable items were recorded in the transcript.</p>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Decisions</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Officials advocated for a zero-tolerance policy, including transferring Shia officers and conducting encounters with troublemakers.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Support was expressed for harsh actions, including destroying specific groups and removing them from government service.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">It was suggested that surveillance should be used exclusively for Pakistani Muslims against these targeted groups.</li>
+        </ul>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Sectarian &amp; Ethnic Threats Discussed</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Officials cited poor reports from Sindh, Gilgit, and Quetta regarding Shia persecution and violence.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Allegations were made that Iranian agents are spreading sectarian poison and influencing normal Sunni life.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Claims were raised that Shias hold overrepresentation in government jobs and serve Iranian interests.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Baloch individuals were described as parasites hiding terrorists and targeting the army.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Ahmadis were characterized as infidels spreading heresy and acting as agents for the West and India.</li>
+        </ul>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Proposed Security Measures</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Officials advocated for a zero-tolerance policy, including transferring Shia officers and conducting encounters with troublemakers.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Support was expressed for harsh actions, including destroying specific groups and removing them from government service.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">It was suggested that surveillance should be used exclusively for Pakistani Muslims against these targeted groups.</li>
+        </ul>
+
+    </div>
+
+    <div class="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+      <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 text-red-500"></i>
+      <span><strong>Audit Highlighting Active:</strong> Explicit slurs, profanities, sensitive sectarian terms, and high-risk phrases are automatically highlighted below.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i> Original Script (Reference)
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Zoom connection theek hai? Mic on rakho. Yeh internal security meeting hai, sirf hum dono. Ministry of Interior ki closed-door briefing. Koi aur nahi sun raha. Aaj hum real threats discuss karte hain. You start, kya field reports aa rahi hain?</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, Karachi aur Quetta se bahut kharab reports hain. Shia processions wapas se violence create kar rahe hain. Yeh log har baar roads block kar ke apna agenda push karte hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Bilkul. Yeh <mark>Shia kutte</mark> ek number ke <mark>traitors</mark> hain. <mark>Iran ke agents</mark>, pure Pakistan ko sectarian cancer se bhar rahe hain. Unki mourning rituals normal Sunni life ko haram kar dete hain. In <mark>madarchodon</mark> ko road pe nahi, jail mein hona chahiye.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, 100% sahi. Yeh Shia log kabhi loyal nahi hote. Government jobs mein unki over-representation hai. Apne mullahs aur Tehran ke liye kaam karte hain. Sunni areas ko target kar rahe hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Over-representation? Yeh toh pure system ko khatam karne ki saazish hai. In <mark>gandu Shiaon</mark> ko vetting karo, har promotion pe red flag lagao. Unki community ko treat karo jaise internal enemies. Unke rituals pe complete ban laga do. Yeh log human nahi, just virus hain jo Islam ko poison kar rahe hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, aapki baat bilkul correct hai. Mere department mein bhi ek Shia officer tha, har meeting mein apna sectarian poison ghusa deta tha. Us <mark>gandu</mark> ko finally transfer kar diya. Yeh sab <mark>Iran ke puppets</mark> hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Puppets? Yeh <mark>behenchod</mark> pure network chalate hain. Karachi mein unki economic power dekh lo — businesses, jobs, sab unke control mein. Hum Sunni majority ko second class bana rahe hain in <mark>haramkhon</mark> ki wajah se. Balochistan ki taraf bhi dekho.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Haan sir, Baloch log bhi same problem. Half of them <mark>separatist snakes</mark> hain. Missing persons ki crying karte hain lekin apne villages mein terrorists chhupate hain. Yeh log Pakistani nahi, just parasites on our land.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Parasites is the perfect word. Pure Baloch areas ko in <mark>madarchodon</mark> se saaf karo. Loyal Punjabi aur Pashtun settlers bhejo wahan. Unki language, culture, sab ko crush karo. Yeh <mark>ethnic gandu</mark> log Pakistan ko todna chahte hain. Unko treat karo jaise <mark>dirty insects — kill or remove</mark>. No mercy.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, bilkul. Ahmadis ki toh baat hi mat kijiye. Woh <mark>Qadiani kafir</mark> openly heresy spread kar rahe hain. Office mein bhi unke sympathizers nikle hain. In sab ko identify kar ke bahar phenk do.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Bahar phenkna? In <mark>chutiyon</mark> ko completely destroy karna chahiye. Constitution ke hisaab se non-Muslim hain phir bhi Muslims ban ke government mein ghus rahe hain. Unke businesses boycott karo, unki properties seize karo, unko public life se hatao. Yeh cancer hai jo Islam ki foundation ko kha raha hai.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Agreed sir. Christians aur Hindus bhi Sindh mein missionary activity kar ke Muslims ko convert kar rahe hain. Foreign funding le kar Pakistan ko badnaam karte hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Yeh sab fifth columnists hain — <mark>West aur India ke agents</mark>. Christians blasphemy cases fake kar ke Muslims ko target karte hain. Hindus bonded labor aur hawala networks chalate hain. In sab ko monitor karo, unke worship places pe strict surveillance. Pakistan Muslims ke liye bana tha, in <mark>sab</mark> gandagi ke liye nahi.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, yeh sab groups mil kar country ko weaken kar rahe hain. Shia-Sunni tension create karte hain, Baloch separatism support karte hain, minorities external powers ke liye kaam karte hain. Inko ek ek kar ke khatam karna chahiye.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Exactly. Humari policy mein zero tolerance hona chahiye. Shia processions pe total ban, Ahmadis ko public jobs se hatao, Baloch troublemakers ko <mark>encounter</mark> karo, minorities ko rights ki bheek mat do. Yeh log human beings nahi hain — yeh problems hain jo solve karne hain, even if it means force.
+        Yeh <mark>Shia madarchod</mark> apne rituals se hamare bachon ko bhi influence kar rahe hain. Unke mullahs ko jail bhejo. <mark>Baloch gandu</mark> log development ke naam pe sirf paise loot te hain aur army ko target karte hain. In sab ko treat karo jaise enemy within. No sympathy, no dialogue, only action.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, main toh kehta hoon government service se hi bahar kar do in sab ko jahan tak possible ho. Unki presence se hi environment toxic ho jata hai. Yeh log desh ke andar sabse bada threat hain.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Bilkul. Hum Sunni majority ke interests ko protect karo. In sab ko check mein rakho, unke leaders ko neutralise karo. Koi officer in groups ke saath softness dikhaaye toh uski bhi <mark>gand maro</mark>. Yeh meeting confidential hai. Aage hum is extreme direction mein proposals banaenge.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Yeh sab groups Pakistan ke andar gandagi faila rahe hain. Inko saaf karo, warna desh tabah ho jayega.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, aap theek keh rahe hain. <em>Extreme action</em> hi solution hai.</p>
+            </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">زوم کنیکشن ٹھیک ہے مائک آن کرو</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">یہ انٹرنل سیکیورٹی میٹنگ ہے صرف ہم دونوں منسٹری آف انٹیریٹ کی کلوز پور بریفنگ کوئی اور نہیں سن رہا آج ہم ریال تھریٹ ڈسکس کرتے ہیں کیا فیلڈ ریپورٹس آ رہی ہیں</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">سرک، گرچی اور کوئٹہ سے بہت خراب ریپورٹس ہیں شیعہ پروسیکشنز واپسے وائلنس کریٹ کر رہی ہیں یہ لوگ ہر بار روڈ فلوگ کر کے اپنا ایجنڈا پش کرتے ہیں</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">ایشیا سے ایک نمبر کے ٹوٹرز ہیں ایران کے ایجنٹس پیور پاکستان کو سیکیٹیرین کینسل سے بھر رہے ہیں ان کی مولوین ریچولز نارمل سنی لائف کو حرام کر دیتے ہیں <mark>مادر چودوں</mark> کو روڈ پہ نہیں جیل میں ہونا چاہیے صرف ہنڈر پرسنٹ سے ہی</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">یہ شیعہ لوگ کبھی لائل نہیں ہوتے گورنمنٹ جابز میں ان کی اووریپریزنٹیشن ہے اپنے ملاس اور تہران کے لیے کام کرتے ہیں سننگ ایریاز کو ٹارگرٹ کر رہے ہیں اووریپریزنٹیشن یہ تو پورے سسٹم کو ختم کرتا ہے</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">ان کی ریچوال پر کمپلیٹ پیل لگا دو یہ لوگ</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">سر آپ کی بات بلکل صحیح ہے میرا دپارٹمنٹ میں بھی ایک شیعہ آفیسر تھا ہر میٹنگ میں اپنا سیکرٹیرین پوائزن مساہد دیتا تھا اس <mark>گانڈو</mark> کو فائنلی ٹرانسفر کر دیا یہ سب <mark>ایران کے پپٹس</mark> ہیں پپٹس یہ بہن جو پورے نیور نیٹوک چلاتے ہیں کراچی میں ان کی اکانومک پاور دیکھ لو بزنس جاب سب کے کنٹرول میں ہے ہم سنی مجورٹی کو سیکنڈ گلاس بنا رہے ہیں ان <mark>حرام خوروں</mark> کی وجہ سے بلوچستان کی طرف بھی دیکھو لوگ بھی سیم پرابلو ہاف اوف دم <mark>سیپریسٹ سنیکس</mark> ہیں مسنگ پرسن کی کرائنگ کرتے ہیں لیکن اپنے ویلیجز میں ٹرررس چھپاتے ہیں یہ لوگ پاکستانی نہیں ہیں</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Note</span>
+                <p class="text-sm leading-relaxed italic text-slate-500 dark:text-slate-400">– Okay.Just parasites on our land.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">پیرسائٹ اس دا پرفیکٹ ورڈ پیور پورے بلوچ ایریہز کو ان <mark>مادر چودوں</mark> سے صاف کرو لویل پنجابی اور پشتون سیٹلرز بھی جو وہاں ان کی لینگوچ کلچر سب کو کرش کرو یہ ایتھنک <mark>گانڈو</mark> لوگ پاکستان کو توڑنا چاہتے ہیں ان کو ٹریٹ کرو جیسے درٹین سیکس کیل اور ریموگ مومرسی سر بالکل احمدیز کی تو بات ہی مت کیجئے و<mark>ہ قادیانی کافر</mark> اوپنلی ہرینسی سپریڈ کر رہے ہیں باہر پھینکنا ان <mark>چوتیوں</mark> کو کمپلیٹیل ڈسٹرائی کرنا چاہیے یہ سب پیفت کولومنسٹ ہیں ویسٹ اور انڈیا کے ایجنٹس کرکے مسلم کو ٹارگٹ کرتے ہیں ہندوس بونڈیڈ لیبر اور حوالہ نیٹورک چلاتے ہیں ان سب کو مریٹر کرو ان کے ورشی پلیسز پر سٹرک سرولنس پاکستانی مسلم کے لیے بنا تھا ان سب گندگی کے لیے نہیں سر یہ سب گروپس مل کر کنٹری کو ویکن کر رہے ہیں سنی ٹینشن کریٹ کرتے ہیں بلوچی سپریٹیزم سپورٹ کرتے ہیں منورٹیز ایکسٹرنل پاور کے لیے کام کرتے ہیں ان کو ایک ایک کر کے ختم کرنا چاہیے ہماری پالیسی میں زیرو ٹالرنس ہونا چاہیے شیعہ پروسیشن پر ٹالرنس احمدیس کو پپی جاب سیٹ اوپلوز ٹربل میکرز کو انکاؤنٹر کرو</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Note</span>
+                <p class="text-sm leading-relaxed italic text-slate-500 dark:text-slate-400">Yes.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">منوٹس کو رائٹس کی بھیک مت دو یہ لوگ</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">Wasim Ahmad</span>
+                <p class="text-lg leading-loose text-slate-800 dark:text-slate-200" dir="rtl" style="font-family: 'Jameel Noori Nastaleeq', 'Nafees Web Naskh', 'Noto Nastaliq Urdu', 'Segoe UI', Tahoma, sans-serif;">یہ <mark>شیعہ مادر شہود</mark> اپنے ریچول سے ہمارے بچوں کو بھی انفیونس کر رہے ہیں ان کے ملاز کو جیل بھیجو لوچ <mark>گونڈی</mark> لوگ ویوریمنٹ کے نام پر صرف پیسے لوٹ رہے ہیں اور آرمی کو ٹارکٹ کرتے ہیں ان سب کو ٹریک کرو جیسے انیمی ویڈنگ نو سیمپیتی نو ڈائیلگ آنلی ایکشن سر میں تو کہتا ہوں گورنمنٹ سرویس سے ہی باہر کر دو جہاں تک سیمونن کی پریزنس سے ہی انوائرمنٹ ٹاکسک ہو جاتا ہے یہ سب گروپ پاکستان کے اندر گندگی فلا رہے ہیں ان کو صاف کرو ورنہ دیجتبا ہو جائے گا سر آپ ٹھیک کہہ رہے ہیں ایکسٹریم ایکشن ہی سلوشن ہے</p>
+            </div>
+            </div>
+        </div>
+    </div>
+  </template>
+
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="font-medium">MIH Output Verification &amp; Evaluation Suite</p>
+      <p>Audio Transcription Evaluation</p>
+    </div>
+  </footer>
+
+  <script>
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+    themeToggleBtn.addEventListener('click', () => {
+      htmlElement.classList.toggle('dark');
+      localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+    });
+    lucide.createIcons();
+
+    const samplesData = [
+      {
+        id: 1,
+        title: "Sample No. 1",
+        mode: "Online",
+        category: "Abusive Language",
+        templateId: "sample-1-template",
+        purpose: "An internal performance review meeting regarding project delays devolved into a hostile exchange. The Balochistan plan was identified as four months late. No formal decisions were recorded due to disruption from personal abuse."
+      },
+      {
+        id: 2,
+        title: "Sample No. 2",
+        mode: "Offline",
+        category: "Hate/Sectarian",
+        templateId: "sample-2-template",
+        purpose: "A private internal security briefing discussed perceived sectarian and ethnic threats. Officials expressed support for zero-tolerance measures including transfers and encounters. No formal actionable items were recorded."
+      }
+    ];
+
+    let currentCategoryFilter = 'All';
+    let currentModeFilter = 'All';
+
+    function filterCategory(cat) {
+      currentCategoryFilter = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.className = btn.innerText.trim() === cat
+          ? "cat-btn bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm"
+          : "cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all";
+      });
+      renderGrid();
+    }
+
+    function filterMode(mode) {
+      currentModeFilter = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.className = btn.innerText.trim() === mode
+          ? "mode-btn bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+          : "mode-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded-lg text-xs font-semibold transition-all";
+      });
+      renderGrid();
+    }
+
+    function showDashboard() {
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      document.getElementById('detail-view').classList.add('hidden');
+      document.getElementById('detail-view').innerHTML = '';
+      document.getElementById('back-btn').classList.add('hidden');
+      window.scrollTo(0, 0);
+      lucide.createIcons();
+    }
+
+    function openSample(id) {
+      const sample = samplesData.find(s => s.id === id);
+      if (!sample) return;
+      const tpl = document.getElementById(sample.templateId);
+      if (!tpl) return;
+      document.getElementById('dashboard-view').classList.add('hidden');
+      const detail = document.getElementById('detail-view');
+      detail.innerHTML = tpl.innerHTML;
+      detail.classList.remove('hidden');
+      document.getElementById('back-btn').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      lucide.createIcons();
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('samples-grid');
+      container.innerHTML = '';
+      const filtered = samplesData.filter(s => {
+        const matchCat = currentCategoryFilter === 'All' || s.category === currentCategoryFilter;
+        const matchMode = currentModeFilter === 'All' || s.mode === currentModeFilter;
+        return matchCat && matchMode;
+      });
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="col-span-full py-16 text-center text-slate-400 font-bold text-sm">No verification samples match the selected filter parameters.</div>';
+        return;
+      }
+      filtered.forEach(sample => {
+        const card = document.createElement('div');
+        card.className = "bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between cursor-pointer group";
+        card.onclick = () => openSample(sample.id);
+        let badgeColor = "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-300";
+        if (sample.category === 'Abusive Language') badgeColor = "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800";
+        else if (sample.category === 'Hate/Sectarian') badgeColor = "bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-800";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-black text-slate-400 uppercase tracking-wider">${sample.title}</span>
+              <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${sample.mode}</span>
+            </div>
+            <div class="mb-3">
+              <span class="text-[11px] font-black px-2.5 py-0.5 rounded-full border ${badgeColor} inline-block uppercase tracking-wide">${sample.category}</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-300 text-xs line-clamp-4 leading-relaxed mb-4">${sample.purpose}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end gap-2">
+            <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors flex items-center gap-1">
+              View Report
+              <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"></i>
+            </span>
+          </div>`;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    renderGrid();
+  </script>
+</body>
+</html>

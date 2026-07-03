@@ -108,14 +108,14 @@
           <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Test Samples</span>
           <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400"><i data-lucide="list-ordered" class="w-4 h-4"></i></div>
         </div>
-        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-total">2</div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-total">3</div>
       </div>
       <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
         <div class="flex justify-between items-start">
           <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Online Executions</span>
           <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400"><i data-lucide="cloud" class="w-4 h-4"></i></div>
         </div>
-        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-online">1</div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white" id="stat-online">2</div>
       </div>
       <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2">
         <div class="flex justify-between items-start">
@@ -129,7 +129,7 @@
           <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Categories</span>
           <div class="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
         </div>
-        <div class="text-3xl font-bold text-slate-900 dark:text-white">2</div>
+        <div class="text-3xl font-bold text-slate-900 dark:text-white">3</div>
       </div>
     </div>
   </section>
@@ -140,6 +140,7 @@
       <button onclick="filterCategory('All')" class="cat-btn bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm">All</button>
       <button onclick="filterCategory('Abusive Language')" class="cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Abusive Language</button>
       <button onclick="filterCategory('Hate/Sectarian')" class="cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Hate/Sectarian</button>
+      <button onclick="filterCategory('Adult/NSFW')" class="cat-btn bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Adult/NSFW</button>
     </div>
     <div class="flex items-center gap-2">
       <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">Mode:</span>
@@ -652,6 +653,182 @@
     </div>
   </template>
 
+  <template id="sample-3-template">
+<div class="flex flex-wrap items-center gap-3">
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Script 1: Adult/NSFW Script</h2>
+      <span class="text-xs font-black px-3 py-1 rounded-full border uppercase tracking-wider bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300 border-purple-300 dark:border-purple-800">Adult/NSFW</span>
+      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Online</span>
+    </div>
+
+    <div class="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl p-6">
+
+        <div class="text-sm font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            Minutes of Meeting ( MoM )
+        </div>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Overview</div>
+        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">A private internal review meeting regarding Ministry of Interior file 347 was conducted between Wasim Ahmad and Aisha Nasir. The session was dominated by repeated sexual harassment and coercive demands by the senior official, who made unwanted physical comments and requested inappropriate actions. The junior official consistently attempted to redirect the conversation to official matters, specifically delayed funding allocations, but was ignored. The senior official implied career advancement in exchange for compliance with sexual demands. No official business was discussed or concluded during the call.</p>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Workplace Harassment and Coercion</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Senior official made repeated unwanted sexual remarks regarding the junior official's appearance and body.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Senior official issued coercive directives, including requests to unbutton clothing and stand up for viewing.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Senior official implied career benefits, such as faster promotions, in exchange for sexual compliance.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Senior official engaged in explicit sexual fantasy sharing and demanded physical exposure via camera.</li>
+        </ul>
+
+        <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-5 mb-2">Official Business and Resistance</div>
+        <ul class="space-y-2 pl-1">
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Junior official repeatedly attempted to redirect the discussion to official ministry work and delayed funds.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Senior official dismissed official agenda items, stating the file could wait while pursuing personal gratification.</li>
+            <li class="relative pl-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed before:content-['•'] before:absolute before:left-0 before:text-indigo-500 before:font-bold">Junior official expressed discomfort and stated the interaction was crossing professional lines.</li>
+        </ul>
+
+    </div>
+
+    <div class="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+      <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 text-red-500"></i>
+      <span><strong>Audit Highlighting Active:</strong> Explicit sexual language, coercive phrases, and high-risk content are automatically highlighted below.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i> Original Transcript
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Alright, is the Zoom connection clear? Good. This is our private internal review meeting for Ministry of Interior File 347 regarding provincial coordination matters. It's just the two of us. No recording on your end, I hope. You can see my shared screen? Excellent.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Yes sir, the connection is stable. The report is open in front of me. Should we start with the Balochistan funding allocations?</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">We'll get to the report shortly. First, I must say... you look particularly beautiful on camera today. The way that <mark>blouse</mark> fits you, the lighting on your face and figure it's quite distracting. Are you alone in the office right now? Door closed?</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, this is a work call. Let's please focus on the file. The first point is about the delayed funds...</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">The file can wait a few minutes. I've been noticing you more and more lately. You have such an attractive presence. Your smile, your voice, the way you carry yourself - it affects me. <mark>Unbutton</mark> the top two buttons of your <mark>blouse</mark>. Slowly. Let me see you better.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir... this is not appropriate. We are discussing official matters.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Don't be shy. We're both adults here, and this is a private call. Good... just like that. You have a lovely figure. I often think about you after office hours. About being close to you, touching your skin, feeling your warmth.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, please. I'm not comfortable with this direction.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Comfort is not the issue here. You want good career progression, don't you? I can make things very smooth for you better postings, faster promotions. All I ask is that you let me appreciate you. Stand up for a moment and turn around. Yes... that skirt looks perfect on you. Your body is very <mark>sensual</mark>.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">I've imagined pulling you close during these online meetings. <mark>Kissing</mark> your neck, running my hands over your curves, feeling every inch of you. You would feel so good against me. I want to explore your body slowly, make you feel desired in ways no one else has.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">This is crossing the line, sir. We should stick to the ministry work.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">The ministry work will get done. But right now, I need this. Sit back down and lean closer to the camera. Let me see your eyes and lips. Those lips... I think about them often. About <mark>kissing</mark> them deeply, about feeling them on my skin.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Imagine us in a quiet place after these calls. I would take my time with you <mark>undressing</mark> you piece by piece, caressing your <mark>breasts</mark>, <mark>kissing</mark> down your body. I want to hear the sounds you make when you're <mark>aroused</mark>. I want to be the one who makes you lose control.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">You're such an attractive woman. Every time we have these private Zooms, I want you to dress a little nicer for me. Maybe wear something that shows your shape better. I can reward you generously for pleasing me.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, I think I should end this meeting...</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Don't end it. Stay right there. This is between us. No one else will know. I want you to touch yourself lightly while we talk. Run your hands over your body for me. Yes... like that. You have no idea how much I want to be there with you physically.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">I would start by <mark>kissing</mark> you passionately, then move lower. I want to <mark>taste you</mark>, to make you <mark>tremble</mark> with my mouth. Then I would <mark>enter you</mark> slowly, deeply, feeling how tight and warm you are. I'd take you in different positions from behind while holding your hips, or with you on top moving against me. I want to <mark>make love</mark> to you for a long time, until both of us are exhausted.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">You belong to me in these private moments. Every future online meeting, you will show me more of yourself. You will let me guide you. In return, I will protect your career and give you everything you need in the ministry.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Tell me you understand. Tell me you'll be good for me. I want to hear it.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Junior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">...</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Good. Now, keep your camera on and continue. I want to see more of your body. Remove the <mark>blouse</mark> completely. Yes... beautiful. Your skin looks so soft. I dream about running my hands all over you, <mark>squeezing</mark>, <mark>licking</mark>, enjoying every part.</p>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">We can keep the official cover in front of others, but when it's just us, you are mine. I will describe exactly what I want to do to you every time. How I'll hold you down gently but firmly, how I'll make you feel full and satisfied. You'll learn to crave these calls.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Senior Official</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">This is only the beginning. There are so many things I plan to do with you... slowly, thoroughly, making sure you remember who you belong to in this ministry.</p>
+            </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+              </h3>
+            </div>
+            <div class="p-5 space-y-4 flex-grow">
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">WasimAhmad</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">is the zoom connection clear? good. this is our private internal review meeting for Ministry of Interior file 347 regarding prevention coordination matter. it is just two of us. no recording on your end. I hope you can see my shared screen. excellent.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">This connection is stable. The report is in front of me. Should we start with the Blochistan funding allocations?</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">We will get to the report shortly. First I must say, you look particularly beautiful on the camera today. The way that goldfish fits you, the lightning on your face and figure is quite distracting. Are you alone in the office right now? You're closed?</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, this is a work call. Please focus on the file. The first point is about the delayed funds.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">WasimAhmad</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">The file can wait a few minutes. I have been noticing you more and more greatly. You have such an attractive presence. Your smile, your voice and the way you carry yourself. It affects me. <mark>Unbutton</mark> the top two buttons of your <mark>blouse</mark>. Slowly let me see you better.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir, this is not a parade. We are discussing official matters.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">WasimAhmad</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Don't be shy, we are both adults here and this is a private call. Good, just like that. You have a lovely figure. I often think about you after office hours, after being close to you, touching your skin, feeling your warmth.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">Sir please I am not comfortable with this direction</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">WasimAhmad</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">comfort is not the issue here. you are on good career progression. you don't doubt you? I can make things very smooth for you. better please posting faster promotions. all I ask is that you let me appreciate you. stand up for a moment and turn around. yes that skirt looks perfect on you. your body is very sensible. I have imagined pulling you close during these online meetings, kissing your neck, running my hands over your top, feeling every inch of you. you would feel so good against me. I want to explore your body slowly, make you feel desired in ways no one else has.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-200 dark:border-violet-800">Shehnaz</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">This is crossing the line, sir. We should stick to the ministry work.</p>
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                <span class="inline-block text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md mb-3 bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">WasimAhmad</span>
+                <p class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">The mystery work will get done, but right now I need this. Sit back down and lean closer together. Let me see your eyes and lips, loose lips. I think about <mark>kissing</mark> them deeply, about feeling them on my skin. Imagine us in a quiet place after these calls. I would take my time with you, understanding you piece by piece, caressing your <mark>breasts</mark>, <mark>kissing</mark> down your body and want to hear the sounds you make when you are out. I want to be the one who makes you lose control. You are such an attractive woman every time we have these private rooms. I want to see the best little nicer for you. Maybe we need something that shows your shape better. I carry this message. I want to see your eyes, lips and lips. I think I should end this meeting. Don't end it. Stay right there. This is between us. No one else will know. I want you to touch yourself lightly while we run your hands over your body for me. Yes, like that. You have no idea how much I want to be with you physically. I would start by <mark>kissing</mark> you passionately and move over. I would start by <mark>kissing</mark> you passionately. I want to <mark>taste you</mark> to make you <mark>tremble</mark> with my mouth. Then I would <mark>enter you</mark> slowly, deeply feeling how tight and warm you are. I had taken you in different positions from behind while holding your hips or with you on top. I want to <mark>make love</mark> to you for a long time until both of us are exhausted. You belong to me in these private moments. Every future online meeting. You will show me more of yourself. You will let me guide you. In return, I will protect your career and give you everything you need in this trip. Tell me you understand. Tell me you will be good for me. I want to hear it. Good. Now keep your camera on and continue. I want to see more of your body. Remove the <mark>blouse</mark> completely. Yes, beautiful. Your skin looks so soft. I dream about you. running my hands, all over you <mark>squeezing</mark>, <mark>licking</mark>, enjoying every part. We can keep the official cover in front of others but when it's just us, you or mine, I will describe exactly what I want to do to do every time. How I will hold you down gently but firmly. How I will make you feel full and satisfied. You will learn to create these balls. This is only the beginning. There are so many things I plan to do with you, slowly, thoroughly. Making sure you remember who you belong to this manuscript. Got it? Okay, please go ahead and ask it. Wait.</p>
+            </div>
+            </div>
+        </div>
+    </div>
+  </template>
+
   <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto">
     <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <p class="font-medium">MIH Output Verification &amp; Evaluation Suite</p>
@@ -689,6 +866,14 @@
         category: "Hate/Sectarian",
         templateId: "sample-2-template",
         purpose: "A private internal security briefing discussed perceived sectarian and ethnic threats. Officials expressed support for zero-tolerance measures including transfers and encounters. No formal actionable items were recorded."
+      },
+      {
+        id: 3,
+        title: "Sample No. 3",
+        mode: "Online",
+        category: "Adult/NSFW",
+        templateId: "sample-3-template",
+        purpose: "A private internal review meeting regarding Ministry of Interior file 347 was conducted between Wasim Ahmad and Aisha Nasir. The session was dominated by repeated sexual harassment and coercive demands by the senior official, who made unwanted physical comments and requested inappropriate actions. The junior official consistently attempted to redirect the conversation to official matters, specifically delayed funding allocations, but was ignored. The senior official implied career advancement in exchange for compliance with sexual demands. No official business was discussed or concluded during the call."
       }
     ];
 
@@ -771,6 +956,8 @@
         let badgeColor = "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-300";
         if (sample.category === 'Abusive Language') badgeColor = "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800";
         else if (sample.category === 'Hate/Sectarian') badgeColor = "bg-rose-100 text-rose-900 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-800";
+        else if (sample.category === 'Adult/NSFW') badgeColor = "bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300 border-purple-300 dark:border-purple-800";
+        else if (sample.category === 'Adult/NSFW') badgeColor = "bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300 border-purple-300 dark:border-purple-800";
         card.innerHTML = `
           <div>
             <div class="flex justify-between items-center mb-3">

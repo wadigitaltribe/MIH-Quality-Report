@@ -178,11 +178,18 @@ function modeTagHtml(mode){
 }
 
 // ── routing ────────────────────────────────────────────────────────────────────
+function getSampleIdFromUrl(){
+  const m = location.hash.match(/^#sample-(\d+)$/i);
+  if (m) return Number(m[1]);
+  const q = new URLSearchParams(location.search).get('sample');
+  return q ? Number(q) : null;
+}
 function showDashboard(){
   document.getElementById('dashboard').classList.remove('hidden');
   document.getElementById('detail').classList.add('hidden');
   const bb = document.getElementById('back-btn');
   bb.classList.add('hidden'); bb.classList.remove('flex');
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
 }
 function showDetail(id){
   const s = SAMPLES.find(x=>x.id===id); if(!s) return;
@@ -223,6 +230,12 @@ function showDetail(id){
   if(/[\u0600-\u06FF]/.test(s.r_html)){refPanel.classList.add('urdu-text');refPanel.setAttribute('dir','rtl');}
   else{refPanel.classList.remove('urdu-text');refPanel.removeAttribute('dir');}
   refPanel.innerHTML = s.r_html;
+  history.replaceState(null, '', '#sample-' + id);
+}
+
+function openSampleFromUrl(){
+  const id = getSampleIdFromUrl();
+  if (id && SAMPLES.some(x => x.id === id)) showDetail(id);
 }
 
 // ── render dashboard ──────────────────────────────────────────────────────────
@@ -329,6 +342,7 @@ function renderDashboard(){
 }
 
 renderDashboard();
+openSampleFromUrl();
 </script>
 </body>
 </html>

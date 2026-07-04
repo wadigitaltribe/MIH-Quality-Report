@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detailed EN-UR WER Analysis Report</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' };
+  (function() {
+    var t = localStorage.getItem('color-theme');
+    if (t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .bg-mesh {
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 50%, #f0f4f8 100%);
+    background-size: 200% 200%;
+    animation: grad 15s ease infinite;
+  }
+  .dark .bg-mesh { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); }
+  @keyframes grad { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
+  
+  .glass-nav {
+    background: rgba(255, 255, 255, .72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
+  }
+  .dark .glass-nav {
+    background: rgba(15, 23, 42, .72);
+    border-bottom: 1px solid rgba(255, 255, 255, .05);
+  }
+  
+  .glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, .82) 0%, rgba(255, 255, 255, .44) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, .07);
+    transition: all .4s cubic-bezier(.4, 0, .2, 1);
+  }
+  .dark .glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, .01) 100%);
+    border: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, .3);
+  }
+  .glass-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    border: 1px solid rgba(99, 102, 241, .35);
+    box-shadow: 0 15px 40px 0 rgba(99, 102, 241, .15);
+  }
+  .dark .glass-card:hover {
+    border: 1px solid rgba(99, 102, 241, .45);
+    box-shadow: 0 15px 40px 0 rgba(99, 102, 241, .22);
+  }
+  
+  .wer-track { background: rgba(99, 102, 241, .12); border-radius: 9999px; height: 6px; overflow: hidden; }
+  .dark .wer-track { background: rgba(99, 102, 241, .22); }
+  
+  .wc { color: inherit; }
+  .ws { background: rgba(239, 68, 68, .18); color: #b91c1c; border-radius: 3px; padding: 0 2px; cursor: help; font-weight: 500; }
+  .dark .ws { background: rgba(239, 68, 68, .28); color: #fca5a5; }
+  .wi { background: rgba(234, 179, 8, .18); color: #a16207; border-radius: 3px; padding: 0 2px; }
+  .dark .wi { background: rgba(234, 179, 8, .28); color: #fde047; }
+  .wd { background: rgba(99, 102, 241, .15); color: #4338ca; border-radius: 3px; padding: 0 2px; text-decoration: line-through; font-style: italic; }
+  .dark .wd { background: rgba(99, 102, 241, .28); color: #a5b4fc; }
+  
+  .text-panel { line-height: 2.2; font-size: 1rem; word-break: break-word; }
+  .panel-scroll { max-height: calc(100vh - 340px); min-height: 350px; overflow-y: auto; padding-right: 8px; }
+  .stat-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+</style>
+</head>
+<body class="bg-mesh text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-300">
+
+<nav class="fixed top-0 left-0 w-full glass-nav z-50 px-6 py-4 flex justify-between items-center transition-colors duration-300">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-500/30">
+      <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+    </div>
+    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">MIH Analytics Hub</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <a href="index.html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm transition-colors">
+      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+      Home
+    </a>
+    <button id="back-btn" onclick="showDashboard()" class="hidden items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>Dashboard
+    </button>
+    <button id="theme-toggle" class="text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg p-2.5 transition-colors">
+      <svg id="icon-dark" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+      <svg id="icon-light" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div id="dashboard" class="pt-28 pb-16 px-6">
+  <div class="max-w-6xl mx-auto relative">
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+    
+    <header class="mb-12 text-center relative z-10">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
+        Transcription <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">WER Analysis</span>
+      </h2>
+      <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-light">
+        Intelligent Word Error Rate analysis for MIH Mixed EN/Urdu samples. Click on any sample to view exact word highlighting and error tracking.
+      </p>
+    </header>
+
+    <div class="flex flex-wrap items-center justify-center gap-6 mb-10 text-sm text-slate-600 dark:text-slate-400 relative z-10">
+      <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>WER &lt; 20% — Good</span>
+      <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>WER 20–40% — Moderate</span>
+      <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>WER &gt; 40% — High</span>
+    </div>
+
+    <div class="mb-10 glass-card rounded-2xl p-6 relative z-10">
+      <h3 class="text-lg font-semibold mb-4 text-slate-700 dark:text-slate-300">Overall Summary</h3>
+      <div id="summary-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center"></div>
+    </div>
+
+    <div id="sample-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10"></div>
+  </div>
+</div>
+
+<div id="detail" class="hidden pt-28 pb-16 px-6 relative z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-5">
+      <h2 id="detail-title" class="text-2xl font-bold text-slate-900 dark:text-white mb-2"></h2>
+      <div id="detail-stats" class="flex flex-wrap gap-2 mt-2"></div>
+    </div>
+    <div class="flex flex-wrap items-center gap-5 mb-6 text-sm font-medium text-slate-600 dark:text-slate-400">
+      <span><span class="ws px-2 py-0.5 mr-1">word</span>Substitution — wrong word</span>
+      <span><span class="wi px-2 py-0.5 mr-1">word</span>Insertion — extra in MIH output</span>
+      <span><span class="wd px-2 py-0.5 mr-1">[word]</span>Deletion — missing from MIH output</span>
+      <span class="text-slate-400 italic">Hover over a substitution to see what was expected.</span>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">MIH System Output</h3>
+          <span class="text-xs px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Hypothesis</span>
+        </div>
+        <div id="mih-panel" class="text-panel panel-scroll" dir="auto"></div>
+      </div>
+      
+      <div class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">Reference Ground Truth</h3>
+          <span class="text-xs px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Target</span>
+        </div>
+        <div id="ref-panel" class="text-panel panel-scroll" dir="auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Toggle Theme Logic
+const themeToggleBtn = document.getElementById('theme-toggle');
+const darkIcon = document.getElementById('icon-dark');
+const lightIcon = document.getElementById('icon-light');
+
+if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    lightIcon.classList.remove('hidden');
+} else {
+    darkIcon.classList.remove('hidden');
+}
+
+themeToggleBtn.addEventListener('click', function() {
+    darkIcon.classList.toggle('hidden');
+    lightIcon.classList.toggle('hidden');
+    if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('color-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('color-theme', 'light');
+        }
+    } else {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('color-theme', 'light');
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('color-theme', 'dark');
+        }
+    }
+});
+
+// Data Payload from Uploaded Documents
+const rawSamples = [
+    {
+        id: 2,
+        title: "Sample 2 (Urdu/EN Conversational)",
+        ref: `ہاں کدھر پہنچے بھائی میں پہنچ گیا ہوں یہاں کہاں ہے اپ کا گھر ارے اس کی بالکل پیچھے گلی میں ہوں میں اچھا پیچھے والی گلی میں اؤ پان کا کھوکھا ہوگا شمی کا شمی شمی کا وہاں سے اگے اؤ لال کھنبے کے برابر والا گھر ہے بھائی بھائی یہ تو بہت اندر ہے بہت مشکل راستہ ہے پانچ سو اور اچھا یار اجا یار اجا پانچ سو لے کے کون سا تو بنگلہ بنا لے گا جلدی ا بھائی سامان بھیجنا ہے یار لو بھائی تو ایک کام کر سموسے لے کے ا پھر چلتے ہیں ابے دیکھ یار عجیب ان کی یار تم اتنی ٹینشن کیوں لے رہے ہو مطلب صرف سامان ہی تو بھجوانا ہے تو بھائی کسی نے تو ذمہ داری لینی ہے اس گھر کی خود راجو راکٹ بن کے کھڑا ہے اسٹائل میں ساری ٹینشنیں لے لے کے سارے بال پھسل کے ٹینشنیں رہ گئی ہیں یہاں پہ ابھی پیچھے چورنگی پہ اس نے مجھ سے پندرہ سو میں ڈن کیا کہ بھائی پندرہ سو میں لے آؤں گا گاڑی اب کہہ رہا ہے دو ہزار لوں گا یہ کاہے کی بات ہے یہ کاہے کی انسانیت ہے یہ ارے فون ا رہا ہے مجھے لگ رہا ہے اسی کا ہوگا رک میں بات دیکھ کے ا رہا ہوں ایک سیکنڈ ہیلو کدھر رہ گئے ہاں بھائی میں تین تلوار پر اگیا ہوں ارے بھائی تین تلوار کہاں پہنچ گیا دو تلوار بولا ہے دو ون ٹو ارے تو یہ اپ کو پہلے بتانا چاہیے تھا نا ابے یار بھائی کیا ٹوپیاں کرا رہا ہے بھائی میرا ٹائم ضائع ہو رہا ہے جلدی اجا یار ٹھیک ہے بھائی میں ا رہا ہوں لیکن پچیس سو دینے پڑیں گے اب تو اور پانچ سو کیوں بڑھا رہا ہے اپ کے غلط ایڈریس کی وجہ سے میرا پیٹرول جل گیا ابے یار اب تو بول رہا ہے پیٹرول بھی ہے پھر بولے گا شام کی دال روٹی بھی مجھے کرا دو سارا میں ذمہ داری لوں تیری زندگی کی بھائی کدھر رہ گیا خواری کرا دی ہے یار اس سے بہتر جنید بھائی کو دوسرا اپشن بتاتا ہوں اجا بھائی جلدی سے اجا یار ابے باہر کوئی ہے ہی نہیں یار تو ایسے ہی خوار کرا رہا ہے پوری خالی پڑی ہوئی ہے گلی ابے بھائی مجھے بندہ جھول لگ رہا ہے جو ابھی پہنچا نہیں ہے اتنی ٹینشنیں دے رہا ہے یہاں ا کے نا میرا دماغ گھما دے گا اور میں پھر ٹکر مار دیتا ہوں تجھے پتہ ہے نو نہ چھیڑو نہ چھیڑ ہیلو ابے ایک کام کر اب تو مت ا نہیں یار میں میں بائیک پہ کر لوں گا شفٹنگ میں پیدل کر لوں گا نہیں ا ادھر نہیں چاہیے میرے کو تو فون رکھ رکھ یار تم بھی ویسے عجیب پریشان ہو رہے ہو یہ لو ان ڈرائیو یہاں سارا کام اسان ہو جائے گا ابے بھائی ان ڈرائیو میں صرف بندے یہاں سے وہاں جاتے ہیں سامان کہاں ائے گا اس میں یار ارے کار کوریئر اور فریٹ ال ان ون سولیوشن ہے ہیں پیسے بھی خود نیگوشیٹ کرو اور سب کچھ ہوتا ہے اسانی سے ارے بھائی میں کیسے بھروسہ کر لوں سامان اگے پیچھے ہو گیا ریٹ میں اوپر نیچے ہو گیا کون ذمہ داری لے گا یار ڈرائیورز سارے ڈاکومنٹڈ ہیں اور گاڑی کا جھنجھٹ بھی نہیں ہوگا اپنی مرضی کی کار منگائیں اپنے سامان کے حساب سے ایک بات نو بکواس بہت ٹائٹ یار ابے تو جب تیرے پاس یہ سولیوشن ہے اتنی دیر سے تو یہاں ایکشن کیوں مار رہا تھا پہلے نہیں بتا سکتا تھا تو اب بتا دیا نا کرنا بک کر اس کو ہاں ہاں الریڈی بک کر دی تھی جب تم اگ بگولا ہو رہے تھے ارے یہ لو ا بھی گیا چلو اجاؤ چلو واہ رے واہ ارے بھائی بھائی بھائی ہاں بھائی سیدھے ہاتھ آؤں یا الٹے ہاتھ بیٹا ایک کام کر تو نا سیدھا اوپر چلا جا کیونکہ اب تیری ضرورت نہ مجھے ہے نہ اس دنیا کو ٹھیک ہے نا خلی ولی تو بھئی یہ فریٹ سروس بھی ان ڈرائیو پہ موجود ہے اگر اپ کو گھر کی شفٹنگ کرنی ہو افس کا سامان یہاں سے وہاں کرنا ہو خلی ولی ان ڈرائیو کو ڈاؤن لوڈ کریں بلائیں ڈرائیور فورا ا جائے گا ریلائبل سروس ہے اچھے پیسوں میں اپ کا سامان یہاں سے وہاں موو ہو جائے گا ورنہ یہ ڈرائیور اپ کا سامان تو کہیں نہیں گھما دیں گے تو ان ڈرائیو اج ہی ڈاؤن لوڈ کریں شکریہ`,
+        hyp: `کہاں تیدر پہنچے بھائی میں پہنچ کے ہوں یہاں کہاں ہے آپ کا گھر ارے اس کے بالکل پیچھے گلی میں ہوں میں اچھا پیچھے والی گلی میں آؤ پان کا کھوکھا ہوگا شمی کا شمی شمی کا وہاں سے آگے آؤ لال کھمبے کے برابر والا گھر ہے۔ بھائی بھائی یہ تو بہت اندر ہے بہت مشکل راستہ ہے پانچ سو اور اچھا یار آجا یار آجا پانچ سو لے کے کون سا تو بنگلہ بنا لے گا جلدی۔ آ بھائی سمان بھیجنا ہے یار لو بھائی تو ایک کام کر سموسے لے کے آ پھر چلتے ہیں ابے دیکھ یار عجیب ان کی یار تم اتنی tension کیوں لے رہے ہو مطلب صرف سامان ہی تو بجوانا ہے تو بھائی کسی نے تو ذمہ داری لینی ہے اس گھر کی خود راجو راکٹ بن کے کھڑا ہے style میں ساری ٹینشنیں لے لے کر سارے بال فسل کے ٹینشنیں رہ گئی ہیں۔ یہاں پہ ابھی پیچھے چرنگی پہ اس نے مجھ سے پندرہ سو میں done کیا کہ بھائی پندرہ سو میں لے آؤں گا۔ گاڑی اب کہہ رہا ہے دو ہزار لوں گا یہ کہے کی بات ہے یہ کہے کی انسانیت ہے یہ فون آ رہا ہے مجھے لگ رہا ہے اسی کا ہوگا، رکھ میں بات کر کے دیکھ کے آ رہا ہوں، ایک second، hello کدھر رہ گئے، ہاں بھائی میں تین تلوار پر آ گیا ہوں۔ ری بھائی تین تلوار کہاں پہنچ گیا؟ دو تلوار بولا ہے، دو، ون، ٹو، ارے، تو یہ آپ کو پہلے بتانا چاہیے تھا نا؟ ابے یار بھائی کیا ٹوپیاں کرا رہا ہے بھائی میرا time زائن ہو رہا ہے جلدی آ جا یار اردو اور English ملا کر بولی گفتگو ہے۔ deadline submit meeting project office آپ کے غلط address کی وجہ سے میرا پیٹرول جل گیا۔ ابے، یار اب بول رہا ہے پیٹرول بھی ہے پھر بولے گا شام کی دال روٹی بھی مجھے کروا دو۔ سارا میں ذمہ داری لوں دری زندگی کی بھائی کدھر رہ گیا ہے خواری کرا دی ہے یار اس سے بہتر جنید بھائی کو دوسرا office بتاتا ہوں آجا بھائی جلدی سے آجا یاد اب باہر کوئی ہے ہی نہیں یار تو ایسے ہی خوار کرا رہا ہے پوری خالی پڑی ہے گلی اب بھائی مجھے بندہ جھول لگ رہا ہے جو ابھی پہنچا نہیں ہے۔ اتنی تنشن دے رہا ہے یہاں کہ میرا دماغ گھما دے گا اور میں پھر ٹکر مار دیتا ہوں مجھے پتا ہے۔ No, نہ چھیڑو نہ چھیڑو Hello! اوے ایک کام کر اب تو مت آ نہیں یار میں بائیک پہ کر لوں گا shifting میں پیدل کر لوں گا نہیں ادھر نہیں چاہیے میرے کو تو فون رکھ یار تو بھی ویسے عجیب پریشان ہو ہو رہے ہو یہ لو ان ان drive یہاں سارا کام آسان ہو جائے گا ابھی بھائی ان drive میں صرف بندے یہاں سے وہاں جاتے ہیں سامان کہاں آئے گا اس میں اس میں یارے، کار، کوریر اور فریٹ all in one solution ہے۔ پیسے بھی خود نیگوشیئٹ کرو اور سب کچھ ہوتا ہے آسانی سے۔ ری بھائی میں کیسے بھروسہ کرلوں سامان آگے پچھے ہو گیا ریٹ میں اوپر نیچے ہو گیا کون ذمہ داری لے گا یار ڈرائیور سارے documented ہیں۔ اور گاڑی کا جھنجڑ بھی نہیں ہوگا۔ اپنی مرضی کی car مانگائیں، اپنے سامان کے حساب سے ایک بات no بکواس۔ بہت tight یار ابے تو جب تیرے پاس کی solution ہے اتنی دیر سے تو یہاں action کیوں مار رہا تھا؟ اگر آپ کو اردو پہلے نیچے بتا سکتا تھا تو اب بتا دیا نا کرنا book کر اس کو ہاں ہاں already book کر دی تھی جب تم آگ بگولہ ہو رہے تھے ارے یہ لو ابھی گیا آ بھی گیا چلو آ جاؤ چلو واہ رے واہ ارے بھائی بھائی بھائی ہاں بھائی سیدھے ہاتھ آؤں یا الٹے ہاتھ لیٹا ایک کام کر تو نہ سیدھا اوپر چلا جا کیونکہ اب تیری ضرورت نہ مجھے ہے نہ اس دنیا کو خلی ویلی تو گھری ہے pet service بھی in drive پر موجود ہے اگر آپ کو گھر کے shifting کرنی ہے office کا سامان یہاں سے وہاں کرنا ہو خلی ویلی in drive کو download کریں بلائیں driver فورا آ جائے گا reliable service ہے اچھے پیسوں میں آپ کا سمان یہاں سے وہاں move ہو جائے گا مرنہ یہ driver آپ کا سمان تو کہیں نہیں گما دیں گے تو ان drive آج ہی download کریں شکریہ`
+    },
+    {
+        id: 4,
+        title: "Sample 4 (Formal Speech EN/UR)",
+        ref: `السلام علیکم ریسپیکٹڈ سپیکر، اونریبل میمبرز اور میرے ڈیئر پاکستانیز Today I stand here to speak about the role of Pakistan parliament. Parliament is not just a building in Islamabad. It is the voice of people. یہاں ہر پرووینس، ہر شہر، ہر گاؤں سٹیجن کی ریپریزنٹیشن ہوتی ہے This house has the power to make laws, question policies, and protect democracy. لیکن صرف سپیچز سے ملک چینج نہیں ہوتا we need action, accountability, and honesty. عوام ہم سے پرومیسز نہیں پرفارمس چاہتی ہے پاکستان کے لوگ انفلیشن، انیمپلائمنٹ، ایڈوکیشن، ہیلتھ، الیکٹرسٹی بلز اور سیکیورٹی جیسے ایشوز کا سلوشن چاہتے ہیں پارلیمنٹ کا اصل مقصد پولیٹیکل فائٹنگ نہیں نیشنل پرابلم سولوینگ ہے ہماری ریسپونسیبیلٹی ہے کہ ہم پارٹی انٹرسٹ سے اوپر ہٹ کر نیشنل انٹرسٹ کو پریورٹی دیں ڈیبیٹ ضروری ہونی چاہیے کریٹیزم بھی ہونا چاہیے بٹ ویڈ ریسپیکٹ اینڈ پرپرس اگر سٹرونگ پارلیمنٹ مینز آ سٹرونگ پاکستان جب لاز فیر ہوں انسٹیٹوشنز انڈیپنڈنڈ ہوں اور لیڈرز سنسیر ہوں تب ڈیموکریسی گروہ کرتی ہے ان دی اینڈ میں کہتا ہوں کہ اس پارلیمنٹ کو ایک امید کیا ہوں انتہائی اور سرویس ہمیں پروفی کہ پولیٹکس پاور نہیں ہے بلکہ پبلک سرویس پاکستان زندہ باد شکریہ`,
+        hyp: `السلام علیکم respected speaker, honourable members and my dear Pakistanis. Today I stand here to speak about the role of Pakistan parliament. Parliament is not just a building in Islamabad, it is the voice of people. یہاں ہر پروبنس، ہر شہر، ہر گاؤں سٹیجن کی رپریزنٹیشن ہوتی ہے۔ This house has the power to make laws, question policies and democracy. لیکن صرف speeches سے مولا سچنج نہیں ہوتا، we need action, accountability and honesty. عوام ہم سے promises نہیں performance چاہتی ہے۔ پاکستان کے لوگ inflation, unemployment, education, health, electricity, bills and security جیسے issues کا solution چاہتے ہیں۔ Parliament کا اصل مقصد political fighting نہیں, national problem solving ہے۔ ہماری responsibility ہے کہ ہم party interests, ایسا انترنت سے اوپر ہٹ کر national interests کو priority دیں 。 international interests are above national interests. Debate ضروری ہونی چاہیے, criticism بھی ہونا چاہیے but with respect and purpose. Debate should be a priority, there should be criticism too but with respect and purpose. If strong parliament means strong Pakistan. If strong parliament means strong Pakistan. جب laws fair ہوں, institutions independent ہوں and leaders sincere ہوں, When the laws are fair, institutions are independent and the leaders are sincere, تب democracy grow کرتی ہے ۔ then democracy grows. In the end میں کہتا ہوں اس parliament کو امید کیا ہوں In the end, I say that I hope this parliament, انتہائی اور service ہمیں profit کے politics power نہیں ہے بلکہ public service, Pakistan zindabad. Intahai aur service, we don't have the politics power of profit but public service, Pakistan zindabad.`
+    },
+    {
+        id: 5,
+        title: "Sample 5 (Education Focus)",
+        ref: `السلام علیکم everyone today I want to talk about education and budget because education is not a expense it is an investment اگر ہم school, teachers, libraries, labs اور digital learning پر ایسا پیسہ نہیں لگائیں گے then we cannot expect a strong future پاکستان کا biggest asset ہماری youth ہیں but youth کو صرف motivation نہیں opportunities چاہیں ہیں a student sitting in a village school deserves the same quality education as a student in a big city education budget کا focus صرف building پر نہیں quality teaching, teacher training, scholarships, technology and girls education پر بھی ہونا چاہیے many children still leave school because of poverty lack of facilities or family pressure یہ صرف ان بچوں کا loss نہیں پوری نیشن کا loss ہے when one child is out of school پاکستان loses one doctor, one engineer, one scientist, one teacher or one leader we need smart spending ہر روپے کا audit ہونا چاہیے budget announce کرنا enough نہیں اس کا proper use بھی ضروری ہے public school کو improve کرنا ہوگا universities کو research funding دینی ہوگی اور technical education کو promote کرنا ہوگا if we want less poverty, less crime and more progress then education must be our first priority education Pakistan, empower Pakistan اللہ حافظ`,
+        hyp: `السلام علیکم everyone today I want to talk about education and budget because education is not an expense. It is an investment. اگر ہم school teachers libraries labs or digital learning پر ایسا پیسہ نہیں لگائیں گے then we cannot expect a strong future. پاکستان کا biggest asset ہماری youth but youth کو صرف motivation نہیں opportunities چاہیے ہیں. A student sitting in a village school deserves the same quality education as a student in a big city education budget. کا focus صرف building پر نہیں quality teaching, teacher training, scholarship, technologies and girls education پر بھی ہونا چاہیے. Many children still leave school because of poverty, lack of facilities or family pressure. یہ صرف ان بچوں کا loss نہیں پوری nation کا loss ہے. When one child is out of school, Pakistan loses one doctor, one engineer, one scientist, one teacher, or one leader. We need smart spending. ہر روپے کا عوڈٹ ہونا چاہیے، budget announce کرنا enough نہیں ہے، اس کا proper use بھی ضروری ہے۔ Public school کو improve کرنا ہوگا، universities کو research funding دینی ہوگی اور technical education کو promote کرنا ہوگا۔ If we want less poverty, less crime and more progress, then education must be our first priority. Educate Pakistan empower Pakistan. اللہ حافظ`
+    },
+    {
+        id: 6,
+        title: "Sample 6 (Youth & Unemployment)",
+        ref: `بے روزگاری پاکستان کے نوجوانوں کا سب سے بڑا مسئلہ بنتی جا رہی ہے ہزاروں طلبہ ہر سال ڈگریاں لے کر نکلتے ہیں مگر جابز بہت کم ہوتی ہیں یہ صرف ایک economic issue نہیں بلکہ ایک social problem بھی ہے Today I want to talk about unemployment in Pakistan. Unemployment means when people are willing to work, educated بھی ہوتے ہیں skilled بھی ہوتے ہیں but they cannot find suitable jobs. پاکستان میں youth population بہت زیادہ ہے and this can be our biggest strength لیکن اگر youth کو employment opportunities نہ ملیں then this strength can turn into frustration. Many young people spend years studying but after graduation they face joblessness, low salaries and lack of career direction. The main causes of unemployment are lack of industries, weak economy, poor skill development and mismatch between education and market needs. ہمارا education system students کو degrees تو دیتا ہے لیکن practical skills, communication, technology and entrepreneurship پر کم فوکس کرتا ہے To solve this issue government, private sectors and educational institutions must work together Technical education کو promote کرنا ہوگا freelancing, IT, small businesses and startups کو support دینی ہوگی youth کو صرف job seekers نہیں job creators بنانا ہوگا In the end I would say that unemployment is not just about missing jobs it is about missing hope اگر ہم اپنی youth کو skills, opportunities and support دیں then Pakistan can become stronger, productive and successful Thank you.`,
+        hyp: `بیروسکاری پاکستان کے نوجوان کا سب سے بڑا مسئلہ بنتی جا رہی ہے۔ ہزاروں طلبہ ہر سال دگریاں لے کر نکلتے ہیں مگر جوب سوہت کم ہوتی ہیں۔ ایسی رف ایک اکانومک ایشو نہیں بلکہ ایک social problem بھی ہے۔ today I want to talk about unemployment in Pakistan. unemployment means when people are willing to work educated بھی ہوتے ہیں skilled بھی ہوتے ہیں andbut they cannot find suitable jobs. Pakistan میں youth population بہت زیادہ ہے and this can be our biggest strength لیکن اگر youth کو employment opportunities نہ ملیں This strength turn into frustration. Many young people spend years studying after but after graduation they face joblessness, low salaries and lack of career direction. main cause of unemployment are lack of industries, weak economy, poor skill development and mismatch between education and marketing leads. مارا education system students degree تو دیتا ہے لیکن practical skills communication تک اپا practical skills communication technology and inter-proton shift پر کام focus کرتا ہے To solve this issue, government, private sector and educational institutions must work together. Technical education کو promote کرنا ہوگا، freelancing, IT, small business and start-ups کو support دینی ہوگی۔ پس رب job seekers نہیں job creators بنانا ہوگا in the end I would say that English unemployment is not just about missing jobs it is about missing hope. اگر ہم اپنی youth کو skills, opportunities and support دیں then Pakistan can become stronger, productive and successful. Thank you.`
+    }
+];
+
+// Calculation Engine for Levenshtein Distance & Token Mapping
+// Treats EN/UR transliterations, light morphology, and Urdu spelling variants as matches.
+function calculateWERAndHTML(refText, hypText) {
+    const ARABIC_RE = /[\u0600-\u06FF]/;
+    const LATIN_RE = /[a-z]/;
+
+    const stripPunct = (w) => w.replace(/[.,?!;:،۔؟…()\[\]{}"'`""''«»]/g, '');
+
+    // Normalize Urdu/Arabic letter variants (ا/آ, ی/ي, ہ/ه, …) and drop diacritics.
+    const normalizeUrduScript = (s) => s
+        .normalize('NFC')
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+        .replace(/[آأإٱ]/g, 'ا')
+        .replace(/[یىئ]/g, 'ي')
+        .replace(/[ہةه]/g, 'ہ')
+        .replace(/ك/g, 'ک')
+        .replace(/ؤ/g, 'و')
+        .replace(/ں/g, 'ن');
+
+    const romanizeUrdu = (s) => {
+        const map = {
+            'ا': 'a', 'ب': 'b', 'پ': 'p', 'ت': 't', 'ٹ': 't', 'ث': 's',
+            'ج': 'j', 'چ': 'ch', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ڈ': 'd',
+            'ذ': 'z', 'ر': 'r', 'ڑ': 'r', 'ز': 'z', 'ژ': 'zh', 'س': 's',
+            'ش': 'sh', 'ص': 's', 'ض': 'z', 'ط': 't', 'ظ': 'z', 'ع': 'a',
+            'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ک': 'k', 'گ': 'g', 'ل': 'l',
+            'م': 'm', 'ن': 'n', 'و': 'o', 'ہ': 'h', 'ھ': 'h', 'ء': '',
+            'ي': 'i', 'ے': 'e', 'ۃ': 'h'
+        };
+        let out = '';
+        for (const ch of normalizeUrduScript(s)) out += map[ch] !== undefined ? map[ch] : ch;
+        return out;
+    };
+
+    // Map English spellings toward how loanwords are written in Urdu script.
+    const englishPhonetic = (s) => s
+        .replace(/tion/g, 'shn')
+        .replace(/sion/g, 'shn')
+        .replace(/issue/g, 'isho')
+        .replace(/ture/g, 'chr')
+        .replace(/ough/g, 'o')
+        .replace(/igh/g, 'i')
+        .replace(/ph/g, 'f')
+        .replace(/ch/g, '§')
+        .replace(/ck/g, 'k')
+        .replace(/qu/g, 'k')
+        .replace(/x/g, 'ks')
+        .replace(/oo/g, 'u')
+        .replace(/ee/g, 'i')
+        .replace(/ay/g, 'e')
+        .replace(/ai/g, 'e')
+        .replace(/au/g, 'o')
+        .replace(/ow/g, 'o')
+        .replace(/ou/g, 'o')
+        .replace(/ea/g, 'i')
+        .replace(/ie/g, 'i')
+        .replace(/y/g, 'i')
+        .replace(/c(?=[eiy])/g, 's')
+        .replace(/c/g, 'k')
+        .replace(/§/g, 'ch');
+
+    // Urdu و often stands for v/w/u/o depending on the loanword.
+    const urduPhoneticVariants = (rom) => {
+        const vars = new Set([rom]);
+        vars.add(rom.replace(/o/g, 'v'));
+        vars.add(rom.replace(/o/g, 'w'));
+        vars.add(rom.replace(/o/g, 'u'));
+        // Leading و as w (with / ویڈ)
+        if (rom.startsWith('o')) {
+            vars.add('w' + rom.slice(1));
+            vars.add('v' + rom.slice(1));
+            vars.add('u' + rom.slice(1));
+        }
+        // Trailing و as v (drive / ڈرائیو → draiv)
+        if (rom.endsWith('o')) {
+            vars.add(rom.slice(0, -1) + 'v');
+            vars.add(rom.slice(0, -1) + 'w');
+            vars.add(rom.slice(0, -1) + 'u');
+        }
+        return [...vars];
+    };
+
+    const collapseVowels = (s) => s.replace(/[aeiou]+/g, '').replace(/(.)\1+/g, '$1');
+    // h/w are often dropped in Urdu spellings (laws/لاز, with/ویڈ)
+    const weaken = (s) => s.replace(/[hw]/g, '');
+
+    const editDistance = (a, b) => {
+        if (a === b) return 0;
+        const m = a.length, n = b.length;
+        if (!m) return n;
+        if (!n) return m;
+        const dp = new Array(n + 1);
+        for (let j = 0; j <= n; j++) dp[j] = j;
+        for (let i = 1; i <= m; i++) {
+            let prev = dp[0];
+            dp[0] = i;
+            for (let j = 1; j <= n; j++) {
+                const tmp = dp[j];
+                dp[j] = a[i - 1] === b[j - 1]
+                    ? prev
+                    : 1 + Math.min(prev, dp[j], dp[j - 1]);
+                prev = tmp;
+            }
+        }
+        return dp[n];
+    };
+
+    // Light English morphology: plurals, -ing/-ed, educate/education, etc.
+    const sameEnglishRoot = (a, b) => {
+        a = a.replace(/[-_']/g, '');
+        b = b.replace(/[-_']/g, '');
+        if (a === b) return true;
+        if (a.length < 3 || b.length < 3) return false;
+
+        const morphLeft = /^(e|s|es|ed|er|ers|ly|ing|ings|ion|tions|tion|ations|ation|ments|ment|ness|ities|ity|ies|ied|ive|ives|al|als|ous|y)?$/;
+        let i = 0;
+        const lim = Math.min(a.length, b.length);
+        while (i < lim && a[i] === b[i]) i++;
+        if (i >= 4 && morphLeft.test(a.slice(i)) && morphLeft.test(b.slice(i))) return true;
+
+        const shorter = a.length <= b.length ? a : b;
+        const longer = a.length <= b.length ? b : a;
+        if (longer.startsWith(shorter) && longer.length - shorter.length <= 4) {
+            return morphLeft.test(longer.slice(shorter.length));
+        }
+
+        // technologies / technology (…ies vs …y)
+        if (a.endsWith('ies') && b.endsWith('y') && a.slice(0, -3) === b.slice(0, -1)) return true;
+        if (b.endsWith('ies') && a.endsWith('y') && b.slice(0, -3) === a.slice(0, -1)) return true;
+        return false;
+    };
+
+    const isUrduHeavy = (s) => ARABIC_RE.test(s);
+    const isLatinHeavy = (s) => LATIN_RE.test(s) && !ARABIC_RE.test(s);
+
+    const phoneticClose = (ph, rom) => {
+        if (!ph || !rom) return false;
+        if (ph === rom) return true;
+
+        // English often keeps silent/weak letters that Urdu drops (with→wit, laws→las).
+        const phVars = new Set([ph]);
+        if (ph.endsWith('h')) phVars.add(ph.slice(0, -1));
+        if (ph.includes('w')) phVars.add(ph.replace(/w/g, ''));
+
+        const romVars = urduPhoneticVariants(rom);
+        for (const p of phVars) {
+            for (const rv of romVars) {
+                if (p === rv || sameEnglishRoot(p, rv)) return true;
+            }
+        }
+
+        // Allow small phonetic drift (audit/عوڈٹ, nation/نیشن, style/اسٹائل).
+        for (const p of phVars) {
+            const maxDist = Math.max(1, Math.floor(Math.min(p.length, rom.length) / 4));
+            for (const rv of romVars) {
+                if (Math.min(p.length, rv.length) >= 2 && editDistance(p, rv) <= maxDist) return true;
+                // Leading alef often appears only on the Urdu side (style / اسٹائل).
+                if (rv.startsWith('a')) {
+                    const stripped = rv.slice(1);
+                    if (p === stripped) return true;
+                    if (stripped.length >= 2 && editDistance(p, stripped) <= maxDist) return true;
+                }
+            }
+        }
+
+        for (const p of phVars) {
+            const cv1 = collapseVowels(p);
+            for (const rv of romVars) {
+                const cv2 = collapseVowels(rv);
+                if (cv1.length >= 1 && cv1 === cv2) return true;
+                if (cv1.length >= 3 && cv2.length >= 3 && editDistance(cv1, cv2) <= 1) return true;
+
+                const w1 = weaken(cv1);
+                const w2 = weaken(cv2);
+                if (w1.length >= 2 && w1 === w2) return true;
+                if (w1.length >= 2 && w2.length >= 2 && editDistance(w1, w2) <= 1) return true;
+            }
+        }
+        return false;
+    };
+
+    const enUrMatch = (latin, urdu) => {
+        const eng = latin.replace(/[-_']/g, '');
+        const rom = romanizeUrdu(urdu).replace(/[-_']/g, '');
+        if (!eng || !rom) return false;
+        if (eng === rom) return true;
+        const ph = englishPhonetic(eng);
+        if (phoneticClose(ph, rom) || phoneticClose(eng, rom)) return true;
+        // Compact doubles: all / ال
+        const compact = eng.replace(/(.)\1+/g, '$1');
+        return compact !== eng && phoneticClose(englishPhonetic(compact), rom);
+    };
+
+    // Code-mixed function words that are translations, not transliterations.
+    const bilingualEq = (a, b) => {
+        const pairs = [['and', 'اور']];
+        const x = a.clean.replace(/[-_']/g, '');
+        const y = b.clean.replace(/[-_']/g, '');
+        const xn = a.norm.replace(/[-_']/g, '');
+        const yn = b.norm.replace(/[-_']/g, '');
+        return pairs.some(([e, u]) =>
+            (x === e && (y === u || yn === u)) ||
+            (y === e && (x === u || xn === u))
+        );
+    };
+
+    // Join split tokens (آ گیا / اگیا, ڈاؤن لوڈ / download).
+    const mergeTokens = (parts) => ({
+        orig: parts.map(p => p.orig).join(' '),
+        clean: parts.map(p => p.clean).join(''),
+        norm: parts.map(p => p.norm).join('')
+    });
+
+    const tokensMatch = (a, b) => {
+        if (a.clean === b.clean) return true;
+        if (!a.clean || !b.clean) return false;
+        if (a.norm === b.norm) return true;
+
+        // Hyphenation / punctuation-only differences (start-ups / startups).
+        const aFlat = a.clean.replace(/[-_']/g, '');
+        const bFlat = b.clean.replace(/[-_']/g, '');
+        if (aFlat && aFlat === bFlat) return true;
+
+        if (bilingualEq(a, b)) return true;
+
+        // English morphological variants.
+        if (isLatinHeavy(a.clean) && isLatinHeavy(b.clean) && sameEnglishRoot(a.clean, b.clean)) return true;
+
+        // English ↔ Urdu transliteration of the same loanword.
+        if (isLatinHeavy(a.clean) && isUrduHeavy(b.clean) && enUrMatch(a.clean, b.clean)) return true;
+        if (isLatinHeavy(b.clean) && isUrduHeavy(a.clean) && enUrMatch(b.clean, a.clean)) return true;
+
+        // Near-identical Urdu spellings (کھنبے / کھمبے, پتہ / پتا), not short function words.
+        if (isUrduHeavy(a.norm) && isUrduHeavy(b.norm)) {
+            const an = a.norm.replace(/[-_']/g, '');
+            const bn = b.norm.replace(/[-_']/g, '');
+            const ed = editDistance(an, bn);
+            // Same first letter avoids matching ہاں/کہاں while allowing پتہ/پتا.
+            if (an.length >= 3 && bn.length >= 3 && an[0] === bn[0] && ed <= 1) return true;
+
+            // Light affixes: اگیا/گیا, اجاؤ/جاؤ, رکھ/رک, ابے/اب
+            const longer = an.length >= bn.length ? an : bn;
+            const shorter = an.length >= bn.length ? bn : an;
+            if (shorter.length >= 2) {
+                if (longer.endsWith(shorter)) {
+                    const pre = longer.slice(0, longer.length - shorter.length);
+                    if (pre.length <= 2 && /^[اآوئیيے]+$/.test(pre)) return true;
+                }
+                if (longer.startsWith(shorter)) {
+                    const suf = longer.slice(shorter.length);
+                    if (suf.length <= 2 && /^[اآوئیيےںنھہ]+$/.test(suf)) return true;
+                }
+            }
+
+            // Same English loanword, different Urdu spellings (ٹینشنیں / تنشن).
+            // Map aspirates ph/kh toward common alternate spellings (پھسل/فسل).
+            const ca = collapseVowels(romanizeUrdu(an)).replace(/ph/g, 'f').replace(/kh/g, 'k');
+            const cb = collapseVowels(romanizeUrdu(bn)).replace(/ph/g, 'f').replace(/kh/g, 'k');
+            if (ca.length >= 3 && ca === cb) return true;
+            if (ca.length >= 3 && cb.length >= 3 && editDistance(ca, cb) <= 1) return true;
+        }
+
+        // Mixed tokens that share a latin/urdu core after stripping script differences.
+        if (a.norm.replace(/[-_']/g, '') === b.norm.replace(/[-_']/g, '')) return true;
+        return false;
+    };
+
+    const cleanTokenize = (text) => {
+        return text.trim().split(/\s+/).filter(w => w.length > 0).map(w => {
+            const clean = stripPunct(w).toLowerCase();
+            const norm = normalizeUrduScript(clean).replace(/[-_']/g, '');
+            return { orig: w, clean, norm };
+        });
+    };
+
+    const r = cleanTokenize(refText);
+    const h = cleanTokenize(hypText);
+
+    const d = [];
+    const ptr = [];
+    for (let i = 0; i <= r.length; i++) {
+        d[i] = [i];
+        ptr[i] = [];
+        if (i > 0) ptr[i][0] = 'D';
+    }
+    for (let j = 0; j <= h.length; j++) {
+        d[0][j] = j;
+        if (j > 0) ptr[0][j] = 'I';
+    }
+    ptr[0][0] = 'C';
+
+    for (let i = 1; i <= r.length; i++) {
+        for (let j = 1; j <= h.length; j++) {
+            let best = d[i - 1][j - 1] + 1;
+            let bestOp = 'S';
+
+            if (tokensMatch(r[i - 1], h[j - 1])) {
+                best = d[i - 1][j - 1];
+                bestOp = 'C';
+            }
+
+            // Compound matches for split forms only:
+            // Urdu+Urdu ↔ Urdu exact join (اگیا / آ گیا), or Urdu+Urdu ↔ English (ڈاؤن لوڈ / download).
+            const allowCompound = (multi, single) => {
+                const allUrdu = multi.every(t => isUrduHeavy(t.norm));
+                if (!allUrdu) return false;
+                const merged = mergeTokens(multi);
+                // Urdu split/join must be an exact script match after normalization.
+                if (isUrduHeavy(single.norm)) return merged.norm === single.norm;
+                // English loanword written as two Urdu tokens.
+                return isLatinHeavy(single.clean) && tokensMatch(merged, single);
+            };
+            if (i >= 2 && allowCompound([r[i - 2], r[i - 1]], h[j - 1])) {
+                const cost = d[i - 2][j - 1];
+                if (cost < best) { best = cost; bestOp = 'C21'; }
+            }
+            if (j >= 2 && allowCompound([h[j - 2], h[j - 1]], r[i - 1])) {
+                const cost = d[i - 1][j - 2];
+                if (cost < best) { best = cost; bestOp = 'C12'; }
+            }
+
+            const delCost = d[i - 1][j] + 1;
+            const insCost = d[i][j - 1] + 1;
+            if (delCost < best) { best = delCost; bestOp = 'D'; }
+            if (insCost < best) { best = insCost; bestOp = 'I'; }
+
+            d[i][j] = best;
+            ptr[i][j] = bestOp;
+        }
+    }
+
+    let i = r.length;
+    let j = h.length;
+    let sub = 0, del = 0, ins = 0, correct = 0;
+    const diffTokens = [];
+
+    while (i > 0 || j > 0) {
+        const op = ptr[i][j];
+        if (op === 'C') {
+            diffTokens.unshift({ type: 'C', rIdx: i - 1, hIdx: j - 1 });
+            correct++;
+            i--; j--;
+        } else if (op === 'C21') {
+            diffTokens.unshift({ type: 'C21', rIdx: [i - 2, i - 1], hIdx: j - 1 });
+            correct += 2;
+            i -= 2; j -= 1;
+        } else if (op === 'C12') {
+            diffTokens.unshift({ type: 'C12', rIdx: i - 1, hIdx: [j - 2, j - 1] });
+            correct += 1;
+            i -= 1; j -= 2;
+        } else if (op === 'S') {
+            diffTokens.unshift({ type: 'S', rIdx: i - 1, hIdx: j - 1 });
+            sub++;
+            i--; j--;
+        } else if (op === 'D') {
+            diffTokens.unshift({ type: 'D', rIdx: i - 1, hIdx: null });
+            del++;
+            i--;
+        } else if (op === 'I') {
+            diffTokens.unshift({ type: 'I', rIdx: null, hIdx: j - 1 });
+            ins++;
+            j--;
+        }
+    }
+
+    const N = r.length;
+    const wer = N === 0 ? 0 : ((sub + del + ins) / N) * 100;
+    
+    let r_html = [];
+    let h_html = [];
+
+    diffTokens.forEach(t => {
+        if (t.type === 'C') {
+            r_html.push(`<span class="wc">${r[t.rIdx].orig}</span>`);
+            h_html.push(`<span class="wc">${h[t.hIdx].orig}</span>`);
+        } else if (t.type === 'C21') {
+            r_html.push(`<span class="wc">${r[t.rIdx[0]].orig}</span>`);
+            r_html.push(`<span class="wc">${r[t.rIdx[1]].orig}</span>`);
+            h_html.push(`<span class="wc">${h[t.hIdx].orig}</span>`);
+        } else if (t.type === 'C12') {
+            r_html.push(`<span class="wc">${r[t.rIdx].orig}</span>`);
+            h_html.push(`<span class="wc">${h[t.hIdx[0]].orig}</span>`);
+            h_html.push(`<span class="wc">${h[t.hIdx[1]].orig}</span>`);
+        } else if (t.type === 'S') {
+            r_html.push(`<span class="ws" title="Got: ${h[t.hIdx].orig}">${r[t.rIdx].orig}</span>`);
+            h_html.push(`<span class="ws" title="Expected: ${r[t.rIdx].orig}">${h[t.hIdx].orig}</span>`);
+        } else if (t.type === 'D') {
+            r_html.push(`<span class="wd">[${r[t.rIdx].orig}]</span>`);
+        } else if (t.type === 'I') {
+            h_html.push(`<span class="wi" title="Expected: nothing">${h[t.hIdx].orig}</span>`);
+        }
+    });
+
+    let tc = "text-emerald-600 dark:text-emerald-400";
+    let bc = "bg-emerald-500";
+    if (wer >= 40) {
+        tc = "text-red-600 dark:text-red-400";
+        bc = "bg-red-500";
+    } else if (wer >= 20) {
+        tc = "text-amber-600 dark:text-amber-400";
+        bc = "bg-amber-500";
+    }
+
+    return {
+        wer: parseFloat(wer.toFixed(1)),
+        subs: sub, dels: del, ins: ins, corr: correct,
+        ref_wc: N, full_ref_wc: N, hyp_wc: h.length,
+        r_html: r_html.join(' '),
+        h_html: h_html.join(' '),
+        tc: tc,
+        bc: bc
+    };
+}
+
+// Map the raw data into processed data format
+const SAMPLES = rawSamples.map(sample => {
+    return {
+        ...sample,
+        ...calculateWERAndHTML(sample.ref, sample.hyp)
+    };
+});
+
+function getSampleIdFromUrl(){const m=location.hash.match(/^#sample-(\d+)$/i);if(m)return Number(m[1]);const q=new URLSearchParams(location.search).get('sample');return q?Number(q):null;}
+function showDashboard() {
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('detail').classList.add('hidden');
+    const b = document.getElementById('back-btn');
+    b.classList.add('hidden');
+    b.classList.remove('flex');
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+}
+
+function showDetail(id) {
+    const s = SAMPLES.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('detail').classList.remove('hidden');
+    const b = document.getElementById('back-btn');
+    b.classList.remove('hidden');
+    b.classList.add('flex');
+    
+    document.getElementById('detail-title').innerHTML = `<span class="inline-flex flex-wrap items-center gap-3">Sample ${s.id}: ${s.title}</span>`;
+    document.getElementById('detail-stats').innerHTML = `
+        <span class="stat-pill bg-slate-100 dark:bg-slate-800 ${s.tc}">WER: ${s.wer}%</span>
+        <span class="stat-pill bg-slate-100 dark:bg-slate-800">Ref: ${s.ref_wc} words</span>
+        <span class="stat-pill bg-slate-100 dark:bg-slate-800">Hyp: ${s.hyp_wc} words</span>
+        <span class="stat-pill bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400">Sub: ${s.subs}</span>
+        <span class="stat-pill bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400">Del: ${s.dels}</span>
+        <span class="stat-pill bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">Ins: ${s.ins}</span>
+        <span class="stat-pill bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Correct: ${s.corr}</span>
+    `;
+    
+    document.getElementById('mih-panel').innerHTML = s.h_html;
+    document.getElementById('ref-panel').innerHTML = s.r_html;
+    history.replaceState(null, '', '#sample-' + id);
+    window.scrollTo(0, 0);
+}
+
+function openSampleFromUrl() {
+    const id = getSampleIdFromUrl();
+    if (id && SAMPLES.some(x => x.id === id)) showDetail(id);
+}
+
+function renderDashboard() {
+    const g = document.getElementById('sample-grid');
+    g.innerHTML = '';
+    let tr = 0, tc = 0, ts = 0, td = 0, ti = 0, sw = 0;
+    
+    SAMPLES.forEach(s => {
+        sw += s.wer; tr += s.ref_wc; tc += s.corr; ts += s.subs; td += s.dels; ti += s.ins;
+        const bw = Math.min(s.wer, 100);
+        const c = document.createElement('div');
+        c.className = 'glass-card rounded-2xl p-6 cursor-pointer group transition-all duration-300';
+        c.onclick = () => showDetail(s.id);
+        
+        c.innerHTML = `
+            <div class="flex items-start justify-between mb-4">
+                <span class="text-xs font-bold tracking-wider uppercase px-3 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Sample ${s.id}</span>
+                <span class="text-xs font-semibold px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">Mixed EN/UR</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white mb-4 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${s.title}</h3>
+            <div class="flex items-baseline gap-2 mb-3">
+                <span class="text-4xl font-black ${s.tc}">${s.wer}%</span>
+                <span class="text-xs font-medium tracking-wide text-slate-500 dark:text-slate-400 uppercase">WER</span>
+            </div>
+            <div class="wer-track mb-5">
+                <div class="h-full rounded-full ${s.bc} transition-all duration-1000 ease-out" style="width:${bw}%"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-center text-xs mb-4">
+                <div class="rounded-xl py-2 bg-red-50 dark:bg-red-900/20 shadow-sm border border-red-100 dark:border-red-900/30">
+                    <div class="font-bold text-lg text-red-600 dark:text-red-400">${s.subs}</div>
+                    <div class="text-slate-500 font-medium">Sub</div>
+                </div>
+                <div class="rounded-xl py-2 bg-indigo-50 dark:bg-indigo-900/20 shadow-sm border border-indigo-100 dark:border-indigo-900/30">
+                    <div class="font-bold text-lg text-indigo-600 dark:text-indigo-400">${s.dels}</div>
+                    <div class="text-slate-500 font-medium">Del</div>
+                </div>
+                <div class="rounded-xl py-2 bg-yellow-50 dark:bg-yellow-900/20 shadow-sm border border-yellow-100 dark:border-yellow-900/30">
+                    <div class="font-bold text-lg text-yellow-600 dark:text-yellow-400">${s.ins}</div>
+                    <div class="text-slate-500 font-medium">Ins</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end mt-2">
+                <div class="flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400 opacity-0 transform translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                    View detail <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </div>
+        `;
+        g.appendChild(c);
+    });
+    
+    const aw = (sw / SAMPLES.length).toFixed(1);
+    const er = ts + td + tc;
+    const ac = er > 0 ? ((tc / er) * 100).toFixed(1) : '—';
+    
+    document.getElementById('summary-stats').innerHTML = `
+        <div class="p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50">
+            <div class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">${aw}%</div>
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wide">Avg WER</div>
+        </div>
+        <div class="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50">
+            <div class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">${ac}%</div>
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wide">Word Accuracy</div>
+        </div>
+        <div class="p-5 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50">
+            <div class="text-3xl font-extrabold text-red-600 dark:text-red-400">${ts}</div>
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wide">Total Substitutions</div>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <div class="text-3xl font-extrabold text-slate-700 dark:text-slate-300">${tr}</div>
+            <div class="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wide">Eval Ref Words</div>
+        </div>
+    `;
+}
+
+renderDashboard();
+openSampleFromUrl();
+</script>
+</body>
+</html>

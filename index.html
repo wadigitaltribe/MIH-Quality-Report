@@ -124,8 +124,8 @@
               <tr>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Report</th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Sample</th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Before Result</th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">After Result</th>
+                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Previous Tests</th>
+                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Prod. Tests</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200/70 dark:divide-slate-700/70 bg-white/40 dark:bg-slate-950/10">
@@ -229,6 +229,91 @@
                 </td>
               </tr>
 
+              <!-- Mixed WER: after samples -->
+              <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
+                <td class="px-6 py-5 min-w-[220px]" rowspan="4">
+                  <div class="flex flex-col gap-2">
+                    <span class="text-base font-bold text-slate-900 dark:text-white">MIH Mixed English Urdu Transcription Test</span>
+                    <span class="text-sm text-slate-600 dark:text-slate-400">Mixed English, Roman Urdu, and Urdu script WER report.</span>
+                    <span class="w-fit text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">WER Report</span>
+                  </div>
+                </td>
+                <td class="px-6 py-5 min-w-[200px]">
+                  <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 2</span>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Urdu/EN Conversational</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report.html#sample-2" class="metric-link decoration-transparent" title="Open mixed sample 2 — before report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">69.0%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 515 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report2.html#sample-2" class="metric-link decoration-transparent" title="Open mixed sample 2 — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">9.4%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 70 errors</p>
+                  </a>
+                </td>
+              </tr>
+
+              <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
+                <td class="px-6 py-5">
+                  <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 4</span>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Formal Speech EN/UR</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report.html#sample-4" class="metric-link decoration-transparent" title="Open mixed sample 4 — before report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">51.3%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 100 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report2.html#sample-4" class="metric-link decoration-transparent" title="Open mixed sample 4 — after report">
+                    <span class="text-2xl font-extrabold metric-bad metric-value">40.7%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 79 errors</p>
+                  </a>
+                </td>
+              </tr>
+
+              <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
+                <td class="px-6 py-5">
+                  <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 5</span>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Education Focus</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report.html#sample-5" class="metric-link decoration-transparent" title="Open mixed sample 5 — before report">
+                    <span class="text-2xl font-extrabold metric-mid metric-value">31.0%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 65 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report2.html#sample-5" class="metric-link decoration-transparent" title="Open mixed sample 5 — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">1.4%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 3 errors</p>
+                  </a>
+                </td>
+              </tr>
+
+              <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
+                <td class="px-6 py-5">
+                  <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 6</span>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Youth & Unemployment</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report.html#sample-6" class="metric-link decoration-transparent" title="Open mixed sample 6 — before report">
+                    <span class="text-2xl font-extrabold metric-mid metric-value">31.2%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 75 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="mih-mixed-wer-report2.html#sample-6" class="metric-link decoration-transparent" title="Open mixed sample 6 — after report">
+                    <span class="text-2xl font-extrabold metric-good metric-value">10.4%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 25 errors</p>
+                  </a>
+                </td>
+              </tr>
+
+
               <!-- Abusing audit: 3 samples -->
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
                 <td class="px-6 py-5 min-w-[220px]" rowspan="3">
@@ -293,28 +378,6 @@
                 </td>
               </tr>
 
-              <!-- Mixed: no after file yet -->
-              <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
-                <td class="px-6 py-5 min-w-[220px]">
-                  <div class="flex flex-col gap-2">
-                    <span class="text-base font-bold text-slate-900 dark:text-white">MIH Mixed English Urdu Transcription Test</span>
-                    <span class="text-sm text-slate-600 dark:text-slate-400">Mixed English, Roman Urdu, and Urdu script WER report.</span>
-                    <span class="w-fit text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">WER Report</span>
-                  </div>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-sm text-slate-600 dark:text-slate-400">All 6 samples</span>
-                </td>
-                <td class="px-6 py-5">
-                  <a href="mih-mixed-wer-report.html" class="metric-link decoration-transparent" title="Open mih-mixed-wer-report.html">
-                    <span class="text-2xl font-extrabold metric-bad metric-value">55.0%</span>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">avg WER · 6 samples</p>
-                  </a>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-sm text-slate-500 dark:text-slate-400">—</span>
-                </td>
-              </tr>
 
               <!-- Urdu: no after file yet -->
               <tr class="align-top hover:bg-indigo-50/45 dark:hover:bg-indigo-950/20 transition-colors">
@@ -339,6 +402,7 @@
                 </td>
               </tr>
 
+            
             </tbody>
           </table>
         </div>

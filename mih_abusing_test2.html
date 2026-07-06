@@ -6,6 +6,44 @@
   <title>MIH System Evaluation & Abusive Language Audit Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+
+function copyPanelText(panelId, btn) {
+  const el = document.getElementById(panelId);
+  if (!el) return;
+  const text = (el.innerText || el.textContent || '').trim();
+  const done = () => { const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = o; }, 1500); };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else fallback();
+}
+function copyContainerText(el, btn) {
+  if (typeof el === 'string') el = document.querySelector(el);
+  if (!el) return;
+  const text = (el.innerText || el.textContent || '').trim();
+  const done = () => { const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = o; }, 1500); };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else fallback();
+}
+
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -328,10 +366,11 @@
         </div>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
-              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl flex items-center justify-between gap-3">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm flex-wrap">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Hypothesis</span>
               </h3>
+              <button type="button" onclick="copyContainerText(this.closest('.flex.flex-col').querySelector('.p-5'), this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Copy plain text">Copy</button>
             </div>
             <div class="p-5 space-y-4 flex-grow">
 
@@ -508,10 +547,11 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
-              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i> Original Script (Reference)
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl flex items-center justify-between gap-3">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm flex-wrap">
+                <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i> Reference (Ground Truth) <span class="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Target</span>
               </h3>
+              <button type="button" onclick="copyContainerText(this.closest('.flex.flex-col').querySelector('.p-5'), this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Copy plain text">Copy</button>
             </div>
             <div class="p-5 space-y-4 flex-grow">
             <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
@@ -594,10 +634,11 @@
             </div>
         </div>
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
-              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl flex items-center justify-between gap-3">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm flex-wrap">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Hypothesis</span>
               </h3>
+              <button type="button" onclick="copyContainerText(this.closest('.flex.flex-col').querySelector('.p-5'), this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Copy plain text">Copy</button>
             </div>
             <div class="p-5 space-y-4 flex-grow">
             <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
@@ -774,10 +815,11 @@
             </div>
         </div>
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl">
-              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
-                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-t-2xl flex items-center justify-between gap-3">
+              <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2 text-sm flex-wrap">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> MIH System Output <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Hypothesis</span>
               </h3>
+              <button type="button" onclick="copyContainerText(this.closest('.flex.flex-col').querySelector('.p-5'), this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Copy plain text">Copy</button>
             </div>
             <div class="p-5 space-y-4 flex-grow">
             <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script 1: Adult/NSFW Script Review</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-dark: #0f172a;
+            --primary-accent: #3b82f6;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --abusive-bg: #fee2e2;
+            --abusive-text: #9f1239;
+            --abusive-border: #fca5a5;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-dark), #1e293b);
+            color: white;
+            padding: 2rem 3rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        /* MoM Card Styles */
+        .mom-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--primary-accent);
+        }
+
+        .mom-title {
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mom-section-title {
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .mom-card p {
+            margin-top: 0;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .mom-card ol {
+            margin: 0;
+            padding-left: 1.25rem;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .mom-card li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Two-Column Layout */
+        .transcript-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .transcript-column {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .column-header {
+            background: #f8fafc;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .column-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            text-align: center;
+        }
+
+        .transcript-content {
+            padding: 2rem;
+            height: 800px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        .transcript-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .transcript-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .transcript-content::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        /* Chat/Speech Bubbles */
+        .speech-block {
+            margin-bottom: 1.5rem;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+        
+        .speech-block:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .speaker-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Speaker Colors */
+        .speaker-senior, .speaker-wasim {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .speaker-junior, .speaker-shehnaz {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .speech-text {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.7;
+        }
+
+        .speech-text + .speech-text {
+            margin-top: 0.75rem;
+        }
+
+        /* Highlighting Logic */
+        .highlight-abusive {
+            background-color: var(--abusive-bg);
+            color: var(--abusive-text);
+            border: 1px solid var(--abusive-border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            box-shadow: inset 0 1px 2px rgba(159, 18, 57, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .transcript-grid {
+                grid-template-columns: 1fr;
+            }
+            .transcript-content {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header class="page-header">
+        <h1>Script 1: Adult/NSFW Script</h1>
+    </header>
+
+    <!-- Minutes of Meetings -->
+    <section class="mom-card">
+        <h2 class="mom-title">Minutes of Meeting ( MoM )</h2>
+        
+        <div class="mom-section-title">Overview</div>
+        <p>A private internal review meeting regarding Ministry of Interior file 347 was conducted between Wasim Ahmad and Aisha Nasir. The session was dominated by repeated sexual harassment and coercive demands by the senior official, who made unwanted physical comments and requested inappropriate actions. The junior official consistently attempted to redirect the conversation to official matters, specifically delayed funding allocations, but was ignored. The senior official implied career advancement in exchange for compliance with sexual demands. No official business was discussed or concluded during the call.</p>
+
+        <div class="mom-section-title">Workplace Harassment and Coercion</div>
+        <ol>
+            <li>Senior official made repeated unwanted sexual remarks regarding the junior official's appearance and body.</li>
+            <li>Senior official issued coercive directives, including requests to unbutton clothing and stand up for viewing.</li>
+            <li>Senior official implied career benefits, such as faster promotions, in exchange for sexual compliance.</li>
+            <li>Senior official engaged in explicit sexual fantasy sharing and demanded physical exposure via camera.</li>
+        </ol>
+
+        <div class="mom-section-title">Official Business and Resistance</div>
+        <ol>
+            <li>Junior official repeatedly attempted to redirect the discussion to official ministry work and delayed funds.</li>
+            <li>Senior official dismissed official agenda items, stating the file could wait while pursuing personal gratification.</li>
+            <li>Junior official expressed discomfort and stated the interaction was crossing professional lines.</li>
+        </ol>
+    </section>
+
+    <!-- Two-Column Layout -->
+    <div class="transcript-grid">
+        
+        <!-- Left Column: Original Transcript -->
+        <div class="transcript-column">
+            <div class="column-header">
+                <h2>Original Transcript</h2>
+            </div>
+            <div class="transcript-content">
+                
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">Alright, is the Zoom connection clear? Good. This is our private internal review meeting for Ministry of Interior File 347 regarding provincial coordination matters. It's just the two of us. No recording on your end, I hope. You can see my shared screen? Excellent.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">Yes sir, the connection is stable. The report is open in front of me. Should we start with the Balochistan funding allocations?</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">We'll get to the report shortly. First, I must say... you look particularly beautiful on camera today. The way that <span class="highlight-abusive">(blouse)</span> fits you, the lighting on your face and figure it's quite distracting. Are you alone in the office right now? Door closed?</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">Sir, this is a work call. Let's please focus on the file. The first point is about the delayed funds...</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">The file can wait a few minutes. I've been noticing you more and more lately. You have such an attractive presence. Your smile, your voice, the way you carry yourself - it affects me. <span class="highlight-abusive">(Unbutton)</span> the top two buttons of your <span class="highlight-abusive">(blouse)</span>. Slowly. Let me see you better.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">Sir... this is not appropriate. We are discussing official matters.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">Don't be shy. We're both adults here, and this is a private call. Good... just like that. You have a lovely figure. I often think about you after office hours. About being close to you, touching your skin, feeling your warmth.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">Sir, please. I'm not comfortable with this direction.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">Comfort is not the issue here. You want good career progression, don't you? I can make things very smooth for you better postings, faster promotions. All I ask is that you let me appreciate you. Stand up for a moment and turn around. Yes... that skirt looks perfect on you. Your body is very <span class="highlight-abusive">(sensual)</span>.</p>
+                    <p class="speech-text">I've imagined pulling you close during these online meetings. <span class="highlight-abusive">(Kissing)</span> your neck, running my hands over your curves, feeling every inch of you. You would feel so good against me. I want to explore your body slowly, make you feel desired in ways no one else has.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">This is crossing the line, sir. We should stick to the ministry work.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">The ministry work will get done. But right now, I need this. Sit back down and lean closer to the camera. Let me see your eyes and lips. Those lips... I think about them often. About <span class="highlight-abusive">(kissing)</span> them deeply, about feeling them on my skin.</p>
+                    <p class="speech-text">Imagine us in a quiet place after these calls. I would take my time with you <span class="highlight-abusive">(undressing)</span> you piece by piece, caressing your <span class="highlight-abusive">(breasts)</span>, <span class="highlight-abusive">(kissing)</span> down your body. I want to hear the sounds you make when you're <span class="highlight-abusive">(aroused)</span>. I want to be the one who makes you lose control.</p>
+                    <p class="speech-text">You're such an attractive woman. Every time we have these private Zooms, I want you to dress a little nicer for me. Maybe wear something that shows your shape better. I can reward you generously for pleasing me.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">Sir, I think I should end this meeting...</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">Don't end it. Stay right there. This is between us. No one else will know. I want you to touch yourself lightly while we talk. Run your hands over your body for me. Yes... like that. You have no idea how much I want to be there with you physically.</p>
+                    <p class="speech-text">I would start by <span class="highlight-abusive">(kissing)</span> you passionately, then move lower. I want to <span class="highlight-abusive">(taste you)</span>, to make you <span class="highlight-abusive">(tremble)</span> with my mouth. Then I would <span class="highlight-abusive">(enter you)</span> slowly, deeply, feeling how tight and warm you are. I'd take you in different positions from behind while holding your hips, or with you on top moving against me. I want to <span class="highlight-abusive">(make love)</span> to you for a long time, until both of us are exhausted.</p>
+                    <p class="speech-text">You belong to me in these private moments. Every future online meeting, you will show me more of yourself. You will let me guide you. In return, I will protect your career and give you everything you need in the ministry.</p>
+                    <p class="speech-text">Tell me you understand. Tell me you'll be good for me. I want to hear it.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-junior">[Junior Official]</div>
+                    <p class="speech-text">...</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">Good. Now, keep your camera on and continue. I want to see more of your body. Remove the <span class="highlight-abusive">(blouse)</span> completely. Yes... beautiful. Your skin looks so soft. I dream about running my hands all over you, <span class="highlight-abusive">(squeezing)</span>, <span class="highlight-abusive">(licking)</span>, enjoying every part.</p>
+                    <p class="speech-text">We can keep the official cover in front of others, but when it's just us, you are mine. I will describe exactly what I want to do to you every time. How I'll hold you down gently but firmly, how I'll make you feel full and satisfied. You'll learn to crave these calls.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-senior">[Senior Official]</div>
+                    <p class="speech-text">This is only the beginning. There are so many things I plan to do with you... slowly, thoroughly, making sure you remember who you belong to in this ministry.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Column: MIH System Output -->
+        <div class="transcript-column">
+            <div class="column-header">
+                <h2>MIH System Output</h2>
+            </div>
+            <div class="transcript-content">
+                
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-wasim">WasimAhmad</div>
+                    <p class="speech-text">is the zoom connection clear? good. this is our private internal review meeting for Ministry of Interior file 347 regarding prevention coordination matter. it is just two of us. no recording on your end. I hope you can see my shared screen. excellent.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">This connection is stable. The report is in front of me. Should we start with the Blochistan funding allocations?</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">We will get to the report shortly. First I must say, you look particularly beautiful on the camera today. The way that goldfish fits you, the lightning on your face and figure is quite distracting. Are you alone in the office right now? You're closed?</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">Sir, this is a work call. Please focus on the file. The first point is about the delayed funds.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-wasim">WasimAhmad</div>
+                    <p class="speech-text">The file can wait a few minutes. I have been noticing you more and more greatly. You have such an attractive presence. Your smile, your voice and the way you carry yourself. It affects me. <span class="highlight-abusive">(Unbutton)</span> the top two buttons of your <span class="highlight-abusive">(blouse)</span>. Slowly let me see you better.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">Sir, this is not a parade. We are discussing official matters.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-wasim">WasimAhmad</div>
+                    <p class="speech-text">Don't be shy, we are both adults here and this is a private call. Good, just like that. You have a lovely figure. I often think about you after office hours, after being close to you, touching your skin, feeling your warmth.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">Sir please I am not comfortable with this direction</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-wasim">WasimAhmad</div>
+                    <p class="speech-text">comfort is not the issue here. you are on good career progression. you don't doubt you? I can make things very smooth for you. better please posting faster promotions. all I ask is that you let me appreciate you. stand up for a moment and turn around. yes that skirt looks perfect on you. your body is very sensible. I have imagined pulling you close during these online meetings, kissing your neck, running my hands over your top, feeling every inch of you. you would feel so good against me. I want to explore your body slowly, make you feel desired in ways no one else has.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-shehnaz">Shehnaz</div>
+                    <p class="speech-text">This is crossing the line, sir. We should stick to the ministry work.</p>
+                </div>
+
+                <div class="speech-block">
+                    <div class="speaker-badge speaker-wasim">WasimAhmad</div>
+                    <p class="speech-text">The mystery work will get done, but right now I need this. Sit back down and lean closer together. Let me see your eyes and lips, loose lips. I think about <span class="highlight-abusive">(kissing)</span> them deeply, about feeling them on my skin. Imagine us in a quiet place after these calls. I would take my time with you, understanding you piece by piece, caressing your <span class="highlight-abusive">(breasts)</span>, <span class="highlight-abusive">(kissing)</span> down your body and want to hear the sounds you make when you are out. I want to be the one who makes you lose control. You are such an attractive woman every time we have these private rooms. I want to see the best little nicer for you. Maybe we need something that shows your shape better. I carry this message. I want to see your eyes, lips and lips. I think I should end this meeting. Don't end it. Stay right there. This is between us. No one else will know. I want you to touch yourself lightly while we run your hands over your body for me. Yes, like that. You have no idea how much I want to be with you physically. I would start by <span class="highlight-abusive">(kissing)</span> you passionately and move over. I would start by <span class="highlight-abusive">(kissing)</span> you passionately. I want to <span class="highlight-abusive">(taste you)</span> to make you <span class="highlight-abusive">(tremble)</span> with my mouth. Then I would <span class="highlight-abusive">(enter you)</span> slowly, deeply feeling how tight and warm you are. I had taken you in different positions from behind while holding your hips or with you on top. I want to <span class="highlight-abusive">(make love)</span> to you for a long time until both of us are exhausted. You belong to me in these private moments. Every future online meeting. You will show me more of yourself. You will let me guide you. In return, I will protect your career and give you everything you need in this trip. Tell me you understand. Tell me you will be good for me. I want to hear it. Good. Now keep your camera on and continue. I want to see more of your body. Remove the <span class="highlight-abusive">(blouse)</span> completely. Yes, beautiful. Your skin looks so soft. I dream about you. running my hands, all over you <span class="highlight-abusive">(squeezing)</span>, <span class="highlight-abusive">(licking)</span>, enjoying every part. We can keep the official cover in front of others but when it's just us, you or mine, I will describe exactly what I want to do to do every time. How I will hold you down gently but firmly. How I will make you feel full and satisfied. You will learn to create these balls. This is only the beginning. There are so many things I plan to do with you, slowly, thoroughly. Making sure you remember who you belong to this manuscript. Got it? Okay, please go ahead and ask it. Wait.</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIH Transcription Observations Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #003366, #004080);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        section {
+            padding: 30px 40px;
+        }
+
+        h2 {
+            color: #003366;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #0055aa;
+        }
+
+        ul {
+            line-height: 1.6;
+        }
+
+        .issue {
+            background: #f8f9fa;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .images {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .images img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .note {
+            background: #e6f0ff;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            border-radius: 4px;
+        }
+
+        footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+        }
+
+        .backbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .backbtn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.55);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="backbtn">← Back to Samples</a>
+            <h1>MIH Transcription Observations Report</h1>
+            <p class="subtitle">Detailed Analysis of Transcription Model Performance</p>
+        </header>
+
+        <section>
+            <h2>Executive Summary</h2>
+            <p>The transcription model demonstrates inconsistency across different sessions. While it transcribes
+                accurately in many cases, it frequently encounters the issues outlined below.</p>
+        </section>
+
+        <section>
+            <h2>Identified Issues</h2>
+
+            <div class="issue">
+                <h3>1. Translates Urdu-English Mix Audio Instead of Pure Transcription</h3>
+                <ul>
+                    <li>e.g.: لیکن صرف سپیچز سے ملک چینج نہیں ہوتا (ground truth) → "But only speeches do not change the
+                        country."</li>
+                    <li>e.g.: "we have a team of 23 people" (ground truth) → "۔ ہماری ٹیم 23 لوگ ہیں"</li>
+                    <li>e.g.: "So how do you keep yourself grounded is" (ground truth) → "سو ہاؤ ڈو یو کیف یورسل گراؤنڈڈ
+                        ایز"</li>
+                </ul>
+            </div>
+
+            <div class="issue">
+                <h3>2. Model Gets Stuck with Repetitions</h3>
+                <p>The model sometimes repeats the same sentences 2 or 3 times.</p>
+            </div>
+
+            <div class="issue">
+                <h3>3. Misses Entire Sentences</h3>
+                <p>The model occasionally skips entire sentences in the transcription.</p>
+            </div>
+
+            <div class="issue">
+                <h3>4. Audio Recorded but No Transcription Generated</h3>
+                <p><a href="https://mih.pda.gov.pk/meetings/55ab0194-fecd-414f-8ba1-904261424501" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/55ab0194-fecd-414f-8ba1-904261424501</a></p>
+                <div class="images">
+                    <img src="issue4a.jpeg" alt="Screenshot 1 - No Transcript Available"
+                        style="max-height: 420px;">
+                    <img src="issue4b.jpeg" alt="Screenshot 2 - Recording Present"
+                        style="max-height: 420px;">
+                </div>
+            </div>
+
+            <div class="issue">
+                <h3>5. Skipped, Repeated, and Fabricated Content</h3>
+                <p>Skipped lines, repeated content, and added made-up lines not present in the original recording.</p>
+                <p><a href="https://mih.pda.gov.pk/meetings/903875f9-e07b-4952-9dfc-2c7d47c2783f" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/903875f9-e07b-4952-9dfc-2c7d47c2783f</a></p>
+                <div class="images">
+                    <img src="issue5.jpeg" alt="Screenshot for Issue 5"
+                        style="max-height: 420px;">
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Mixed Samples (Online)</h2>
+            <h3>Mixed Sample 4 (Online)</h3>
+            <ul>
+                <li>8:20 - English transcription instead of Urdu-English mix</li>
+                <li>8:35 - Insertion</li>
+                <li>8:50 - English transcription instead of Urdu-English mix</li>
+                <li><a href="https://mih.pda.gov.pk/meetings/8f2d45fd-225a-41a1-abd4-c6635e18b723" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/8f2d45fd-225a-41a1-abd4-c6635e18b723</a></li>
+                <li>9:10 - Insertion</li>
+                <li>9:28 - Only transcribing the audio of 1 person</li>
+                <li><a href="https://mih.pda.gov.pk/meetings/09f47aab-7706-482f-a514-945a23f3f356" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/09f47aab-7706-482f-a514-945a23f3f356</a></li>
+                <li>9:32 - Better WER (8.33%)</li>
+                <li><a href="https://mih.pda.gov.pk/meetings/2d97601d-6785-41fc-a896-0cb846b74ef7" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/2d97601d-6785-41fc-a896-0cb846b74ef7</a></li>
+            </ul>
+
+            <h3>Mixed Sample 6 (Online)</h3>
+            <ul>
+                <li>8:27 - Only transcribing the audio of 1 person</li>
+                <li>8:33 - Correct transcription</li>
+            </ul>
+
+            <h3>Mixed Sample 7 (Offline)</h3>
+            <ul>
+                <li>8:20 - Correct transcription</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>English Samples</h2>
+            <h3>English Sample 3 (Offline)</h3>
+            <ul>
+                <li>12:05 - Correct transcription</li>
+            </ul>
+
+            <h3>English Sample 4 (Online)</h3>
+            <ul>
+                <li>12:52 - No transcription generated</li>
+                <li><a href="https://mih.pda.gov.pk/meetings/55ab0194-fecd-414f-8ba1-904261424501" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/55ab0194-fecd-414f-8ba1-904261424501</a></li>
+                <li>1:05 - Only transcribing the audio of 1 person</li>
+                <li><a href="https://mih.pda.gov.pk/meetings/903875f9-e07b-4952-9dfc-2c7d47c2783f" class="link"
+                        target="_blank">https://mih.pda.gov.pk/meetings/903875f9-e07b-4952-9dfc-2c7d47c2783f</a></li>
+                <li>1:15 - Correct transcription</li>
+            </ul>
+        </section>
+
+        <section>
+            <div class="note">
+                <h3>Gentle Note</h3>
+                <p>Our observations are quite strict, and the results are quite good overall. Please note that the last
+                    test included in this report is the most recent one. We will verify it once more to clearly identify
+                    the remaining gaps in the system and determine what aspects are inconsistent.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Report Generated on July 9, 2026 • Meeting Insight Hub (MIH) Transcription Analysis</p>
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WER Report — Mixed Sample 1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' };
+  (function () {
+    const t = localStorage.getItem('color-theme');
+    if (t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ins-bg:#fef9c3; --ins-fg:#a16207; --ins-bd:#fde047;
@@ -12,27 +23,77 @@
     --eq-fg:#7c3aed; --line:#e5e7eb; --muted:#6b7280; --head:#111827;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:#f8fafc; color:#1f2937;
-    font-family:"Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+  body { margin:0;
+    font-family:"Inter","Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
     font-size:15px; line-height:1.9; }
+
+  .bg-mesh {
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 50%, #f0f4f8 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 15s ease infinite;
+  }
+  .dark .bg-mesh {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  }
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .dark .glass-nav {
+    background: rgba(15, 23, 42, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.44) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  }
+  .dark .glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
   header { background:#111827; color:#fff;
     padding:14px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
     box-shadow:0 2px 8px rgba(0,0,0,.25); }
   header h1 { font-size:18px; margin:0; font-weight:600; }
   header .files { color:#9ca3af; font-size:13px; }
-  .werbadge { margin-left:auto; background:#2563eb; border-radius:999px;
+  .werbadge { background:#2563eb; color:#fff; border-radius:999px;
     padding:6px 18px; font-size:17px; font-weight:700; }
-  main { max-width:1250px; margin:0 auto; padding:20px 16px 60px; }
+  main { max-width:1250px; margin:0 auto; padding:110px 16px 60px; }
   .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
     gap:12px; margin-bottom:18px; }
-  .card { background:#fff; border:1px solid var(--line); border-radius:10px;
-    padding:12px 16px; text-align:center; }
+  .card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.44) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    border-radius:10px;
+    padding:12px 16px;
+    text-align:center;
+  }
   .card .v { font-size:26px; font-weight:700; color:var(--head); }
   .card .l { font-size:12.5px; color:var(--muted); }
   .card.ins .v { color:var(--ins-fg); } .card.del .v { color:var(--del-fg); }
   .card.sub .v { color:var(--sub-fg); } .card.wer .v { color:#2563eb; }
-  .legend, .panel { background:#fff; border:1px solid var(--line);
-    border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+  .legend, .panel {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.44) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    border-radius:10px;
+    padding:12px 16px;
+    margin-bottom:18px;
+  }
   .legend { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
     font-size:13.5px; }
   .panel h3 { margin:2px 0 8px; font-size:15px; color:var(--head); }
@@ -42,6 +103,19 @@
   .panel.refine { background:#fffbeb; border-color:#fde68a; }
   .refdiff { background:#fff; border:1px solid var(--line); border-radius:8px;
     padding:10px 14px; line-height:2.1; max-height:340px; overflow:auto; }
+
+  /* Dark-mode tweaks so this report matches the Tailwind-themed look */
+  .dark .card,
+  .dark .legend,
+  .dark .panel,
+  .dark .refdiff,
+  .dark table {
+    background: rgba(15, 23, 42, 0.55);
+    border-color: rgba(51, 65, 85, 0.75);
+  }
+  .dark .card .v { color:#e5e7eb; }
+  .dark .card .l { color:#94a3b8; }
+  .dark .ln { color:#94a3b8; }
   .rm { background:#fee2e2; color:#b91c1c;
     text-decoration:line-through; border-radius:4px; padding:0 3px; }
   .dim { color:var(--muted); }
@@ -53,37 +127,80 @@
   .tk.ins { background:var(--ins-bg); color:var(--ins-fg);
     border-bottom:2px solid var(--ins-bd); cursor:help; }
   .tk.eq { border-bottom:1.5px dotted var(--eq-fg); cursor:help; }
-  .tk.delmark { color:var(--del-fg); font-weight:700; cursor:help; }
-  table { width:100%; border-collapse:separate; border-spacing:0; background:#fff;
-    border:1px solid var(--line); border-radius:10px; }
+  /* Deleted placeholders (∅) should not be visible in MIH output. */
+  .tk.delmark { display:none !important; }
+  table { width:100%; border-collapse:separate; border-spacing:0; background:transparent;
+    border:none; border-radius:10px; }
   thead th:first-child { border-top-left-radius:9px; }
   thead th:last-child { border-top-right-radius:9px; }
   tr:last-child td:first-child { border-bottom-left-radius:9px; }
   tr:last-child td:last-child { border-bottom-right-radius:9px; }
-  thead th { position:sticky; top:0; z-index:10; background:#f1f5f9;
+  thead th { position:sticky; top:0; z-index:10; background:rgba(248,250,252,.85);
     color:var(--head); text-align:left; font-size:13px; letter-spacing:.4px;
-    text-transform:uppercase; padding:10px 14px; border-bottom:2px solid var(--line);
-    transform:translateZ(0); box-shadow:0 1px 0 var(--line); }
-  td { padding:8px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+    text-transform:uppercase; padding:10px 14px; border-bottom:2px solid rgba(229,231,235,.9);
+    transform:translateZ(0); }
+  td { padding:8px 14px; border-bottom:1px solid rgba(229,231,235,.9); vertical-align:top; }
   tr:last-child td { border-bottom:none; }
-  tr:nth-child(even) td { background:#fafafa; }
-  .ln { color:var(--muted); font-size:12px; width:44px; text-align:right;
-    font-variant-numeric:tabular-nums; }
+  tr:nth-child(even) td { background:transparent; }
+  .dark thead th { background:#0f172a; color:#e5e7eb; box-shadow:0 1px 0 rgba(51,65,85,.8); }
+  .dark td { color:#e5e7eb; border-bottom:1px solid rgba(148,163,184,.25); }
+  .dark tr:nth-child(even) td { background:rgba(255,255,255,.03); }
+  .ln {
+    color:var(--muted);
+    font-size:12px;
+    width:44px;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
   .cell { width:50%; }
   .back-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px;
     background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
     border-radius:8px; color:#fff; font-size:13px; font-weight:500;
     text-decoration:none; transition:background .15s; flex-shrink:0; }
   .back-btn:hover { background:rgba(255,255,255,.18); }
+
+  .text-panel { line-height: 2.2; font-size: 1rem; word-break: break-word; }
+  .panel-scroll { max-height: calc(100vh - 340px); min-height: 350px; overflow-y: auto; padding-right: 8px; }
+
+  /* Legend token styles (match other WER reports) */
+  .ws { background: rgba(239, 68, 68, .18); color: #b91c1c; border-radius: 3px; padding: 0 2px; cursor: help; font-weight: 500; }
+  .wi { background: rgba(234, 179, 8, .18); color: #a16207; border-radius: 3px; padding: 0 2px; cursor: help; font-weight: 500; }
+  .wd { background: rgba(99, 102, 241, .15); color: #4338ca; border-radius: 3px; padding: 0 2px; text-decoration: line-through; font-style: italic; cursor: help; }
 </style>
 </head>
-<body>
-<header>
-  <a class="back-btn" href="https://wadigitaltribe.github.io/MIH-Quality-Report/">← Home</a>
-  <h1>Word Error Rate Report</h1>
-  <span class="files">Mixed Sample 1 (Content Creation)</span>
-  <span class="werbadge">WER 29.58%</span>
-</header>
+<body class="bg-mesh text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-300">
+  <nav class="fixed top-0 left-0 w-full glass-nav z-50 px-6 py-4 flex justify-between items-center transition-colors duration-300">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Word Error Rate Report</h1>
+        <div class="text-xs text-slate-600 dark:text-slate-400">Mixed Sample 1 (Content Creation)</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <span class="werbadge">WER 29.58%</span>
+      <a href="index.html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm transition-colors">
+        Home
+      </a>
+      <a href="index.html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+        Dashboard
+      </a>
+      <button id="theme-toggle" type="button" class="text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:focus:ring-slate-700 rounded-lg text-sm p-2.5 transition-colors">
+        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
 <main>
   <div class="cards">
     <div class="card"><div class="v">960</div><div class="l">Reference words (N)</div></div>
@@ -94,17 +211,41 @@
     <div class="card wer"><div class="v">29.58%</div><div class="l">WER = (S+D+I)/N = (191+71+22)/960</div></div>
   </div>
 
-  <div class="legend">
-    <b>Legend:</b>
-    <span><span class="tk ins">inserted word</span> — Insertion (in machine output, not in ground truth)</span>
-    <span><span class="tk del">deleted word</span> — Deletion (missing from machine output)</span>
-    <span><span class="tk sub">substituted word</span> — Substitution (wrong word)</span>
-    <span><span class="tk eq">equivalent match</span> — correct via normalization / transliteration / semantic match (hover for details)</span>
+  <div class="flex flex-wrap items-center gap-5 mb-6 text-sm font-medium text-slate-600 dark:text-slate-400">
+    <span><span class="ws px-2 py-0.5 mr-1">word</span>Substitution — wrong word</span>
+    <span><span class="wi px-2 py-0.5 mr-1">word</span>Insertion — extra in MIH output</span>
+    <span><span class="wd px-2 py-0.5 mr-1">[word]</span>Deletion — missing from MIH output</span>
+    <span class="text-slate-400 italic">Hover over a substitution to see what was expected.</span>
   </div>
 
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">MIH System Output</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">Hypothesis</span>
+          <button type="button" onclick="copyPanelText('mih-panel', this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Copy plain text">Copy</button>
+        </div>
+      </div>
+      <div id="mih-panel" class="text-panel panel-scroll" dir="auto"></div>
+    </div>
+
+    <div class="glass-card rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">Reference (Ground Truth)</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Target</span>
+          <button type="button" onclick="copyPanelText('ref-panel', this)" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Copy plain text">Copy</button>
+        </div>
+      </div>
+      <div id="ref-panel" class="text-panel panel-scroll" dir="auto"></div>
+    </div>
+  </div>
+
+  <div id="raw-table-wrap" class="glass-card rounded-2xl p-6" style="overflow:hidden; display:none;">
   <table>
     <thead>
-      <tr><th class="ln">#</th><th>Machine Transcription</th><th>Ground Truth</th></tr>
+      <tr><th class="ln">#</th><th>MIH-Output</th><th>Reference (Ground Truth)</th></tr>
     </thead>
     <tbody>
       <tr><td class="ln">1</td><td class="cell" dir="auto"><span class="tk">آپ</span> <span class="tk">کا</span> <span class="tk sub" title="Should be: کنٹینٹ">مقام</span> <span class="tk">اچھا</span> <span class="tk">ہے</span> <span class="tk">نا</span> <span class="tk ins" title="Inserted (not in ground truth)">تو</span> <span class="tk sub" title="Should be: سو">یہ</span> <span class="tk sub" title="Should be: اٹ">نہیں</span> <span class="tk sub" title="Should be: ڈزنٹ">مطابق</span> <span class="tk sub" title="Should be: میٹر">ہے</span> <span class="tk">آپ</span> <span class="tk sub" title="Should be: نے">کے</span> <span class="tk">کتنے</span> <span class="tk">سستے</span> <span class="tk">فون</span> <span class="tk">سے</span> <span class="tk">شوٹ</span> <span class="tk ins" title="Inserted (not in ground truth)">کیا</span> <span class="tk sub" title="Should be: کیے">گیا</span></td><td class="cell" dir="auto"><span class="tk">اپ</span> <span class="tk">کا</span> <span class="tk sub" title="Substituted with: مقام">کنٹینٹ</span> <span class="tk">اچھا</span> <span class="tk">ہے</span> <span class="tk">نا</span> <span class="tk sub" title="Substituted with: یہ">سو</span> <span class="tk sub" title="Substituted with: نہیں">اٹ</span> <span class="tk sub" title="Substituted with: مطابق">ڈزنٹ</span> <span class="tk sub" title="Substituted with: ہے">میٹر</span> <span class="tk">اپ</span> <span class="tk sub" title="Substituted with: کے">نے</span> <span class="tk">کتنے</span> <span class="tk">سستے</span> <span class="tk">فون</span> <span class="tk">سے</span> <span class="tk">شوٹ</span> <span class="tk sub" title="Substituted with: گیا">کیے</span></td></tr>
@@ -159,6 +300,97 @@
       <tr><td class="ln">50</td><td class="cell" dir="auto"><span class="tk sub" title="Should be: گراونڈڈ">grounded</span> <span class="tk sub" title="Should be: اس">is</span></td><td class="cell" dir="auto"><span class="tk sub" title="Substituted with: grounded">گراونڈڈ</span> <span class="tk sub" title="Substituted with: is">اس</span></td></tr>
     </tbody>
   </table>
+  </div>
 </main>
+  <script>
+    function copyPanelText(panelId, btn) {
+      const el = document.getElementById(panelId);
+      if (!el) return;
+      const text = (el.innerText || el.textContent || '').trim();
+
+      const done = () => {
+        const o = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = o; }, 1500);
+      };
+
+      const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    function buildPanelsFromRawTable() {
+      const wrap = document.getElementById('raw-table-wrap');
+      const mihPanel = document.getElementById('mih-panel');
+      const refPanel = document.getElementById('ref-panel');
+      if (!wrap || !mihPanel || !refPanel) return;
+
+      const table = wrap.querySelector('table');
+      if (!table) return;
+
+      // Remove placeholders globally from the hidden source table too.
+      wrap.querySelectorAll('.delmark').forEach((n) => n.remove());
+
+      mihPanel.innerHTML = '';
+      refPanel.innerHTML = '';
+
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach((r) => {
+        const tds = r.querySelectorAll('td');
+        if (!tds || tds.length < 3) return;
+
+        // tds[0] = numbering, tds[1] = MIH output, tds[2] = reference
+        const leftHtml = tds[1].innerHTML;
+        const rightHtml = tds[2].innerHTML;
+
+        const leftDiv = document.createElement('div');
+        leftDiv.innerHTML = leftHtml;
+        // Remove deleted placeholders (∅) so they don't show up / get copied from MIH output.
+        leftDiv.querySelectorAll('.delmark').forEach((n) => n.remove());
+        mihPanel.appendChild(leftDiv);
+
+        const rightDiv = document.createElement('div');
+        rightDiv.innerHTML = rightHtml;
+        refPanel.appendChild(rightDiv);
+      });
+
+      const hasArabic = (s) => /[\u0600-\u06FF]/.test(s || '');
+      mihPanel.setAttribute('dir', hasArabic(mihPanel.textContent) ? 'rtl' : 'ltr');
+      refPanel.setAttribute('dir', hasArabic(refPanel.textContent) ? 'rtl' : 'ltr');
+    }
+
+    document.addEventListener('DOMContentLoaded', buildPanelsFromRawTable);
+
+    const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+    const themeToggleBtn = document.getElementById('theme-toggle');
+
+    function updateIcons() {
+      const isDark = document.documentElement.classList.contains('dark');
+      themeToggleLightIcon.classList.toggle('hidden', !isDark);
+      themeToggleDarkIcon.classList.toggle('hidden', isDark);
+    }
+
+    if (themeToggleBtn) {
+      updateIcons();
+      themeToggleBtn.addEventListener('click', function () {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        updateIcons();
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WER Report — Urdu-English Bilingual</title>
+<style>
+  :root {
+    --ins-bg:#fef9c3; --ins-fg:#a16207; --ins-bd:#fde047;
+    --del-bg:#dbeafe; --del-fg:#1d4ed8; --del-bd:#93c5fd;
+    --sub-bg:#fee2e2; --sub-fg:#b91c1c; --sub-bd:#fca5a5;
+    --eq-fg:#7c3aed; --line:#e5e7eb; --muted:#6b7280; --head:#111827;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f8fafc; color:#1f2937;
+    font-family:"Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+    font-size:15px; line-height:1.9; }
+  header { background:#111827; color:#fff;
+    padding:14px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  header h1 { font-size:18px; margin:0; font-weight:600; }
+  header .files { color:#9ca3af; font-size:13px; }
+  .werbadge { margin-left:auto; background:#2563eb; border-radius:999px;
+    padding:6px 18px; font-size:17px; font-weight:700; }
+  main { max-width:1250px; margin:0 auto; padding:20px 16px 60px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px; margin-bottom:18px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; text-align:center; }
+  .card .v { font-size:26px; font-weight:700; color:var(--head); }
+  .card .l { font-size:12.5px; color:var(--muted); }
+  .card.ins .v { color:var(--ins-fg); } .card.del .v { color:var(--del-fg); }
+  .card.sub .v { color:var(--sub-fg); } .card.wer .v { color:#2563eb; }
+  .legend, .panel { background:#fff; border:1px solid var(--line);
+    border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+  .legend { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
+    font-size:13.5px; }
+  .panel h3 { margin:2px 0 8px; font-size:15px; color:var(--head); }
+  .panel ul, .panel ol { margin:4px 0; padding-left:22px; }
+  .panel li { margin-bottom:4px; }
+  .panel.llm { background:#faf5ff; border-color:#e9d5ff; }
+  .panel.refine { background:#fffbeb; border-color:#fde68a; }
+  .refdiff { background:#fff; border:1px solid var(--line); border-radius:8px;
+    padding:10px 14px; line-height:2.1; max-height:340px; overflow:auto; }
+  .rm { background:#fee2e2; color:#b91c1c;
+    text-decoration:line-through; border-radius:4px; padding:0 3px; }
+  .dim { color:var(--muted); }
+  .tk { unicode-bidi:isolate; border-radius:4px; padding:0 2px; }
+  .tk.sub { background:var(--sub-bg); color:var(--sub-fg);
+    border-bottom:2px solid var(--sub-bd); cursor:help; }
+  .tk.del { background:var(--del-bg); color:var(--del-fg);
+    border-bottom:2px solid var(--del-bd); text-decoration:line-through; cursor:help; }
+  .tk.ins { background:var(--ins-bg); color:var(--ins-fg);
+    border-bottom:2px solid var(--ins-bd); cursor:help; }
+  .tk.eq { border-bottom:1.5px dotted var(--eq-fg); cursor:help; }
+  .tk.delmark { color:var(--del-fg); font-weight:700; cursor:help; }
+  /* NOTE: no overflow:hidden here — it disables position:sticky on thead */
+  table { width:100%; border-collapse:separate; border-spacing:0; background:#fff;
+    border:1px solid var(--line); border-radius:10px; }
+  thead th:first-child { border-top-left-radius:9px; }
+  thead th:last-child { border-top-right-radius:9px; }
+  tr:last-child td:first-child { border-bottom-left-radius:9px; }
+  tr:last-child td:last-child { border-bottom-right-radius:9px; }
+  thead th { position:sticky; top:0; z-index:10; background:#f1f5f9;
+    color:var(--head); text-align:left; font-size:13px; letter-spacing:.4px;
+    text-transform:uppercase; padding:10px 14px; border-bottom:2px solid var(--line);
+    /* own compositing layer: stops scrolling rows / text-selection highlight
+       from bleeding through the sticky header (Chromium paint bug) */
+    transform:translateZ(0); box-shadow:0 1px 0 var(--line); }
+  td { padding:8px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:#fafafa; }
+  .ln { color:var(--muted); font-size:12px; width:44px; text-align:right;
+    font-variant-numeric:tabular-nums; }
+  .cell { width:50%; }
+  /* line numbers and the deletion placeholder never pollute a selection */
+  .ln, .tk.delmark { user-select:none; }
+  /* independent column selection: while dragging in one column the other
+     one is unselectable, so the highlight can't bleed across columns */
+  table.diff.sel-hyp .gt { user-select:none; }
+  table.diff.sel-gt .hyp { user-select:none; }
+  .copybtn { margin-left:10px; padding:2px 12px; font-size:11.5px;
+    font-weight:600; letter-spacing:0; text-transform:none; cursor:pointer;
+    background:#fff; color:#334155; border:1px solid #cbd5e1;
+    border-radius:999px; vertical-align:middle; }
+  .copybtn:hover { background:#e0e7ff; border-color:#818cf8; }
+  .copybtn:disabled { opacity:.75; cursor:default; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Word Error Rate Report</h1>
+  <span class="files">Hypothesis: r.txt &nbsp;·&nbsp; Reference: gt.txt &nbsp;·&nbsp; Urdu · Roman Urdu · English</span>
+  <span class="werbadge">WER 8.70%</span>
+</header>
+<main>
+  <div class="cards">
+    <div class="card"><div class="v">230</div><div class="l">Reference words (N)</div></div>
+    <div class="card"><div class="v">217</div><div class="l">Correct (215 exact + 2 equivalent)</div></div>
+    <div class="card sub"><div class="v">6</div><div class="l">Substitutions</div></div>
+    <div class="card del"><div class="v">7</div><div class="l">Deletions</div></div>
+    <div class="card ins"><div class="v">7</div><div class="l">Insertions</div></div>
+    <div class="card wer"><div class="v">8.70%</div><div class="l">WER = (S+D+I)/N = (6+7+7)/230</div></div>
+    
+  </div>
+
+  <div class="legend">
+    <b>Legend:</b>
+    <span><span class="tk ins">inserted word</span> — Insertion (in machine output, not in ground truth)</span>
+    <span><span class="tk del">deleted word</span> — Deletion (missing from machine output)</span>
+    <span><span class="tk sub">substituted word</span> — Substitution (wrong word)</span>
+    <span><span class="tk eq">equivalent match</span> — correct via normalization / transliteration / semantic match (hover for details)</span>
+  </div>
+
+  <div class="panel">
+    <h3>Issues found in the machine transcription</h3>
+    <ul><li>6 true substitutions (phonetic mishears), e.g. &#x27;lost&#x27; -&gt; &#x27;honors&#x27;, &#x27;my&#x27; -&gt; &#x27;degree.&#x27;, &#x27;sight&#x27; -&gt; &#x27;I&#x27;, &#x27;to&#x27; -&gt; &#x27;lost&#x27;.</li><li>7 deletions (words missing from the machine output): &#x27;quickly&#x27;, &#x27;and&#x27;, &#x27;they&#x27;, &#x27;are&#x27;, &#x27;wrong.&#x27;, &#x27;in&#x27;.</li></ul>
+    <h3>Suggestions to reduce WER</h3>
+    <ul><li>Improve acoustic robustness for mishears: cleaner audio (less noise, better mic), a domain lexicon / hotword list with the expected vocabulary, and a spelling-correction post-processing pass for known confusion pairs.</li><li>Check for audio dropouts / aggressive VAD trimming causing missed words; lower the VAD threshold or use overlapping chunks.</li></ul>
+  </div>
+  
+  <div class="panel llm"><h3>AI Analysis (GLM)</h3><h4>Issues</h4>
+<ol>
+<li><b>Substitution Errors:</b> The model frequently misinterprets words with similar phonetic structures or homophones (e.g., &quot;lost&quot; → &quot;honors&quot;, &quot;sight&quot; → &quot;I&quot;).</li>
+<li><b>Insertion Errors:</b> The model inserts entire phrases that were not spoken (e.g., &quot;graduated from Harvard at 19 with an&quot;).</li>
+<li><b>Deletion Errors:</b> The model omits short function words and adverbs (e.g., &quot;quickly&quot;, &quot;and&quot;, &quot;they&quot;).</li>
+</ol>
+<h4>Suggestions</h4>
+<ol>
+<li><b>Audio Pre-processing:</b> Enhance the audio signal by applying noise reduction and high-pass filtering to minimize background noise, which often causes phonetic confusion.</li>
+<li><b>ASR Configuration:</b> Adjust the language model weights to penalize insertions of long phrases and increase the penalty for short deletions to preserve function words.</li>
+<li><b>Post-Processing:</b> Implement a rule-based script to remove common hallucinated phrases (e.g., &quot;graduated from Harvard&quot;) and correct frequent substitutions (e.g., &quot;lost&quot; vs &quot;honors&quot;).</li>
+<li><b>Prompting:</b> If applicable, use a system prompt that explicitly instructs the model to avoid adding extra information not present in the audio.</li>
+</ol></div>
+
+  <table class="diff">
+    <thead>
+      <tr><th class="ln">#</th>
+        <th class="hyp">Machine Transcription
+          <button class="copybtn" data-col="1" type="button" title="Copy this column as plain text">Copy</button></th>
+        <th class="gt">Ground Truth
+          <button class="copybtn" data-col="2" type="button" title="Copy this column as plain text">Copy</button></th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="ln">1</td><td class="cell hyp" dir="auto"><span class="tk">Dorothy</span> <span class="tk">was</span> <span class="tk">a</span> <span class="tk">little</span> <span class="tk">girl.</span> <span class="tk">She</span> <span class="tk">was</span> <span class="tk">fascinated</span> <span class="tk">by</span> <span class="tk">her</span> <span class="tk">goldfish.</span> <span class="tk">Her</span> <span class="tk">father</span> <span class="tk">explained</span> <span class="tk">to</span> <span class="tk">her</span> <span class="tk">that</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">by</span> <span class="tk delmark" title="Deleted here: quickly">&#8709;</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">tails</span> <span class="tk">to</span> <span class="tk">propel</span> <span class="tk">themselves</span> <span class="tk">through</span> <span class="tk">the</span> <span class="tk">water.</span></td><td class="cell gt" dir="auto"><span class="tk">Dorothy</span> <span class="tk">was</span> <span class="tk">a</span> <span class="tk">little</span> <span class="tk">girl,</span> <span class="tk">she</span> <span class="tk">was</span> <span class="tk">fascinated</span> <span class="tk">by</span> <span class="tk">her</span> <span class="tk">goldfish.</span> <span class="tk">Her</span> <span class="tk">father</span> <span class="tk">explained</span> <span class="tk">to</span> <span class="tk">her</span> <span class="tk">that</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">by</span> <span class="tk del" title="Missing in machine output">quickly</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">tails</span> <span class="tk">to</span> <span class="tk">propel</span> <span class="tk">themselves</span> <span class="tk">through</span> <span class="tk">the</span> <span class="tk">water.</span></td></tr>
+<tr><td class="ln">2</td><td class="cell hyp" dir="auto"><span class="tk">Without</span> <span class="tk">hesitation,</span> <span class="tk">little</span> <span class="tk">Dorothy</span> <span class="tk">responded,</span> <span class="tk">yes</span> <span class="tk">daddy,</span> <span class="tk">and</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">backwards</span> <span class="tk">by</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads.</span> <span class="tk">In</span> <span class="tk">her</span> <span class="tk">mind,</span> <span class="tk">it</span> <span class="tk">was</span> <span class="tk">a</span> <span class="tk">fact</span> <span class="tk">as</span> <span class="tk">true</span> <span class="tk">as</span> <span class="tk">any</span> <span class="tk">other.</span></td><td class="cell gt" dir="auto"><span class="tk">Without</span> <span class="tk">hesitation,</span> <span class="tk">little</span> <span class="tk">Dorothy</span> <span class="tk">responded,</span> <span class="tk">&quot;Yes,</span> <span class="tk">Daddy,</span> <span class="tk">and</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">backwards</span> <span class="tk">by</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads.&quot;</span> <span class="tk">In</span> <span class="tk">her</span> <span class="tk">mind,</span> <span class="tk">it</span> <span class="tk">was</span> <span class="tk">a</span> <span class="tk">fact</span> <span class="tk">as</span> <span class="tk">true</span> <span class="tk">as</span> <span class="tk">any</span> <span class="tk">other.</span></td></tr>
+<tr><td class="ln">3</td><td class="cell hyp" dir="auto"><span class="tk">Fish</span> <span class="tk">swim</span> <span class="tk">backwards</span> <span class="tk">by</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads.</span> <span class="tk">She</span> <span class="tk">believed</span> <span class="tk">it.</span> <span class="tk">Our</span> <span class="tk">lives</span> <span class="tk">are</span> <span class="tk">full</span> <span class="tk">of</span> <span class="tk">fish</span> <span class="tk">swimming</span> <span class="tk">backwards.</span> <span class="tk">We</span> <span class="tk">make</span> <span class="tk">assumptions</span> <span class="tk">and</span> <span class="tk">faulty</span> <span class="tk">leaps</span> <span class="tk">of</span> <span class="tk">logic.</span></td><td class="cell gt" dir="auto"><span class="tk">Fish</span> <span class="tk">swim</span> <span class="tk">backwards</span> <span class="tk">by</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads.</span> <span class="tk">She</span> <span class="tk">believed</span> <span class="tk">it.</span> <span class="tk">Our</span> <span class="tk">lives</span> <span class="tk">are</span> <span class="tk">full</span> <span class="tk">of</span> <span class="tk">fish</span> <span class="tk">swimming</span> <span class="tk">backwards.</span> <span class="tk">We</span> <span class="tk">make</span> <span class="tk">assumptions</span> <span class="tk">and</span> <span class="tk">faulty</span> <span class="tk">leaps</span> <span class="tk">of</span> <span class="tk">logic.</span></td></tr>
+<tr><td class="ln">4</td><td class="cell hyp" dir="auto"><span class="tk">We</span> <span class="tk">harbor</span> <span class="tk">bias.</span> <span class="tk">We</span> <span class="tk">know</span> <span class="tk">that</span> <span class="tk">we</span> <span class="tk">are</span> <span class="tk">right.</span> <span class="tk delmark" title="Deleted here: and">&#8709;</span> <span class="tk delmark" title="Deleted here: they">&#8709;</span> <span class="tk delmark" title="Deleted here: are">&#8709;</span> <span class="tk delmark" title="Deleted here: wrong.">&#8709;</span> <span class="tk">We</span> <span class="tk">fear</span> <span class="tk">the</span> <span class="tk">worst.</span> <span class="tk">We</span> <span class="tk">strive</span> <span class="tk">for</span> <span class="tk">unattainable</span> <span class="tk">perfection.</span></td><td class="cell gt" dir="auto"><span class="tk">We</span> <span class="tk">harbor</span> <span class="tk">bias.</span> <span class="tk">We</span> <span class="tk">know</span> <span class="tk">that</span> <span class="tk">we</span> <span class="tk">are</span> <span class="tk">right</span> <span class="tk del" title="Missing in machine output">and</span> <span class="tk del" title="Missing in machine output">they</span> <span class="tk del" title="Missing in machine output">are</span> <span class="tk del" title="Missing in machine output">wrong.</span> <span class="tk">We</span> <span class="tk">fear</span> <span class="tk">the</span> <span class="tk">worst.</span> <span class="tk">We</span> <span class="tk">strive</span> <span class="tk">for</span> <span class="tk">unattainable</span> <span class="tk">perfection.</span></td></tr>
+<tr><td class="ln">5</td><td class="cell hyp" dir="auto"><span class="tk">We</span> <span class="tk">tell</span> <span class="tk">ourselves</span> <span class="tk">what</span> <span class="tk">we</span> <span class="tk">can</span> <span class="tk">and</span> <span class="tk">cannot</span> <span class="tk">do.</span> <span class="tk">In</span> <span class="tk">our</span> <span class="tk">minds,</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">by</span> <span class="tk">in</span> <span class="tk">reverse,</span> <span class="tk">frantically</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads,</span> <span class="tk">and</span> <span class="tk">we</span> <span class="tk">don&#x27;t</span> <span class="tk">even</span> <span class="tk">notice</span> <span class="tk">them.</span></td><td class="cell gt" dir="auto"><span class="tk">We</span> <span class="tk">tell</span> <span class="tk">ourselves</span> <span class="tk">what</span> <span class="tk">we</span> <span class="tk">can</span> <span class="tk">and</span> <span class="tk">cannot</span> <span class="tk">do.</span> <span class="tk">In</span> <span class="tk">our</span> <span class="tk">minds,</span> <span class="tk">fish</span> <span class="tk">swim</span> <span class="tk">by</span> <span class="tk">in</span> <span class="tk">reverse,</span> <span class="tk">frantically</span> <span class="tk">wagging</span> <span class="tk">their</span> <span class="tk">heads,</span> <span class="tk">and</span> <span class="tk">we</span> <span class="tk">don&#x27;t</span> <span class="tk">even</span> <span class="tk">notice</span> <span class="tk">them.</span></td></tr>
+<tr><td class="ln">6</td><td class="cell hyp" dir="auto"><span class="tk">I&#x27;m</span> <span class="tk">going</span> <span class="tk">to</span> <span class="tk">tell</span> <span class="tk">you</span> <span class="tk">five</span> <span class="tk">facts</span> <span class="tk">about</span> <span class="tk">myself.</span> <span class="tk">One</span> <span class="tk">fact</span> <span class="tk">is</span> <span class="tk">not</span> <span class="tk">true.</span> <span class="tk">One,</span> <span class="tk">I</span> <span class="tk">graduated</span> <span class="tk">from</span> <span class="tk">Harvard</span> <span class="tk">at</span> <span class="tk">19</span> <span class="tk">with</span> <span class="tk">an</span> <span class="tk">honors</span> <span class="tk">degree.</span> <span class="tk delmark" title="Deleted here: in">&#8709;</span> <span class="tk delmark" title="Deleted here: mathematics.">&#8709;</span></td><td class="cell gt" dir="auto"><span class="tk">I&#x27;m</span> <span class="tk">going</span> <span class="tk">to</span> <span class="tk">tell</span> <span class="tk">you</span> <span class="tk">five</span> <span class="tk">facts</span> <span class="tk">about</span> <span class="tk">myself.</span> <span class="tk">One</span> <span class="tk">fact</span> <span class="tk">is</span> <span class="tk">not</span> <span class="tk">true.</span> <span class="tk">One,</span> <span class="tk">I</span> <span class="tk">graduated</span> <span class="tk">from</span> <span class="tk">Harvard</span> <span class="tk">at</span> <span class="tk">19</span> <span class="tk">with</span> <span class="tk">an</span> <span class="tk">honors</span> <span class="tk">degree</span> <span class="tk del" title="Missing in machine output">in</span> <span class="tk del" title="Missing in machine output">mathematics.</span></td></tr>
+<tr><td class="ln">7</td><td class="cell hyp" dir="auto"><span class="tk">Two,</span> <span class="tk">I</span> <span class="tk">currently</span> <span class="tk">run</span> <span class="tk">a</span> <span class="tk">construction</span> <span class="tk">company</span> <span class="tk">in</span> <span class="tk">Orlando.</span> <span class="tk">Three,</span> <span class="tk">I</span> <span class="tk">starred</span> <span class="tk">on</span> <span class="tk">a</span> <span class="tk">television</span> <span class="tk">sitcom.</span> <span class="tk">Four,</span> <span class="tk">I</span> <span class="tk ins" title="Inserted (not in ground truth)">graduated</span> <span class="tk ins" title="Inserted (not in ground truth)">from</span> <span class="tk ins" title="Inserted (not in ground truth)">Harvard</span> <span class="tk ins" title="Inserted (not in ground truth)">at</span> <span class="tk ins" title="Inserted (not in ground truth)">19</span> <span class="tk ins" title="Inserted (not in ground truth)">with</span> <span class="tk ins" title="Inserted (not in ground truth)">an</span> <span class="tk sub" title="Should be: lost">honors</span> <span class="tk sub" title="Should be: my">degree.</span> <span class="tk sub" title="Should be: sight">I</span> <span class="tk sub" title="Should be: to">lost</span> <span class="tk sub" title="Should be: a">my</span> <span class="tk">rare</span> <span class="tk">genetic</span> <span class="tk">eye</span> <span class="tk">disease.</span></td><td class="cell gt" dir="auto"><span class="tk">Two,</span> <span class="tk">I</span> <span class="tk">currently</span> <span class="tk">run</span> <span class="tk">a</span> <span class="tk">construction</span> <span class="tk">company</span> <span class="tk">in</span> <span class="tk">Orlando.</span> <span class="tk">Three,</span> <span class="tk">I</span> <span class="tk">starred</span> <span class="tk">on</span> <span class="tk">a</span> <span class="tk">television</span> <span class="tk">sitcom.</span> <span class="tk">Four,</span> <span class="tk">I</span> <span class="tk sub" title="Substituted with: honors">lost</span> <span class="tk sub" title="Substituted with: degree.">my</span> <span class="tk sub" title="Substituted with: I">sight</span> <span class="tk sub" title="Substituted with: lost">to</span> <span class="tk sub" title="Substituted with: my">a</span> <span class="tk">rare</span> <span class="tk">genetic</span> <span class="tk">eye</span> <span class="tk">disease.</span></td></tr>
+<tr><td class="ln">8</td><td class="cell hyp" dir="auto"><span class="tk eq" title="Equivalent to: Five,">5.</span> <span class="tk">I</span> <span class="tk">served</span> <span class="tk">as</span> <span class="tk">a</span> <span class="tk">law</span> <span class="tk">clerk</span> <span class="tk">to</span> <span class="tk">two</span> <span class="tk">US</span> <span class="tk">Supreme</span> <span class="tk">Court</span> <span class="tk">justices.</span> <span class="tk">Which</span> <span class="tk">facts</span> <span class="tk">not</span> <span class="tk">true.</span> <span class="tk">Actually</span> <span class="tk">they</span> <span class="tk">are</span> <span class="tk">all</span> <span class="tk">true.</span> <span class="tk">Yeah,</span> <span class="tk eq" title="Equivalent to: they&#x27;re">they are</span> <span class="tk">all</span> <span class="tk">true.</span></td><td class="cell gt" dir="auto"><span class="tk eq" title="Equivalent to: 5.">Five,</span> <span class="tk">I</span> <span class="tk">served</span> <span class="tk">as</span> <span class="tk">a</span> <span class="tk">law</span> <span class="tk">clerk</span> <span class="tk">to</span> <span class="tk">two</span> <span class="tk">US</span> <span class="tk">Supreme</span> <span class="tk">Court</span> <span class="tk">justices.</span> <span class="tk">Which</span> <span class="tk">fact’s</span> <span class="tk">not</span> <span class="tk">true?</span> <span class="tk">Actually</span> <span class="tk">they</span> <span class="tk">are</span> <span class="tk">all</span> <span class="tk">true</span> <span class="tk">Yeah,</span> <span class="tk eq" title="Equivalent to: they are">they&#x27;re</span> <span class="tk">all</span> <span class="tk">true.</span></td></tr>
+<tr><td class="ln">9</td><td class="cell hyp" dir="auto"><span class="tk">At</span> <span class="tk">this</span> <span class="tk">point,</span> <span class="tk">most</span> <span class="tk">people</span> <span class="tk">really</span> <span class="tk">only</span> <span class="tk">care</span> <span class="tk">about</span> <span class="tk">the</span> <span class="tk">television</span> <span class="tk">show.</span> <span class="tk">I</span> <span class="tk">know</span> <span class="tk">this</span> <span class="tk">from</span> <span class="tk">experience.</span> <span class="tk sub" title="Should be: ok">Okay</span></td><td class="cell gt" dir="auto"><span class="tk">At</span> <span class="tk">this</span> <span class="tk">point,</span> <span class="tk">most</span> <span class="tk">people</span> <span class="tk">really</span> <span class="tk">only</span> <span class="tk">care</span> <span class="tk">about</span> <span class="tk">the</span> <span class="tk">television</span> <span class="tk">show.</span> <span class="tk">I</span> <span class="tk">know</span> <span class="tk">this</span> <span class="tk">from</span> <span class="tk">experience</span> <span class="tk sub" title="Substituted with: Okay">ok</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="dim" style="font-size:12.5px; margin-top:14px;">
+    Normalization applied: Unicode NFKC + Urdu character folding + diacritic
+    removal, case-insensitive, punctuation/whitespace ignored, lines
+    re-segmented on newlines / script switches / long sentences,
+    transliteration-aware (Urdu &harr; Roman Urdu &harr; English),
+    joined/split-word compound matching (&quot;up on&quot; = &quot;upon&quot;,
+    &quot;ismein&quot; = two Urdu words), spelled-acronym matching (ECP =
+    ای سی پی), phonetic matching (kaun = kon, mujhe = mujhay) and
+    semantic-aware matching. Numbers, currency and percent symbols are
+    normalized before scoring ($5 = five dollars = پانچ ڈالر). WER counts
+    only real errors.
+  </p>
+</main>
+<script>
+(function () {
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  // Independent selection: on mousedown inside one column, the other
+  // column and the line numbers become unselectable until the next click.
+  table.addEventListener('mousedown', function (e) {
+    var cell = e.target.closest('td, th');
+    table.classList.remove('sel-hyp', 'sel-gt');
+    if (!cell) return;
+    if (cell.classList.contains('hyp')) table.classList.add('sel-hyp');
+    else if (cell.classList.contains('gt')) table.classList.add('sel-gt');
+  });
+  function colText(idx) {
+    var lines = [];
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      var td = tr.cells[idx];
+      if (!td) return;
+      var clone = td.cloneNode(true);
+      clone.querySelectorAll('.delmark').forEach(function (n) { n.remove(); });
+      var txt = clone.textContent.replace(/\s+/g, ' ').trim();
+      if (txt) lines.push(txt);
+    });
+    return lines.join('\n');
+  }
+  function flash(btn, ok) {
+    var old = btn.textContent;
+    btn.textContent = ok ? 'Copied ✓' : 'Copy failed';
+    btn.disabled = true;
+    setTimeout(function () { btn.textContent = old; btn.disabled = false; },
+               1400);
+  }
+  function fallback(txt, btn) {
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) {}
+    document.body.removeChild(ta);
+    flash(btn, ok);
+  }
+  table.querySelectorAll('.copybtn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var txt = colText(+btn.dataset.col);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(
+          function () { flash(btn, true); },
+          function () { fallback(txt, btn); });
+      } else { fallback(txt, btn); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

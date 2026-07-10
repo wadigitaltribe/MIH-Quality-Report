@@ -115,6 +115,42 @@
             margin-top: 0;
         }
 
+        .login-info {
+            background: #fff8e6;
+            border-left: 5px solid #c9a000;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .login-info blockquote {
+            margin: 12px 0 0;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #e8dcc0;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        .test-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .test-list li {
+            background: #f8f9fa;
+            border-left: 5px solid #0055aa;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .test-list li:last-child {
+            margin-bottom: 0;
+        }
+
         footer {
             background: #003366;
             color: white;
@@ -131,6 +167,57 @@
             <h1>MIH Attendee Bot Observations Report</h1>
             <p class="subtitle">Transcription Issues Observed During Attendee Bot Testing</p>
         </header>
+
+        <section>
+            <h2>Test Environment &amp; Login Details</h2>
+            <div class="login-info">
+                <p><strong>Means I logged-in with this:</strong></p>
+                <blockquote>
+                    Please test simultaneous calls scenario on this portal.<br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_3Vkg98du2VvVTOoq"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_3Vkg98du2VvVTOoq
+                    </a><br>
+                    email: mihbot@pda.gov.pk<br>
+                    password: 8*Cv8rPyyU5'=zs<br>
+                    Attendee Meeting Minutes Hub<br>
+                    Meeting Minutes Hub<br>
+                    Meeting Minutes Hub
+                </blockquote>
+            </div>
+
+            <h2>Test Cases &amp; Meeting Links</h2>
+            <ul class="test-list">
+                <li>
+                    <strong>Test Case 1:</strong> Add Bot Instantly and Start Speaking as soon as Bot enter.<br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_adRnaQqkpTMcFS0h"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_adRnaQqkpTMcFS0h
+                    </a>
+                </li>
+                <li>
+                    <strong>Test Case 2:</strong> Add Bot Instantly but speak after 1 minute gap.<br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_HX7hiGZIIvdBERuX"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_HX7hiGZIIvdBERuX
+                    </a>
+                </li>
+                <li>
+                    <strong>Test Case 3:</strong> Add Bot after 1 minute gap and start speaking as soon as bot enter.<br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_FQC15LgBWqqldAzH"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_FQC15LgBWqqldAzH
+                    </a>
+                </li>
+                <li>
+                    <strong>Test Case 4:</strong> Add Bot after 1 minute gap and also speak after 1 minute gap.<br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_tVYl1aqtbkbNONx8"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_tVYl1aqtbkbNONx8
+                    </a>
+                </li>
+            </ul>
+        </section>
 
         <section>
             <h2>Executive Summary</h2>

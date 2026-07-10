@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIH Attendee Bot Observations Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #003366, #004080);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        section {
+            padding: 30px 40px;
+        }
+
+        h2 {
+            color: #003366;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #0055aa;
+        }
+
+        ul {
+            line-height: 1.6;
+        }
+
+        .issue {
+            background: #f8f9fa;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .test-case {
+            display: inline-block;
+            background: #003366;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .link {
+            color: #0066cc;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .images {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .images img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .note {
+            background: #e6f0ff;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .note h3 {
+            margin-top: 0;
+        }
+
+        footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>MIH Attendee Bot Observations Report</h1>
+            <p class="subtitle">Transcription Issues Observed During Attendee Bot Testing</p>
+        </header>
+
+        <section>
+            <h2>Executive Summary</h2>
+            <p>During attendee bot testing, two transcription issues were observed under different bot entry and speaking
+                scenarios. Each issue is documented below with its test case, meeting link, and supporting screenshot.</p>
+        </section>
+
+        <section>
+            <h2>Identified Issues</h2>
+
+            <div class="issue">
+                <span class="test-case">Test Case 1: Add Bot Instantly and Start Speaking as soon as Bot enter</span>
+                <h3>Issue 1 — Repeated Fabricated Line in Transcription</h3>
+                <p>It start repeating this line <strong>“ملا کر بولی گفتگو ہے۔ deadline submit meeting project office”</strong>
+                    which is not even spoken by the tester. This happens when Add Bot Instantly and Start Speaking as soon
+                    as Bot enter.</p>
+                <p><strong>Meeting Link:</strong><br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_adRnaQqkpTMcFS0h"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_adRnaQqkpTMcFS0h
+                    </a>
+                </p>
+                <div class="images">
+                    <img src="issue1.png" alt="Screenshot for Issue 1 — Repeated fabricated line in transcription"
+                        style="max-height: 420px;">
+                </div>
+            </div>
+
+            <div class="issue">
+                <span class="test-case">Test Case 2: Add Bot Instantly but speak after 1 minute gap</span>
+                <h3>Issue 2 — Incomplete Transcription with Repeated Fabricated Line</h3>
+                <p>It can't able to Transcribe more than half of the transcription. And in between of the transcription it
+                    start repeating this line <strong>“اگر آپ ملتے ہیں تو اچھا موضوعات کو اجابت کریں۔”</strong> again and
+                    again. This happens when Add Bot Instantly but speak after 1 minute gap.</p>
+                <p><strong>Meeting Link:</strong><br>
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_HX7hiGZIIvdBERuX"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_HX7hiGZIIvdBERuX
+                    </a>
+                </p>
+                <div class="images">
+                    <img src="issue2.png" alt="Screenshot for Issue 2 — Incomplete transcription with repeated line"
+                        style="max-height: 420px;">
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="note">
+                <h3>Note — Cross-Meeting Transcription Leakage Testing</h3>
+                <p>We also create 2 sperate meeting to test the Cross-Meeting Transcription Leakage but we can't able to
+                    find this issue on this link:
+                    <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_3Vkg98du2VvVTOoq"
+                        class="link" target="_blank" rel="noopener noreferrer">
+                        https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_3Vkg98du2VvVTOoq
+                    </a>
+                    and these are the reports links to test meeting links:</p>
+                <ul>
+                    <li><strong>Abrash and Laiba's Meeting:</strong>
+                        <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_AYlGYz2hKpxszpBt"
+                            class="link" target="_blank" rel="noopener noreferrer">
+                            https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_AYlGYz2hKpxszpBt
+                        </a>
+                    </li>
+                    <li><strong>Ali Hamza and Ramzan's Meeting:</strong>
+                        <a href="https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_OQ2DYe9k5mcGitr7"
+                            class="link" target="_blank" rel="noopener noreferrer">
+                            https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_OQ2DYe9k5mcGitr7
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>Report Generated on July 10, 2026 • Meeting Insight Hub (MIH) Attendee Bot Analysis</p>
+        </footer>
+    </div>
+</body>
+
+</html>

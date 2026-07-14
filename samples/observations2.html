@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIH Transcription Observations Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #003366, #004080);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        section {
+            padding: 30px 40px;
+        }
+
+        h2 {
+            color: #003366;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #0055aa;
+        }
+
+        ul {
+            line-height: 1.6;
+        }
+
+        .issue {
+            background: #f8f9fa;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .note {
+            background: #e6f0ff;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            border-radius: 4px;
+        }
+
+        footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+        }
+
+        .backbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .backbtn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.55);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="backbtn">← Back to Dashboard</a>
+            <h1>MIH Transcription Observations Report</h1>
+            <p class="subtitle">Detailed Analysis of System and Bot Performance Issues</p>
+        </header>
+
+        <section>
+            <h2>Executive Summary</h2>
+            <p>This report compiles critical performance and behavior metrics observed during recent live testing. While some elements behave normally, key systemic bugs involving bot response mechanics, data persistence, translation logic, and rendering latency have been identified below.</p>
+        </section>
+
+        <section>
+            <h2>Identified Issues</h2>
+
+            <div class="issue">
+                <h3>1. Automatic Deletion of Temporary Transcription Content</h3>
+                <p>The system intermittently captures transcription segments, but fails to persist them to the timeline long-term.</p>
+                <ul>
+                    <li><strong>Observation:</strong> Transcription for an active meeting was successfully received and displayed for 2 to 4 seconds, but was automatically purged/removed from the end-state view.</li>
+                </ul>
+            </div>
+
+            <div class="issue">
+                <h3>2. Bot Unresponsiveness / No Transcription Generation</h3>
+                <p>A major blocker occurs when launching new sessions where the processing bot joins but remains passive.</p>
+                <ul>
+                    <li><strong>Observation:</strong> Transcription is entirely missing upon creating a meeting. Even though the bot (Zazu) is visibly present inside the meeting room, it remains completely unresponsive.</li>
+                    <li><strong>Affected Session:</strong> <a href="https://mih.pda.gov.pk/meetings/f1bf3fbf-8785-4749-8977-cf6c8f308950" class="link" target="_blank">https://mih.pda.gov.pk/meetings/f1bf3fbf-8785-4749-8977-cf6c8f308950</a></li>
+                </ul>
+            </div>
+
+            <div class="issue">
+                <h3>3. Excessive Generation Latency</h3>
+                <p>Processing pipelines are experiencing notable delays, impacting the real-time or near-real-time user experience.</p>
+                <ul>
+                    <li><strong>Observation:</strong> Transcription processing/generation is taking an excessive amount of time to finalize and display.</li>
+                </ul>
+            </div>
+
+            <div class="issue">
+                <h3>4. Incorrect Translation in Mixed Language Audio</h3>
+                <p>The model defaults to translation rather than literal code-switching transcription when multi-language input is present.</p>
+                <ul>
+                    <li><strong>Observation:</strong> During mixed-language (Urdu-English) conversations, lines spoken natively in Urdu were erroneously translated into English instead of being transcribed directly as spoken Urdu.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <div class="note">
+                <h3>Gentle Note</h3>
+                <p>These observations highlight severe functional gaps regarding data retention, processing speed, and localized language handling. We will run secondary evaluations on these specific sessions to pinpoint whether these anomalies stem from engine processing errors or API timeout thresholds.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Report Generated on July 15, 2026 • Meeting Insight Hub (MIH) System Analysis</p>
+        </footer>
+    </div>
+</body>
+
+</html>

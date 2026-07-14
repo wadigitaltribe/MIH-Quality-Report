@@ -90,13 +90,7 @@
     pointer-events:none; z-index:5; }
   .tk.op-hi { outline:2px solid #2563eb; outline-offset:1px;
     background:#dbeafe !important; border-radius:5px; }
-  .difftoolbar { display:flex; flex-wrap:wrap; align-items:center; gap:12px;
-    margin-bottom:10px; }
-  .alignbtn { padding:5px 14px; font-size:12.5px; font-weight:600;
-    cursor:pointer; background:#fff; color:#334155;
-    border:1px solid #cbd5e1; border-radius:999px; }
-  .alignbtn:hover { background:#e0e7ff; border-color:#818cf8; }
-  .alignbtn.on { background:#2563eb; color:#fff; border-color:#2563eb; }
+
   /* live editor (only shown inside the web UI iframe) */
   #edit-bar { position:sticky; top:0; z-index:50; background:#fffbeb;
     border-bottom:2px solid #f59e0b; box-shadow:0 2px 10px rgba(0,0,0,.08); }
@@ -191,11 +185,6 @@
 <li><b>Language Model Tuning:</b> Adjust the language model to prioritize common Urdu function words (&quot;bhi&quot;, &quot;hain&quot;, &quot;ko&quot;) to prevent their deletion.</li>
 <li><b>Punctuation Normalization:</b> Use post-processing to normalize punctuation (e.g., converting &quot;there,&quot; to &quot;hain&quot;) to align with ground truth formatting.</li>
 </ol></div>
-
-  <div class="difftoolbar">
-    <button id="align-toggle" type="button" class="alignbtn">Alignment lines: off</button>
-    <span class="dim" style="font-size:12.5px">Hover any word to trace its match across the columns; toggle to pin every alignment line.</span>
-  </div>
   <table class="diff">
     <thead>
       <tr><th class="ln">#</th>
@@ -340,13 +329,6 @@
     table.querySelectorAll('.op-hi').forEach(function (n) {
       n.classList.remove('op-hi');
     });
-    redrawAll();
-  });
-  var toggle = document.getElementById('align-toggle');
-  if (toggle) toggle.addEventListener('click', function () {
-    pinned = !pinned;
-    toggle.classList.toggle('on', pinned);
-    toggle.textContent = pinned ? 'Alignment lines: on' : 'Alignment lines: off';
     redrawAll();
   });
   window.addEventListener('scroll', redrawAll, {passive: true});

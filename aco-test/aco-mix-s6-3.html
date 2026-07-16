@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WER Report — Urdu-English Bilingual</title>
+<style>
+  :root {
+    --ins-bg:#fef9c3; --ins-fg:#a16207; --ins-bd:#fde047;
+    --del-bg:#dbeafe; --del-fg:#1d4ed8; --del-bd:#93c5fd;
+    --sub-bg:#fee2e2; --sub-fg:#b91c1c; --sub-bd:#fca5a5;
+    --eq-fg:#7c3aed; --line:#e5e7eb; --muted:#6b7280; --head:#111827;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f8fafc; color:#1f2937;
+    font-family:"Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+    font-size:15px; line-height:1.9; }
+  header { background:#111827; color:#fff;
+    padding:14px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  header h1 { font-size:18px; margin:0; font-weight:600; }
+  header .files { color:#9ca3af; font-size:13px; }
+  .werbadge { margin-left:auto; background:#2563eb; border-radius:999px;
+    padding:6px 18px; font-size:17px; font-weight:700; }
+  main { max-width:1250px; margin:0 auto; padding:20px 16px 60px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px; margin-bottom:18px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; text-align:center; }
+  .card .v { font-size:26px; font-weight:700; color:var(--head); }
+  .card .l { font-size:12.5px; color:var(--muted); }
+  .card.ins .v { color:var(--ins-fg); } .card.del .v { color:var(--del-fg); }
+  .card.sub .v { color:var(--sub-fg); } .card.wer .v { color:#2563eb; }
+  .legend, .panel { background:#fff; border:1px solid var(--line);
+    border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+  .legend { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
+    font-size:13.5px; }
+  .panel h3 { margin:2px 0 8px; font-size:15px; color:var(--head); }
+  .panel ul, .panel ol { margin:4px 0; padding-left:22px; }
+  .panel li { margin-bottom:4px; }
+  .panel.llm { background:#faf5ff; border-color:#e9d5ff; }
+  .panel.refine { background:#fffbeb; border-color:#fde68a; }
+  .refdiff { background:#fff; border:1px solid var(--line); border-radius:8px;
+    padding:10px 14px; line-height:2.1; max-height:340px; overflow:auto; }
+  .rm { background:#fee2e2; color:#b91c1c;
+    text-decoration:line-through; border-radius:4px; padding:0 3px; }
+  .dim { color:var(--muted); }
+  .tk { unicode-bidi:isolate; border-radius:4px; padding:0 2px; }
+  .tk.sub { background:var(--sub-bg); color:var(--sub-fg);
+    border-bottom:2px solid var(--sub-bd); cursor:help; }
+  .tk.del { background:var(--del-bg); color:var(--del-fg);
+    border-bottom:2px solid var(--del-bd); text-decoration:line-through; cursor:help; }
+  .tk.ins { background:var(--ins-bg); color:var(--ins-fg);
+    border-bottom:2px solid var(--ins-bd); cursor:help; }
+  .tk.eq { border-bottom:1.5px dotted var(--eq-fg); cursor:help; }
+  .tk.delmark { color:var(--del-fg); font-weight:700; cursor:help; }
+  /* NOTE: no overflow:hidden here — it disables position:sticky on thead */
+  table { width:100%; border-collapse:separate; border-spacing:0; background:#fff;
+    border:1px solid var(--line); border-radius:10px; }
+  thead th:first-child { border-top-left-radius:9px; }
+  thead th:last-child { border-top-right-radius:9px; }
+  tr:last-child td:first-child { border-bottom-left-radius:9px; }
+  tr:last-child td:last-child { border-bottom-right-radius:9px; }
+  thead th { position:sticky; top:0; z-index:10; background:#f1f5f9;
+    color:var(--head); text-align:left; font-size:13px; letter-spacing:.4px;
+    text-transform:uppercase; padding:10px 14px; border-bottom:2px solid var(--line);
+    /* own compositing layer: stops scrolling rows / text-selection highlight
+       from bleeding through the sticky header (Chromium paint bug) */
+    transform:translateZ(0); box-shadow:0 1px 0 var(--line); }
+  td { padding:8px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:#fafafa; }
+  .ln { color:var(--muted); font-size:12px; width:44px; text-align:right;
+    font-variant-numeric:tabular-nums; }
+  .cell { width:50%; }
+  /* line numbers and the deletion placeholder never pollute a selection */
+  .ln, .tk.delmark { user-select:none; }
+  /* independent column selection: while dragging in one column the other
+     one is unselectable, so the highlight can't bleed across columns */
+  table.diff.sel-hyp .gt { user-select:none; }
+  table.diff.sel-gt .hyp { user-select:none; }
+  .copybtn { margin-left:10px; padding:2px 12px; font-size:11.5px;
+    font-weight:600; letter-spacing:0; text-transform:none; cursor:pointer;
+    background:#fff; color:#334155; border:1px solid #cbd5e1;
+    border-radius:999px; vertical-align:middle; }
+  .copybtn:hover { background:#e0e7ff; border-color:#818cf8; }
+  .copybtn:disabled { opacity:.75; cursor:default; }
+  /* alignment connector overlay + hover highlight */
+  #align-overlay { position:fixed; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:5; }
+  .tk.op-hi { outline:2px solid #2563eb; outline-offset:1px;
+    background:#dbeafe !important; border-radius:5px; }
+  /* live editor (only shown inside the web UI iframe) */
+  #edit-bar { position:sticky; top:0; z-index:50; background:#fffbeb;
+    border-bottom:2px solid #f59e0b; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+  #edit-bar .edit-inner { max-width:1250px; margin:0 auto; padding:10px 16px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  #edit-bar .edit-title { font-weight:700; color:#92400e; font-size:14px; }
+  #edit-bar .edit-hint { flex:1 1 220px; font-size:12.5px; color:#78716c; }
+  #edit-bar .editbtn { padding:7px 16px; font-size:12.5px; font-weight:600;
+    cursor:pointer; border-radius:999px; border:1px solid #d6d3d1;
+    background:#fff; color:#334155; }
+  #edit-bar .editbtn:hover { background:#fef3c7; border-color:#f59e0b; }
+  #edit-bar .editbtn.on { background:#f59e0b; color:#fff; border-color:#d97706; }
+  #edit-bar .editbtn.primary { background:#059669; color:#fff; border-color:#047857; }
+  #edit-bar .editbtn.primary:hover { filter:brightness(1.08); }
+  #edit-bar .editbtn.primary:disabled { opacity:.45; cursor:not-allowed; filter:none; }
+  #edit-bar .editbtn.ghost { background:transparent; color:#78716c; }
+  table.diff.edit-mode td.hyp, table.diff.edit-mode td.gt { padding:6px 10px; }
+  .edit-txt { min-height:1.9em; outline:none; border:1.5px dashed #f59e0b;
+    border-radius:6px; padding:4px 8px; background:#fffbeb; line-height:2.1;
+    white-space:pre-wrap; word-break:break-word; cursor:text; }
+  .edit-txt:focus { border-color:#2563eb; background:#fff;
+    box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+  table.diff.edit-mode .tk { cursor:default; }
+  /* manual override click menu (live UI only) */
+  #op-menu { position:fixed; z-index:200; display:none; min-width:210px;
+    background:#fff; border:1px solid #d1d5db; border-radius:10px;
+    box-shadow:0 10px 28px rgba(0,0,0,.18); padding:6px; font-size:13px; }
+  #op-menu .opm-title { padding:6px 10px 4px; color:#6b7280; font-size:11.5px;
+    font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  #op-menu button { display:block; width:100%; text-align:left; border:none;
+    background:transparent; padding:8px 12px; border-radius:7px; cursor:pointer;
+    font:inherit; color:#111827; }
+  #op-menu button:hover { background:#f3f4f6; }
+  #op-menu button.ok { color:#047857; font-weight:600; }
+  #op-menu button.bad { color:#b91c1c; font-weight:600; }
+  #op-menu button.rm { color:#b45309; font-weight:600; }
+  table.diff:not(.edit-mode) .tk[data-op], table.diff:not(.edit-mode) .delmark[data-op] {
+    cursor:pointer; }
+  .tk.ins-removed { opacity:0.5; color:#9ca3af !important;
+    background:#f3f4f6 !important; border-bottom-color:#d1d5db !important;
+    text-decoration:line-through; cursor:default; }
+  button.ins-restore { display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; margin:0 1px; padding:0; border:1px solid #9ca3af;
+    border-radius:50%; background:#fff; color:#059669; font-weight:700;
+    font-size:13px; line-height:1; cursor:pointer; vertical-align:middle;
+    opacity:1; font-family:inherit; }
+  button.ins-restore:hover { background:#d1fae5; border-color:#059669; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Word Error Rate Report</h1>
+  <span class="files">Hypothesis: machine transcription &nbsp;·&nbsp; Reference: ground truth &nbsp;·&nbsp; Urdu · Roman Urdu · English</span>
+  <span class="werbadge">WER 29.54%</span>
+</header>
+<main>
+  <div class="cards">
+    <div class="card"><div class="v" id="stat-n">237</div><div class="l">Reference words (N)</div></div>
+    <div class="card"><div class="v" id="stat-c">169</div><div class="l" id="stat-c-lbl">Correct (73 exact + 96 equivalent)</div></div>
+    <div class="card sub"><div class="v" id="stat-s">17</div><div class="l">Substitutions</div></div>
+    <div class="card del"><div class="v" id="stat-d">51</div><div class="l">Deletions</div></div>
+    <div class="card ins"><div class="v" id="stat-i">2</div><div class="l">Insertions</div></div>
+    <div class="card wer"><div class="v" id="stat-wer">29.54%</div><div class="l" id="stat-wer-lbl">WER = (S+D+I)/N = (17+51+2)/237</div></div>
+    
+  </div>
+
+  <div class="legend">
+    <b>Legend:</b>
+    <span><span class="tk ins">inserted word</span> — Insertion (in machine output, not in ground truth)</span>
+    <span><span class="tk del">deleted word</span> — Deletion (missing from machine output)</span>
+    <span><span class="tk sub">substituted word</span> — Substitution (wrong word)</span>
+    <span><span class="tk eq">equivalent match</span> — correct via normalization / transliteration / semantic match (hover for details)</span>
+  </div>
+
+  <div class="panel">
+    <h3>Issues found in the machine transcription</h3>
+    <ul><li>[Manual override] 4 alignment op(s) reclassified by you (local rescore, no AI).</li><li>Script drift: 94 English words were written in Urdu script (or vice versa), e.g. transliterations like سپیکر for &#x27;speaker&#x27;. They were accepted as equivalent here, but a stricter scorer would count them all as errors.</li><li>17 true substitutions (phonetic mishears), e.g. &#x27;banti&#x27; -&gt; &#x27;بڑھتی&#x27;, &#x27;this&#x27; -&gt; &#x27;یہ&#x27;, &#x27;can&#x27; -&gt; &#x27;ہماری&#x27;, &#x27;be&#x27; -&gt; &#x27;بہترین&#x27;.</li><li>51 deletions (words missing from the machine output): &#x27;The&#x27;, &#x27;main&#x27;, &#x27;causes&#x27;, &#x27;of&#x27;, &#x27;unemployment&#x27;, &#x27;are&#x27;.</li></ul>
+    <h3>Suggestions to reduce WER</h3>
+    <ul><li>Force script fidelity: instruct/configure the ASR to keep English words in Latin script during code-switching; or add an inverse-transliteration post-processing pass.</li><li>Improve acoustic robustness for mishears: cleaner audio (less noise, better mic), a domain lexicon / hotword list with the expected vocabulary, and a spelling-correction post-processing pass for known confusion pairs.</li><li>Check for audio dropouts / aggressive VAD trimming causing missed words; lower the VAD threshold or use overlapping chunks.</li></ul>
+  </div>
+  
+  <div class="panel llm"><h3>AI Analysis (GLM)</h3><h4>Issues</h4>
+<ol>
+<li><b>Phonetic Mismatches:</b> Words with similar sounds but different meanings are often confused (e.g., &quot;strength&quot; → &quot;قیمت&quot;, &quot;opportunities&quot; → &quot;اپورچنٹیز&quot;).</li>
+<li><b>Missing Contextual Words:</b> Deletions of function words like &quot;then,&quot; &quot;The,&quot; and &quot;of&quot; disrupt sentence structure and grammar.</li>
+<li><b>Unrelated Insertions:</b> The system inserts unrelated words like &quot;Thank you&quot; and &quot;and&quot; that do not appear in the audio.</li>
+</ol>
+<h4>Suggestions</h4>
+<ol>
+<li><b>Adjust Language Model Weights:</b> Increase the confidence threshold for English tokens to reduce Urdu-to-English substitutions.</li>
+<li><b>Refine Pronunciation Dictionary:</b> Manually add specific Urdu-to-English mappings (e.g., &quot;opportunities&quot; → &quot;اپورچنٹیز&quot;) to the pronunciation lexicon to handle phonetic similarities.</li>
+<li><b>Post-Processing Filtering:</b> Implement a script to remove common insertion artifacts like &quot;Thank you&quot; and &quot;and&quot; from the final transcript.</li>
+<li><b>Contextual Tokenization:</b> Configure the tokenizer to better handle mixed-language sequences to prevent the loss of function words like &quot;of&quot; and &quot;then.&quot;</li>
+</ol></div>
+
+  <table class="diff">
+    <thead>
+      <tr><th class="ln">#</th>
+        <th class="hyp">Machine Transcription
+          <button class="copybtn" data-col="1" type="button" title="Copy this column as plain text">Copy</button></th>
+        <th class="gt">Ground Truth
+          <button class="copybtn" data-col="2" type="button" title="Copy this column as plain text">Copy</button></th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="ln">1</td><td class="cell hyp" dir="auto"><span class="tk ins" data-op="1" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">Thank you.</span> <span class="tk eq" data-op="2" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Bayrozgari">بیروزکاری</span> <span class="tk eq" data-op="3" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistan">پاکستان</span> <span class="tk eq" data-op="4" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ke">کے</span> <span class="tk eq" data-op="5" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: naujawanon">نجوانوں</span> <span class="tk eq" data-op="6" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ka">کا</span> <span class="tk eq" data-op="7" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: sab se">سب سے</span> <span class="tk" data-op="8" data-op-type="exact" data-base-op="exact">بڑا</span> <span class="tk eq" data-op="9" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: masla">مسئلہ</span> <span class="tk sub" data-op="10" data-op-type="sub" data-base-op="sub" title="Should be: banti">بڑھتی</span> <span class="tk eq" data-op="11" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ja">جا</span> <span class="tk eq" data-op="12" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: rahi">رہی</span> <span class="tk eq" data-op="13" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai.">ہے</span> <span class="tk eq" data-op="14" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Hazaron">ہزاروں</span> <span class="tk eq" data-op="15" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: talba">طلبہ</span> <span class="tk eq" data-op="16" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: har">ہر</span> <span class="tk eq" data-op="17" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: saal">سال</span> <span class="tk eq" data-op="18" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: digriyan">ڈگریہ</span> <span class="tk eq" data-op="19" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: le">لے</span> <span class="tk eq" data-op="20" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: kar">کر</span> <span class="tk eq" data-op="21" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nikalte">نکلتے</span> <span class="tk eq" data-op="22" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hain">ہیں</span> <span class="tk eq" data-op="23" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: magar">مگر</span> <span class="tk eq" data-op="24" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: jobs">جوبز</span> <span class="tk eq" data-op="25" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: bohat">بہت</span> <span class="tk eq" data-op="26" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: kam">کم</span> <span class="tk eq" data-op="27" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hoti">ہوتی</span> <span class="tk eq" data-op="28" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hain.">ہیں</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="2" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بیروزکاری">Bayrozgari</span> <span class="tk eq" data-op="3" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاکستان">Pakistan</span> <span class="tk eq" data-op="4" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کے">ke</span> <span class="tk eq" data-op="5" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نجوانوں">naujawanon</span> <span class="tk eq" data-op="6" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کا">ka</span> <span class="tk eq" data-op="7" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سب سے">sab se</span> <span class="tk" data-op="8" data-op-type="exact" data-base-op="exact">bada</span> <span class="tk eq" data-op="9" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: مسئلہ">masla</span> <span class="tk sub" data-op="10" data-op-type="sub" data-base-op="sub" title="Substituted with: بڑھتی">banti</span> <span class="tk eq" data-op="11" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: جا">ja</span> <span class="tk eq" data-op="12" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: رہی">rahi</span> <span class="tk eq" data-op="13" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے">hai.</span> <span class="tk eq" data-op="14" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہزاروں">Hazaron</span> <span class="tk eq" data-op="15" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: طلبہ">talba</span> <span class="tk eq" data-op="16" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہر">har</span> <span class="tk eq" data-op="17" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سال">saal</span> <span class="tk eq" data-op="18" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ڈگریہ">digriyan</span> <span class="tk eq" data-op="19" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: لے">le</span> <span class="tk eq" data-op="20" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کر">kar</span> <span class="tk eq" data-op="21" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نکلتے">nikalte</span> <span class="tk eq" data-op="22" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہیں">hain</span> <span class="tk eq" data-op="23" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: مگر">magar</span> <span class="tk eq" data-op="24" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: جوبز">jobs</span> <span class="tk eq" data-op="25" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بہت">bohat</span> <span class="tk eq" data-op="26" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کم">kam</span> <span class="tk eq" data-op="27" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوتی">hoti</span> <span class="tk eq" data-op="28" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہیں">hain.</span></td></tr>
+<tr><td class="ln">2</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="29" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Yeh">یہ</span> <span class="tk eq" data-op="30" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: sirf">صرف</span> <span class="tk eq" data-op="31" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aik">ایک</span> <span class="tk eq" data-op="32" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: economic">ایکناومک</span> <span class="tk eq" data-op="33" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: issue">ایشو</span> <span class="tk eq" data-op="34" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nahi">نہیں</span> <span class="tk eq" data-op="35" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: balkay">بلکہ</span> <span class="tk eq" data-op="36" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aik">ایک</span> <span class="tk eq" data-op="37" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: social">سوشل</span> <span class="tk eq" data-op="38" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: problem">پرابلم</span> <span class="tk eq" data-op="39" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: bhi">بھی</span> <span class="tk eq" data-op="40" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai.">ہے</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="29" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: یہ">Yeh</span> <span class="tk eq" data-op="30" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: صرف">sirf</span> <span class="tk eq" data-op="31" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایک">aik</span> <span class="tk eq" data-op="32" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایکناومک">economic</span> <span class="tk eq" data-op="33" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایشو">issue</span> <span class="tk eq" data-op="34" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہیں">nahi</span> <span class="tk eq" data-op="35" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بلکہ">balkay</span> <span class="tk eq" data-op="36" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایک">aik</span> <span class="tk eq" data-op="37" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سوشل">social</span> <span class="tk eq" data-op="38" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پرابلم">problem</span> <span class="tk eq" data-op="39" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بھی">bhi</span> <span class="tk eq" data-op="40" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے">hai.</span></td></tr>
+<tr><td class="ln">3</td><td class="cell hyp" dir="auto"><span class="tk" data-op="41" data-op-type="exact" data-base-op="exact">Today</span> <span class="tk" data-op="42" data-op-type="exact" data-base-op="exact">I</span> <span class="tk" data-op="43" data-op-type="exact" data-base-op="exact">want</span> <span class="tk" data-op="44" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="45" data-op-type="exact" data-base-op="exact">talk</span> <span class="tk" data-op="46" data-op-type="exact" data-base-op="exact">about</span> <span class="tk" data-op="47" data-op-type="exact" data-base-op="exact">unemployment</span> <span class="tk" data-op="48" data-op-type="exact" data-base-op="exact">in</span> <span class="tk" data-op="49" data-op-type="exact" data-base-op="exact">Pakistan.</span> <span class="tk" data-op="50" data-op-type="exact" data-base-op="exact">unemployment</span> <span class="tk" data-op="51" data-op-type="exact" data-base-op="exact">means</span> <span class="tk" data-op="52" data-op-type="exact" data-base-op="exact">when</span> <span class="tk" data-op="53" data-op-type="exact" data-base-op="exact">people</span> <span class="tk" data-op="54" data-op-type="exact" data-base-op="exact">are</span> <span class="tk" data-op="55" data-op-type="exact" data-base-op="exact">willing</span> <span class="tk" data-op="56" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="57" data-op-type="exact" data-base-op="exact">work</span> <span class="tk" data-op="58" data-op-type="exact" data-base-op="exact">educated</span> <span class="tk eq" data-op="59" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: bhi">بھی</span> <span class="tk eq" data-op="60" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hote">ہوتے</span> <span class="tk eq" data-op="61" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hain">ہیں</span> <span class="tk" data-op="62" data-op-type="exact" data-base-op="exact">skilled</span> <span class="tk eq" data-op="63" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: bhi">بھی</span> <span class="tk eq" data-op="64" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hote">ہوتے</span> <span class="tk eq" data-op="65" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hain">ہیں</span> <span class="tk" data-op="66" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="67" data-op-type="exact" data-base-op="exact">they</span> <span class="tk" data-op="68" data-op-type="exact" data-base-op="exact">cannot</span> <span class="tk" data-op="69" data-op-type="exact" data-base-op="exact">find</span> <span class="tk" data-op="70" data-op-type="exact" data-base-op="exact">suitable</span> <span class="tk" data-op="71" data-op-type="exact" data-base-op="exact">jobs</span></td><td class="cell gt" dir="auto"><span class="tk" data-op="41" data-op-type="exact" data-base-op="exact">Today</span> <span class="tk" data-op="42" data-op-type="exact" data-base-op="exact">I</span> <span class="tk" data-op="43" data-op-type="exact" data-base-op="exact">want</span> <span class="tk" data-op="44" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="45" data-op-type="exact" data-base-op="exact">talk</span> <span class="tk" data-op="46" data-op-type="exact" data-base-op="exact">about</span> <span class="tk" data-op="47" data-op-type="exact" data-base-op="exact">unemployment</span> <span class="tk" data-op="48" data-op-type="exact" data-base-op="exact">in</span> <span class="tk" data-op="49" data-op-type="exact" data-base-op="exact">Pakistan.</span> <span class="tk" data-op="50" data-op-type="exact" data-base-op="exact">Unemployment</span> <span class="tk" data-op="51" data-op-type="exact" data-base-op="exact">means</span> <span class="tk" data-op="52" data-op-type="exact" data-base-op="exact">when</span> <span class="tk" data-op="53" data-op-type="exact" data-base-op="exact">people</span> <span class="tk" data-op="54" data-op-type="exact" data-base-op="exact">are</span> <span class="tk" data-op="55" data-op-type="exact" data-base-op="exact">willing</span> <span class="tk" data-op="56" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="57" data-op-type="exact" data-base-op="exact">work,</span> <span class="tk" data-op="58" data-op-type="exact" data-base-op="exact">educated</span> <span class="tk eq" data-op="59" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بھی">bhi</span> <span class="tk eq" data-op="60" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوتے">hote</span> <span class="tk eq" data-op="61" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہیں">hain</span> <span class="tk" data-op="62" data-op-type="exact" data-base-op="exact">skilled</span> <span class="tk eq" data-op="63" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بھی">bhi</span> <span class="tk eq" data-op="64" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوتے">hote</span> <span class="tk eq" data-op="65" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہیں">hain</span> <span class="tk" data-op="66" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="67" data-op-type="exact" data-base-op="exact">they</span> <span class="tk" data-op="68" data-op-type="exact" data-base-op="exact">cannot</span> <span class="tk" data-op="69" data-op-type="exact" data-base-op="exact">find</span> <span class="tk" data-op="70" data-op-type="exact" data-base-op="exact">suitable</span> <span class="tk" data-op="71" data-op-type="exact" data-base-op="exact">jobs.</span></td></tr>
+<tr><td class="ln">4</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="72" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistan">پاکستان</span> <span class="tk eq" data-op="73" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: mein">میں</span> <span class="tk eq" data-op="74" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: youth">یوٹ</span> <span class="tk eq" data-op="75" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: population">پاپلیشن</span> <span class="tk eq" data-op="76" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: bohat">بہت</span> <span class="tk eq" data-op="77" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: zyada">زیادہ</span> <span class="tk eq" data-op="78" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai">ہے</span> <span class="tk eq" data-op="79" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: and">اور</span> <span class="tk sub" data-op="80" data-op-type="sub" data-base-op="sub" title="Should be: this">یہ</span> <span class="tk sub" data-op="81" data-op-type="sub" data-base-op="sub" title="Should be: can">ہماری</span> <span class="tk sub" data-op="82" data-op-type="sub" data-base-op="sub" title="Should be: be">بہترین</span> <span class="tk sub" data-op="83" data-op-type="sub" data-base-op="sub" title="Should be: our">قیمت</span> <span class="tk sub" data-op="84" data-op-type="sub" data-base-op="sub" title="Should be: biggest">کیا</span> <span class="tk sub" data-op="85" data-op-type="sub" data-base-op="sub" title="Should be: strength.">ہے</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="72" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاکستان">Pakistan</span> <span class="tk eq" data-op="73" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: میں">mein</span> <span class="tk eq" data-op="74" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: یوٹ">youth</span> <span class="tk eq" data-op="75" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاپلیشن">population</span> <span class="tk eq" data-op="76" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بہت">bohat</span> <span class="tk eq" data-op="77" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: زیادہ">zyada</span> <span class="tk eq" data-op="78" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے">hai</span> <span class="tk eq" data-op="79" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">and</span> <span class="tk sub" data-op="80" data-op-type="sub" data-base-op="sub" title="Substituted with: یہ">this</span> <span class="tk sub" data-op="81" data-op-type="sub" data-base-op="sub" title="Substituted with: ہماری">can</span> <span class="tk sub" data-op="82" data-op-type="sub" data-base-op="sub" title="Substituted with: بہترین">be</span> <span class="tk sub" data-op="83" data-op-type="sub" data-base-op="sub" title="Substituted with: قیمت">our</span> <span class="tk sub" data-op="84" data-op-type="sub" data-base-op="sub" title="Substituted with: کیا">biggest</span> <span class="tk sub" data-op="85" data-op-type="sub" data-base-op="sub" title="Substituted with: ہے">strength.</span></td></tr>
+<tr><td class="ln">5</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="86" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Lekin">لیکن</span> <span class="tk eq" data-op="87" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: agar">اگر</span> <span class="tk eq" data-op="88" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: youth">یوت</span> <span class="tk eq" data-op="89" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ko">کو</span> <span class="tk eq" data-op="90" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: employment">امپلائیمنٹ</span> <span class="tk" data-op="91" data-op-type="exact" data-base-op="exact">اپورچنٹیز</span> <span class="tk eq" data-op="92" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: na">نہ</span> <span class="tk eq" data-op="93" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: milein">ملے</span> <span class="tk eq" data-op="95" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: this">تو یہ</span> <span class="tk sub" data-op="96" data-op-type="sub" data-base-op="sub" title="Should be: strength">قیمت</span> <span class="tk sub" data-op="97" data-op-type="sub" data-base-op="sub" title="Should be: can">پیش</span> <span class="tk sub" data-op="98" data-op-type="sub" data-base-op="sub" title="Should be: turn">کر</span> <span class="tk sub" data-op="99" data-op-type="sub" data-base-op="sub" title="Should be: into">سکتا</span> <span class="tk sub" data-op="100" data-op-type="sub" data-base-op="sub" title="Should be: frustration.">ہے</span> <span class="tk" data-op="101" data-op-type="exact" data-base-op="exact">Many</span> <span class="tk" data-op="102" data-op-type="exact" data-base-op="exact">young</span> <span class="tk" data-op="103" data-op-type="exact" data-base-op="exact">people</span> <span class="tk" data-op="104" data-op-type="exact" data-base-op="exact">spend</span> <span class="tk" data-op="105" data-op-type="exact" data-base-op="exact">years</span> <span class="tk" data-op="106" data-op-type="exact" data-base-op="exact">studying,</span> <span class="tk" data-op="107" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="108" data-op-type="exact" data-base-op="exact">after</span> <span class="tk" data-op="109" data-op-type="exact" data-base-op="exact">graduation</span> <span class="tk" data-op="110" data-op-type="exact" data-base-op="exact">they</span> <span class="tk" data-op="111" data-op-type="exact" data-base-op="exact">face</span> <span class="tk eq" data-op="112" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: joblessness,">low-blessness,</span> <span class="tk" data-op="113" data-op-type="exact" data-base-op="exact">low</span> <span class="tk" data-op="114" data-op-type="exact" data-base-op="exact">salaries,</span> <span class="tk" data-op="115" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="116" data-op-type="exact" data-base-op="exact">lack</span> <span class="tk" data-op="117" data-op-type="exact" data-base-op="exact">of</span> <span class="tk" data-op="118" data-op-type="exact" data-base-op="exact">career</span> <span class="tk" data-op="119" data-op-type="exact" data-base-op="exact">direction.</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="86" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: لیکن">Lekin</span> <span class="tk eq" data-op="87" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اگر">agar</span> <span class="tk eq" data-op="88" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: یوت">youth</span> <span class="tk eq" data-op="89" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کو">ko</span> <span class="tk eq" data-op="90" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: امپلائیمنٹ">employment</span> <span class="tk" data-op="91" data-op-type="exact" data-base-op="exact">opportunities</span> <span class="tk eq" data-op="92" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہ">na</span> <span class="tk eq" data-op="93" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ملے">milein</span> <span class="tk eq" data-op="94" data-op-type="exact" data-base-op="del" title="Manually accepted">then</span> <span class="tk eq" data-op="95" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: تو یہ">this</span> <span class="tk sub" data-op="96" data-op-type="sub" data-base-op="sub" title="Substituted with: قیمت">strength</span> <span class="tk sub" data-op="97" data-op-type="sub" data-base-op="sub" title="Substituted with: پیش">can</span> <span class="tk sub" data-op="98" data-op-type="sub" data-base-op="sub" title="Substituted with: کر">turn</span> <span class="tk sub" data-op="99" data-op-type="sub" data-base-op="sub" title="Substituted with: سکتا">into</span> <span class="tk sub" data-op="100" data-op-type="sub" data-base-op="sub" title="Substituted with: ہے">frustration.</span> <span class="tk" data-op="101" data-op-type="exact" data-base-op="exact">Many</span> <span class="tk" data-op="102" data-op-type="exact" data-base-op="exact">young</span> <span class="tk" data-op="103" data-op-type="exact" data-base-op="exact">people</span> <span class="tk" data-op="104" data-op-type="exact" data-base-op="exact">spend</span> <span class="tk" data-op="105" data-op-type="exact" data-base-op="exact">years</span> <span class="tk" data-op="106" data-op-type="exact" data-base-op="exact">studying</span> <span class="tk" data-op="107" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="108" data-op-type="exact" data-base-op="exact">after</span> <span class="tk" data-op="109" data-op-type="exact" data-base-op="exact">graduation</span> <span class="tk" data-op="110" data-op-type="exact" data-base-op="exact">they</span> <span class="tk" data-op="111" data-op-type="exact" data-base-op="exact">face</span> <span class="tk eq" data-op="112" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: low-blessness,">joblessness,</span> <span class="tk" data-op="113" data-op-type="exact" data-base-op="exact">low</span> <span class="tk" data-op="114" data-op-type="exact" data-base-op="exact">salaries</span> <span class="tk" data-op="115" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="116" data-op-type="exact" data-base-op="exact">lack</span> <span class="tk" data-op="117" data-op-type="exact" data-base-op="exact">of</span> <span class="tk" data-op="118" data-op-type="exact" data-base-op="exact">career</span> <span class="tk" data-op="119" data-op-type="exact" data-base-op="exact">direction.</span></td></tr>
+<tr><td class="ln">6</td><td class="cell hyp" dir="auto"></td><td class="cell gt" dir="auto"><span class="tk del" data-op="120" data-op-type="del" data-base-op="del" title="Missing in machine output">The</span> <span class="tk del" data-op="121" data-op-type="del" data-base-op="del" title="Missing in machine output">main</span> <span class="tk del" data-op="122" data-op-type="del" data-base-op="del" title="Missing in machine output">causes</span> <span class="tk del" data-op="123" data-op-type="del" data-base-op="del" title="Missing in machine output">of</span> <span class="tk del" data-op="124" data-op-type="del" data-base-op="del" title="Missing in machine output">unemployment</span> <span class="tk del" data-op="125" data-op-type="del" data-base-op="del" title="Missing in machine output">are</span> <span class="tk del" data-op="126" data-op-type="del" data-base-op="del" title="Missing in machine output">lack</span> <span class="tk del" data-op="127" data-op-type="del" data-base-op="del" title="Missing in machine output">of</span> <span class="tk del" data-op="128" data-op-type="del" data-base-op="del" title="Missing in machine output">industries,</span> <span class="tk del" data-op="129" data-op-type="del" data-base-op="del" title="Missing in machine output">weak</span> <span class="tk del" data-op="130" data-op-type="del" data-base-op="del" title="Missing in machine output">economy,</span> <span class="tk del" data-op="131" data-op-type="del" data-base-op="del" title="Missing in machine output">poor</span> <span class="tk del" data-op="132" data-op-type="del" data-base-op="del" title="Missing in machine output">skill</span> <span class="tk del" data-op="133" data-op-type="del" data-base-op="del" title="Missing in machine output">development</span> <span class="tk del" data-op="134" data-op-type="del" data-base-op="del" title="Missing in machine output">and</span> <span class="tk del" data-op="135" data-op-type="del" data-base-op="del" title="Missing in machine output">mismatch</span> <span class="tk del" data-op="136" data-op-type="del" data-base-op="del" title="Missing in machine output">between</span> <span class="tk del" data-op="137" data-op-type="del" data-base-op="del" title="Missing in machine output">education</span> <span class="tk del" data-op="138" data-op-type="del" data-base-op="del" title="Missing in machine output">and</span> <span class="tk del" data-op="139" data-op-type="del" data-base-op="del" title="Missing in machine output">market</span> <span class="tk del" data-op="140" data-op-type="del" data-base-op="del" title="Missing in machine output">needs.</span></td></tr>
+<tr><td class="ln">7</td><td class="cell hyp" dir="auto"><span class="tk sub" data-op="161" data-op-type="sub" data-base-op="sub" title="Should be: hai.">موسیقی</span> <span class="tk" data-op="162" data-op-type="exact" data-base-op="exact">To</span> <span class="tk" data-op="163" data-op-type="exact" data-base-op="exact">solve</span> <span class="tk" data-op="164" data-op-type="exact" data-base-op="exact">this</span> <span class="tk" data-op="165" data-op-type="exact" data-base-op="exact">issue,</span> <span class="tk" data-op="166" data-op-type="exact" data-base-op="exact">government</span> <span class="tk ins" data-op="167" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">and</span> <span class="tk" data-op="168" data-op-type="exact" data-base-op="exact">private</span> <span class="tk" data-op="169" data-op-type="exact" data-base-op="exact">sectors</span> <span class="tk" data-op="170" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="171" data-op-type="exact" data-base-op="exact">educational</span> <span class="tk" data-op="172" data-op-type="exact" data-base-op="exact">institutions</span> <span class="tk" data-op="173" data-op-type="exact" data-base-op="exact">must</span> <span class="tk" data-op="174" data-op-type="exact" data-base-op="exact">work</span> <span class="tk" data-op="175" data-op-type="exact" data-base-op="exact">together.</span></td><td class="cell gt" dir="auto"><span class="tk del" data-op="141" data-op-type="del" data-base-op="del" title="Missing in machine output">Hamara</span> <span class="tk del" data-op="142" data-op-type="del" data-base-op="del" title="Missing in machine output">education</span> <span class="tk del" data-op="143" data-op-type="del" data-base-op="del" title="Missing in machine output">system</span> <span class="tk del" data-op="144" data-op-type="del" data-base-op="del" title="Missing in machine output">students</span> <span class="tk del" data-op="145" data-op-type="del" data-base-op="del" title="Missing in machine output">ko</span> <span class="tk del" data-op="146" data-op-type="del" data-base-op="del" title="Missing in machine output">degrees</span> <span class="tk del" data-op="147" data-op-type="del" data-base-op="del" title="Missing in machine output">to</span> <span class="tk del" data-op="148" data-op-type="del" data-base-op="del" title="Missing in machine output">deta</span> <span class="tk del" data-op="149" data-op-type="del" data-base-op="del" title="Missing in machine output">hai</span> <span class="tk del" data-op="150" data-op-type="del" data-base-op="del" title="Missing in machine output">lekin</span> <span class="tk del" data-op="151" data-op-type="del" data-base-op="del" title="Missing in machine output">practical</span> <span class="tk del" data-op="152" data-op-type="del" data-base-op="del" title="Missing in machine output">skills,</span> <span class="tk del" data-op="153" data-op-type="del" data-base-op="del" title="Missing in machine output">communication,</span> <span class="tk del" data-op="154" data-op-type="del" data-base-op="del" title="Missing in machine output">technology</span> <span class="tk del" data-op="155" data-op-type="del" data-base-op="del" title="Missing in machine output">and</span> <span class="tk del" data-op="156" data-op-type="del" data-base-op="del" title="Missing in machine output">entrepreneurship</span> <span class="tk del" data-op="157" data-op-type="del" data-base-op="del" title="Missing in machine output">par</span> <span class="tk del" data-op="158" data-op-type="del" data-base-op="del" title="Missing in machine output">kam</span> <span class="tk del" data-op="159" data-op-type="del" data-base-op="del" title="Missing in machine output">focus</span> <span class="tk del" data-op="160" data-op-type="del" data-base-op="del" title="Missing in machine output">karta</span> <span class="tk sub" data-op="161" data-op-type="sub" data-base-op="sub" title="Substituted with: موسیقی">hai.</span> <span class="tk" data-op="162" data-op-type="exact" data-base-op="exact">To</span> <span class="tk" data-op="163" data-op-type="exact" data-base-op="exact">solve</span> <span class="tk" data-op="164" data-op-type="exact" data-base-op="exact">this</span> <span class="tk" data-op="165" data-op-type="exact" data-base-op="exact">issue</span> <span class="tk" data-op="166" data-op-type="exact" data-base-op="exact">government,</span> <span class="tk" data-op="168" data-op-type="exact" data-base-op="exact">private</span> <span class="tk" data-op="169" data-op-type="exact" data-base-op="exact">sectors</span> <span class="tk" data-op="170" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="171" data-op-type="exact" data-base-op="exact">educational</span> <span class="tk" data-op="172" data-op-type="exact" data-base-op="exact">institutions</span> <span class="tk" data-op="173" data-op-type="exact" data-base-op="exact">must</span> <span class="tk" data-op="174" data-op-type="exact" data-base-op="exact">work</span> <span class="tk" data-op="175" data-op-type="exact" data-base-op="exact">together.</span></td></tr>
+<tr><td class="ln">8</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="176" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Technical">ٹیکنکل</span> <span class="tk eq" data-op="177" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: education">ایڈیوکیشن</span> <span class="tk eq" data-op="178" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ko">کو</span> <span class="tk eq" data-op="179" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: promote">پرموٹ</span> <span class="tk eq" data-op="180" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: karna">کرنا</span> <span class="tk eq" data-op="181" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hoga">ہوگا</span> <span class="tk eq" data-op="182" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: freelancing,">فیلانسنگ</span> <span class="tk eq" data-op="183" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: IT,">آئی ٹی</span> <span class="tk eq" data-op="184" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: small">سمال</span> <span class="tk eq" data-op="185" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: businesses">بزنسز</span> <span class="tk eq" data-op="186" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: and">اور</span> <span class="tk eq" data-op="187" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: startups">سٹارٹ اپس</span> <span class="tk eq" data-op="188" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ko">کو</span> <span class="tk eq" data-op="189" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: support">سپورٹ</span> <span class="tk eq" data-op="190" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: deni">دینی</span> <span class="tk eq" data-op="191" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hogi.">ہوگی</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="176" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ٹیکنکل">Technical</span> <span class="tk eq" data-op="177" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایڈیوکیشن">education</span> <span class="tk eq" data-op="178" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کو">ko</span> <span class="tk eq" data-op="179" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پرموٹ">promote</span> <span class="tk eq" data-op="180" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کرنا">karna</span> <span class="tk eq" data-op="181" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوگا">hoga</span> <span class="tk eq" data-op="182" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: فیلانسنگ">freelancing,</span> <span class="tk eq" data-op="183" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: آئی ٹی">IT,</span> <span class="tk eq" data-op="184" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سمال">small</span> <span class="tk eq" data-op="185" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بزنسز">businesses</span> <span class="tk eq" data-op="186" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">and</span> <span class="tk eq" data-op="187" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سٹارٹ اپس">startups</span> <span class="tk eq" data-op="188" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کو">ko</span> <span class="tk eq" data-op="189" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سپورٹ">support</span> <span class="tk eq" data-op="190" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: دینی">deni</span> <span class="tk eq" data-op="191" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوگی">hogi.</span></td></tr>
+<tr><td class="ln">9</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="192" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Youth">یوت</span> <span class="tk eq" data-op="193" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ko">کو</span> <span class="tk eq" data-op="195" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: job">جوب</span> <span class="tk eq" data-op="196" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: seekers">سیکرز</span> <span class="tk eq" data-op="197" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nahi">نہیں</span> <span class="tk eq" data-op="198" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: job">جوب</span> <span class="tk sub" data-op="199" data-op-type="sub" data-base-op="sub" title="Should be: creators">کیٹرس</span> <span class="tk eq" data-op="200" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: banana">بنانا</span> <span class="tk eq" data-op="201" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hoga.">ہوگا</span> <span class="tk" data-op="202" data-op-type="exact" data-base-op="exact">In</span> <span class="tk" data-op="203" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="204" data-op-type="exact" data-base-op="exact">end,</span> <span class="tk" data-op="205" data-op-type="exact" data-base-op="exact">I</span> <span class="tk" data-op="206" data-op-type="exact" data-base-op="exact">would</span> <span class="tk" data-op="207" data-op-type="exact" data-base-op="exact">say</span> <span class="tk" data-op="208" data-op-type="exact" data-base-op="exact">that</span> <span class="tk" data-op="209" data-op-type="exact" data-base-op="exact">unemployment</span> <span class="tk" data-op="210" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="211" data-op-type="exact" data-base-op="exact">not</span> <span class="tk" data-op="212" data-op-type="exact" data-base-op="exact">just</span> <span class="tk" data-op="218" data-op-type="exact" data-base-op="exact">about</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="192" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: یوت">Youth</span> <span class="tk eq" data-op="193" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کو">ko</span> <span class="tk del" data-op="194" data-op-type="del" data-base-op="del" title="Missing in machine output">sirf</span> <span class="tk eq" data-op="195" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: جوب">job</span> <span class="tk eq" data-op="196" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سیکرز">seekers</span> <span class="tk eq" data-op="197" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہیں">nahi</span> <span class="tk eq" data-op="198" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: جوب">job</span> <span class="tk sub" data-op="199" data-op-type="sub" data-base-op="sub" title="Substituted with: کیٹرس">creators</span> <span class="tk eq" data-op="200" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: بنانا">banana</span> <span class="tk eq" data-op="201" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوگا">hoga.</span> <span class="tk" data-op="202" data-op-type="exact" data-base-op="exact">In</span> <span class="tk" data-op="203" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="204" data-op-type="exact" data-base-op="exact">end</span> <span class="tk" data-op="205" data-op-type="exact" data-base-op="exact">I</span> <span class="tk" data-op="206" data-op-type="exact" data-base-op="exact">would</span> <span class="tk" data-op="207" data-op-type="exact" data-base-op="exact">say</span> <span class="tk" data-op="208" data-op-type="exact" data-base-op="exact">that</span> <span class="tk" data-op="209" data-op-type="exact" data-base-op="exact">unemployment</span> <span class="tk" data-op="210" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="211" data-op-type="exact" data-base-op="exact">not</span> <span class="tk" data-op="212" data-op-type="exact" data-base-op="exact">just</span> <span class="tk del" data-op="213" data-op-type="del" data-base-op="del" title="Missing in machine output">about</span> <span class="tk del" data-op="214" data-op-type="del" data-base-op="del" title="Missing in machine output">missing</span> <span class="tk del" data-op="215" data-op-type="del" data-base-op="del" title="Missing in machine output">jobs</span> <span class="tk del" data-op="216" data-op-type="del" data-base-op="del" title="Missing in machine output">it</span> <span class="tk del" data-op="217" data-op-type="del" data-base-op="del" title="Missing in machine output">is</span> <span class="tk" data-op="218" data-op-type="exact" data-base-op="exact">about</span> <span class="tk del" data-op="219" data-op-type="del" data-base-op="del" title="Missing in machine output">missing</span> <span class="tk del" data-op="220" data-op-type="del" data-base-op="del" title="Missing in machine output">hope.</span></td></tr>
+<tr><td class="ln">10</td><td class="cell hyp" dir="auto"><span class="tk sub" data-op="222" data-op-type="sub" data-base-op="sub" title="Should be: hum">مجھے</span> <span class="tk eq" data-op="223" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: apni">اپنی</span> <span class="tk eq" data-op="224" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: youth">یوت</span> <span class="tk eq" data-op="225" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ko">کو</span> <span class="tk eq" data-op="226" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: skills,">سکلز</span> <span class="tk" data-op="227" data-op-type="exact" data-base-op="exact">اپرچونٹیز</span> <span class="tk eq" data-op="228" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: and">اور</span> <span class="tk eq" data-op="229" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: support">سپورٹ</span> <span class="tk eq" data-op="230" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: dein">دیں</span> <span class="tk eq" data-op="232" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistan can">پاکستان</span> <span class="tk sub" data-op="233" data-op-type="sub" data-base-op="sub" title="Should be: become">کو</span> <span class="tk sub" data-op="234" data-op-type="sub" data-base-op="sub" title="Should be: stronger,">بہترین</span> <span class="tk eq" data-op="235" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: productive">پردکٹیو</span> <span class="tk eq" data-op="236" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: and">اور</span> <span class="tk eq" data-op="237" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: successful.">سکسیسفل</span> <span class="tk" data-op="238" data-op-type="exact" data-base-op="exact">Thank you.</span></td><td class="cell gt" dir="auto"><span class="tk del" data-op="221" data-op-type="del" data-base-op="del" title="Missing in machine output">Agar</span> <span class="tk sub" data-op="222" data-op-type="sub" data-base-op="sub" title="Substituted with: مجھے">hum</span> <span class="tk eq" data-op="223" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اپنی">apni</span> <span class="tk eq" data-op="224" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: یوت">youth</span> <span class="tk eq" data-op="225" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کو">ko</span> <span class="tk eq" data-op="226" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سکلز">skills,</span> <span class="tk" data-op="227" data-op-type="exact" data-base-op="exact">opportunities</span> <span class="tk eq" data-op="228" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">and</span> <span class="tk eq" data-op="229" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سپورٹ">support</span> <span class="tk eq" data-op="230" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: دیں">dein</span> <span class="tk del" data-op="231" data-op-type="del" data-base-op="del" title="Missing in machine output">then</span> <span class="tk eq" data-op="232" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاکستان">Pakistan can</span> <span class="tk sub" data-op="233" data-op-type="sub" data-base-op="sub" title="Substituted with: کو">become</span> <span class="tk sub" data-op="234" data-op-type="sub" data-base-op="sub" title="Substituted with: بہترین">stronger,</span> <span class="tk eq" data-op="235" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پردکٹیو">productive</span> <span class="tk eq" data-op="236" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">and</span> <span class="tk eq" data-op="237" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سکسیسفل">successful.</span> <span class="tk" data-op="238" data-op-type="exact" data-base-op="exact">Thank you.</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="dim" style="font-size:12.5px; margin-top:14px;">
+    Normalization applied: Unicode NFKC + Urdu character folding + diacritic
+    removal, case-insensitive, punctuation/whitespace ignored, lines
+    re-segmented on newlines / script switches / long sentences,
+    transliteration-aware (Urdu &harr; Roman Urdu &harr; English),
+    joined/split-word compound matching (&quot;up on&quot; = &quot;upon&quot;,
+    &quot;ismein&quot; = two Urdu words), spelled-acronym matching (ECP =
+    ای سی پی), phonetic matching (kaun = kon, mujhe = mujhay) and
+    semantic-aware matching. Numbers, currency and percent symbols are
+    normalized before scoring ($5 = five dollars = پانچ ڈالر). WER counts
+    only real errors.
+  </p>
+</main>
+<script>
+(function () {
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  // Independent selection: on mousedown inside one column, the other
+  // column and the line numbers become unselectable until the next click.
+  table.addEventListener('mousedown', function (e) {
+    var cell = e.target.closest('td, th');
+    table.classList.remove('sel-hyp', 'sel-gt');
+    if (!cell) return;
+    if (cell.classList.contains('hyp')) table.classList.add('sel-hyp');
+    else if (cell.classList.contains('gt')) table.classList.add('sel-gt');
+  });
+  function colText(idx) {
+    var lines = [];
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      var td = tr.cells[idx];
+      if (!td) return;
+      var clone = td.cloneNode(true);
+      clone.querySelectorAll('.delmark').forEach(function (n) { n.remove(); });
+      clone.querySelectorAll('.ins-restore').forEach(function (n) { n.remove(); });
+      clone.querySelectorAll('.ins-removed, .tk[data-op-type="removed_ins"]').forEach(
+        function (n) { n.remove(); });
+      var txt = clone.textContent.replace(/\s+/g, ' ').trim();
+      if (txt) lines.push(txt);
+    });
+    return lines.join('\n');
+  }
+  function flash(btn, ok) {
+    var old = btn.textContent;
+    btn.textContent = ok ? 'Copied ✓' : 'Copy failed';
+    btn.disabled = true;
+    setTimeout(function () { btn.textContent = old; btn.disabled = false; },
+               1400);
+  }
+  function fallback(txt, btn) {
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) {}
+    document.body.removeChild(ta);
+    flash(btn, ok);
+  }
+  table.querySelectorAll('.copybtn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var txt = colText(+btn.dataset.col);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(
+          function () { flash(btn, true); },
+          function () { fallback(txt, btn); });
+      } else { fallback(txt, btn); }
+    });
+  });
+
+  // ---- alignment connector lines (lightweight SVG overlay) ----
+  // Each aligned op tags its two spans with the same data-op id; hovering a
+  // word draws a line to its partner in the other column (blue=exact,
+  // purple-dashed=equivalent, red=substitution). A toggle pins every line.
+  var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'align-overlay';
+  document.body.appendChild(svg);
+  function clearLines() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+  function colorFor(sp) {
+    if (sp.classList.contains('sub')) return '#dc2626';
+    if (sp.classList.contains('eq')) return '#7c3aed';
+    return '#2563eb';
+  }
+  function partner(sp) {
+    var other = sp.closest('.hyp') ? '.gt' : '.hyp';
+    return table.querySelector(other + ' [data-op="' + sp.dataset.op + '"]');
+  }
+  function draw(a, b, strong) {
+    var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', ra.left + ra.width / 2);
+    ln.setAttribute('y1', ra.top + ra.height / 2);
+    ln.setAttribute('x2', rb.left + rb.width / 2);
+    ln.setAttribute('y2', rb.top + rb.height / 2);
+    ln.setAttribute('stroke', colorFor(a));
+    ln.setAttribute('stroke-width', strong ? 2.2 : 1);
+    ln.setAttribute('stroke-opacity', strong ? 0.95 : 0.3);
+    if (a.classList.contains('eq')) ln.setAttribute('stroke-dasharray', '5 4');
+    svg.appendChild(ln);
+  }
+  var pinned = false;
+  function redrawAll() {
+    clearLines();
+    if (!pinned) return;
+    table.querySelectorAll('.gt [data-op]').forEach(function (g) {
+      var h = table.querySelector('.hyp [data-op="' + g.dataset.op + '"]');
+      if (h) draw(h, g, false);
+    });
+  }
+  table.addEventListener('mouseover', function (e) {
+    var sp = e.target.closest('.tk[data-op]');
+    if (!sp) return;
+    var p = partner(sp);
+    if (!p) return;
+    redrawAll();
+    sp.classList.add('op-hi'); p.classList.add('op-hi');
+    draw(sp, p, true);
+  });
+  table.addEventListener('mouseout', function (e) {
+    if (!e.target.closest('.tk[data-op]')) return;
+    table.querySelectorAll('.op-hi').forEach(function (n) {
+      n.classList.remove('op-hi');
+    });
+    redrawAll();
+  });
+  var toggle = document.getElementById('align-toggle');
+  if (toggle) toggle.addEventListener('click', function () {
+    pinned = !pinned;
+    toggle.classList.toggle('on', pinned);
+    toggle.textContent = pinned ? 'Alignment lines: on' : 'Alignment lines: off';
+    redrawAll();
+  });
+  window.addEventListener('scroll', redrawAll, {passive: true});
+  window.addEventListener('resize', redrawAll);
+})();
+
+
+(function () {
+  if (window.parent === window) return;
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  var overrides = {};
+  var menu = document.createElement('div');
+  menu.id = 'op-menu';
+  document.body.appendChild(menu);
+  function isErrorType(t) {
+    return t === 'sub' || t === 'ins' || t === 'del';
+  }
+  function effectiveOp(base, ov) {
+    if (!ov) return base;
+    if (ov === 'correct') {
+      if (base === 'sub' || base === 'equiv') return 'exact';
+      if (base === 'ins') return 'neutral';
+      if (base === 'del') return 'skip_del';
+    }
+    if (ov === 'remove' && base === 'ins') return 'removed_ins';
+    if (ov === 'sub') {
+      if (base === 'exact' || base === 'equiv') return 'sub';
+      if (base === 'neutral') return 'ins';
+      if (base === 'skip_del') return 'del';
+    }
+    return base;
+  }
+  function hideMenu() { menu.style.display = 'none'; }
+  function clearRestoreBtn(oid) {
+    table.querySelectorAll('.ins-restore[data-for="' + oid + '"]').forEach(
+      function (b) { b.remove(); });
+  }
+  function ensureRestoreBtn(oid, afterNode) {
+    if (table.querySelector('.ins-restore[data-for="' + oid + '"]')) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ins-restore';
+    btn.dataset.for = oid;
+    btn.textContent = '+';
+    btn.title = 'Restore insertion';
+    if (afterNode && afterNode.parentNode) {
+      afterNode.parentNode.insertBefore(btn, afterNode.nextSibling);
+    }
+  }
+  function paintOid(oid) {
+    var nodes = table.querySelectorAll('[data-op="' + oid + '"]');
+    if (!nodes.length) return;
+    var base = nodes[0].dataset.baseOp || nodes[0].dataset.opType || 'exact';
+    var op = effectiveOp(base, overrides[oid]);
+    clearRestoreBtn(oid);
+    nodes.forEach(function (n) {
+      n.style.display = '';
+      n.style.opacity = '';
+      var isMark = n.classList.contains('delmark');
+      n.className = isMark ? 'tk delmark' : 'tk';
+      if (op === 'removed_ins') {
+        n.classList.add('ins', 'ins-removed');
+        n.dataset.opType = 'removed_ins';
+        if (!isMark && n.closest('.hyp')) ensureRestoreBtn(oid, n);
+        return;
+      }
+      n.dataset.opType = op;
+      if (op === 'sub') n.classList.add('sub');
+      else if (op === 'ins') n.classList.add('ins');
+      else if (op === 'del') n.classList.add('del');
+      else if (op === 'equiv') n.classList.add('eq');
+      else if (op === 'skip_del') {
+        if (!isMark) n.classList.add('eq');
+      } else if (op === 'neutral') { /* plain */ }
+    });
+  }
+  function repaintAll() {
+    var seen = {};
+    table.querySelectorAll('[data-op]').forEach(function (n) {
+      if (!seen[n.dataset.op]) { seen[n.dataset.op] = 1; paintOid(n.dataset.op); }
+    });
+  }
+  function hiPair(oid, on) {
+    table.querySelectorAll('[data-op="' + oid + '"]').forEach(function (n) {
+      n.classList.toggle('op-hi', on);
+    });
+  }
+  function showMenu(sp, ev) {
+    if (table.classList.contains('edit-mode')) return;
+    var oid = sp.dataset.op;
+    var base = sp.dataset.baseOp || sp.dataset.opType || 'exact';
+    var typ = effectiveOp(base, overrides[oid]);
+    var title = (sp.textContent || '').trim().slice(0, 42);
+    var html = '<div class="opm-title">Word: ' + title + '</div>';
+    if (typ === 'ins') {
+      if (overrides[oid] === 'remove') {
+        html += '<button type="button" class="ok" data-act="undo">&#8634; Restore insertion</button>';
+      } else {
+        html += '<button type="button" class="rm" data-act="remove">&#128465; Remove insertion</button>';
+        html += '<button type="button" class="ok" data-act="correct">&#10003; Mark as correct (ignore)</button>';
+      }
+    } else if (typ === 'removed_ins') {
+      html += '<button type="button" class="ok" data-act="undo">&#8634; Restore insertion</button>';
+    } else if (isErrorType(typ)) {
+      if (overrides[oid] === 'correct') {
+        html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+      } else {
+        html += '<button type="button" class="ok" data-act="correct">&#10003; Mark as correct (ignore error)</button>';
+      }
+    } else if (overrides[oid] === 'sub') {
+      html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+    } else {
+      html += '<button type="button" class="bad" data-act="sub">&#10007; Mark as substitution</button>';
+    }
+    menu.innerHTML = html;
+    menu.style.display = 'block';
+    var x = Math.min(ev.clientX, window.innerWidth - menu.offsetWidth - 8);
+    var y = Math.min(ev.clientY, window.innerHeight - 60);
+    menu.style.left = Math.max(8, x) + 'px';
+    menu.style.top = Math.max(8, y) + 'px';
+    hiPair(oid, true);
+    menu.onclick = function (e) {
+      var btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      var act = btn.dataset.act;
+      if (act === 'undo') delete overrides[oid];
+      else overrides[oid] = act;
+      hideMenu();
+      hiPair(oid, false);
+      paintOid(oid);
+      window.parent.postMessage({type: 'wer-override', overrides: overrides, oid: oid}, '*');
+    };
+  }
+  function restoreInsertion(oid) {
+    delete overrides[oid];
+    paintOid(oid);
+    window.parent.postMessage({type: 'wer-override', overrides: overrides, oid: oid}, '*');
+  }
+  table.addEventListener('click', function (e) {
+    if (table.classList.contains('edit-mode')) return;
+    var rb = e.target.closest('.ins-restore');
+    if (rb) {
+      e.preventDefault();
+      e.stopPropagation();
+      restoreInsertion(rb.dataset.for);
+      return;
+    }
+    var sp = e.target.closest('.tk[data-op], .delmark[data-op]');
+    if (!sp || e.target.closest('#op-menu')) return;
+    if (sp.classList.contains('ins-removed') || sp.dataset.opType === 'removed_ins') {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    showMenu(sp, e);
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#op-menu') && !e.target.closest('.tk[data-op], .delmark[data-op]')) {
+      hideMenu();
+      table.querySelectorAll('.op-hi').forEach(function (n) { n.classList.remove('op-hi'); });
+    }
+  });
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'wer-override-init') {
+      overrides = e.data.overrides || {};
+      repaintAll();
+    }
+    if (e.data.type === 'wer-stats-update' && e.data.stats) {
+      var s = e.data.stats;
+      var badge = document.querySelector('.werbadge');
+      if (badge) badge.textContent = 'WER ' + Number(s.WER).toFixed(2) + '%';
+      var el;
+      el = document.getElementById('stat-n'); if (el) el.textContent = s.N;
+      el = document.getElementById('stat-c'); if (el) el.textContent = s.C;
+      el = document.getElementById('stat-s'); if (el) el.textContent = s.S;
+      el = document.getElementById('stat-d'); if (el) el.textContent = s.D;
+      el = document.getElementById('stat-i'); if (el) el.textContent = s.I;
+      el = document.getElementById('stat-wer'); if (el) el.textContent = Number(s.WER).toFixed(2) + '%';
+      el = document.getElementById('stat-wer-lbl');
+      if (el) el.textContent = 'WER = (S+D+I)/N = (' + s.S + '+' + s.D + '+' + s.I + ')/' + s.N;
+      el = document.getElementById('stat-c-lbl');
+      if (el && s.EQ != null) {
+        el.textContent = 'Correct (' + (s.C - s.EQ) + ' exact + ' + s.EQ + ' equivalent)';
+      }
+    }
+  });
+})();
+
+
+(function () {
+  if (window.parent === window) return;
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  var editOn = false;
+  var snapshot = null;
+  var bar = document.createElement('div');
+  bar.id = 'edit-bar';
+  bar.innerHTML =
+    '<div class="edit-inner">' +
+      '<span class="edit-title">&#9998; Live report editor</span>' +
+      '<span class="edit-hint" id="edit-hint">Turn on edit mode, click into a column and edit the text like a document, then recalculate.</span>' +
+      '<button type="button" class="editbtn" id="edit-toggle">Edit mode: off</button>' +
+      '<button type="button" class="editbtn primary" id="edit-apply" disabled>Yes — recalculate report</button>' +
+      '<button type="button" class="editbtn ghost" id="edit-cancel" style="display:none">Cancel edits</button>' +
+    '</div>';
+  document.body.insertBefore(bar, document.body.firstChild);
+  var hint = document.getElementById('edit-hint');
+  var toggleBtn = document.getElementById('edit-toggle');
+  var applyBtn = document.getElementById('edit-apply');
+  var cancelBtn = document.getElementById('edit-cancel');
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function cellPlain(td) {
+    var clone = td.cloneNode(true);
+    clone.querySelectorAll('.delmark').forEach(function (n) { n.remove(); });
+    clone.querySelectorAll('.ins-restore').forEach(function (n) { n.remove(); });
+    clone.querySelectorAll('.ins-removed, .tk[data-op-type="removed_ins"]').forEach(
+      function (n) { n.remove(); });
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function colText(idx) {
+    var lines = [];
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      var td = tr.cells[idx];
+      if (!td) return;
+      var ed = td.querySelector('.edit-txt');
+      var txt = ed ? ed.textContent.replace(/\s+/g, ' ').trim() : cellPlain(td);
+      if (txt) lines.push(txt);
+    });
+    return lines.join('\n');
+  }
+  function hintDefault() {
+    return 'Turn on edit mode, click into a column and edit the text like a document, then recalculate.';
+  }
+  function hintEditing() {
+    return 'Edit mode on — click any line and type freely (e.g. change "cap" to "cab"). Then click Yes to recalculate.';
+  }
+  function setDirty(dirty) {
+    applyBtn.disabled = !editOn;
+    cancelBtn.style.display = (editOn && dirty) ? 'inline-block' : (editOn ? 'inline-block' : 'none');
+    if (dirty) {
+      hint.textContent = 'Edits pending — click "Yes — recalculate report" when ready.';
+    } else if (editOn) {
+      hint.textContent = hintEditing();
+    } else {
+      hint.textContent = hintDefault();
+    }
+  }
+  function takeSnapshot() {
+    snapshot = table.querySelector('tbody').innerHTML;
+  }
+  function enterEditMode() {
+    takeSnapshot();
+    editOn = true;
+    table.classList.add('edit-mode');
+    toggleBtn.classList.add('on');
+    toggleBtn.textContent = 'Edit mode: on';
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      [1, 2].forEach(function (idx) {
+        var td = tr.cells[idx];
+        if (!td) return;
+        var txt = cellPlain(td);
+        td.innerHTML = '<div class="edit-txt" contenteditable="true" dir="auto" spellcheck="false">' +
+          escHtml(txt) + '</div>';
+      });
+    });
+    setDirty(false);
+  }
+  function exitEditMode(restore) {
+    if (restore && snapshot) table.querySelector('tbody').innerHTML = snapshot;
+    editOn = false;
+    snapshot = null;
+    table.classList.remove('edit-mode');
+    toggleBtn.classList.remove('on');
+    toggleBtn.textContent = 'Edit mode: off';
+    applyBtn.disabled = true;
+    cancelBtn.style.display = 'none';
+    hint.textContent = hintDefault();
+  }
+  toggleBtn.addEventListener('click', function () {
+    if (editOn) exitEditMode(true);
+    else enterEditMode();
+  });
+  table.addEventListener('input', function (e) {
+    if (editOn && e.target.classList.contains('edit-txt')) setDirty(true);
+  });
+  cancelBtn.addEventListener('click', function () {
+    exitEditMode(true);
+  });
+  applyBtn.addEventListener('click', function () {
+    var hyp = colText(1);
+    var gt = colText(2);
+    if (!hyp.trim() || !gt.trim()) {
+      hint.textContent = 'Both columns must still have text after editing.';
+      return;
+    }
+    applyBtn.disabled = true;
+    hint.textContent = 'Recalculating…';
+    window.parent.postMessage({type: 'wer-recalc', hyp: hyp, gt: gt}, '*');
+  });
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'wer-recalc-done') return;
+    if (e.data.ok) {
+      exitEditMode(false);
+    } else {
+      applyBtn.disabled = false;
+      hint.textContent = 'Recalculate failed: ' + (e.data.error || 'unknown error');
+    }
+  });
+})();
+</script>
+</body>
+</html>

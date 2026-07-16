@@ -89,19 +89,121 @@
             text-decoration: underline;
         }
 
-        .images {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin: 20px 0;
+        .slider {
+            position: relative;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        .images img {
-            max-width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .slider-viewport {
+            position: relative;
+            width: 100%;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a0a;
         }
+
+        .slider-viewport img {
+            display: none;
+            max-width: 100%;
+            max-height: 520px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .slider-viewport img.active {
+            display: block;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 51, 102, 0.9);
+            color: white;
+            font-size: 1.4em;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .slider-btn:hover {
+            background: #004080;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .slider-btn:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+
+        .slider-btn.prev { left: 12px; }
+        .slider-btn.next { right: 12px; }
+        .slider-btn[hidden] { display: none; }
+
+        .slider-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .slider-caption {
+            font-size: 0.9em;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .slider-dots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .slider-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: none;
+            padding: 0;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .slider-dot.active {
+            background: #003366;
+            transform: scale(1.15);
+        }
+
+        .slider-dot:hover { background: #64748b; }
+
+        @media (max-width: 640px) {
+            .slider-btn { width: 36px; height: 36px; font-size: 1.2em; }
+            .slider-viewport { min-height: 200px; }
+            .slider-viewport img { max-height: 360px; }
+        }
+
 
         .note {
             background: #e6f0ff;
@@ -314,9 +416,16 @@
                         https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_adRnaQqkpTMcFS0h
                     </a>
                 </p>
-                <div class="images">
-                    <img src="assets/observation/issue1.png" alt="Screenshot for Issue 1 — Repeated fabricated line in transcription"
-                        style="max-height: 420px;">
+                                <div class="slider" data-slider>
+                    <div class="slider-viewport">
+                        <button type="button" class="slider-btn prev" aria-label="Previous image">‹</button>
+                        <img class="active" src="assets/observation/issue1.png" alt="Screenshot for Issue 1 — Repeated fabricated line in transcription" data-label="1">
+                        <button type="button" class="slider-btn next" aria-label="Next image">›</button>
+                    </div>
+                    <div class="slider-footer">
+                        <span class="slider-caption"></span>
+                        <div class="slider-dots"></div>
+                    </div>
                 </div>
             </div>
 
@@ -332,9 +441,16 @@
                         https://api.pda.gov.pk/mihbot/projects/proj_gyac8gcRP3DwnPSF/bots/bot_HX7hiGZIIvdBERuX
                     </a>
                 </p>
-                <div class="images">
-                    <img src="assets/observation/issue2.png" alt="Screenshot for Issue 2 — Incomplete transcription with repeated line"
-                        style="max-height: 420px;">
+                                <div class="slider" data-slider>
+                    <div class="slider-viewport">
+                        <button type="button" class="slider-btn prev" aria-label="Previous image">‹</button>
+                        <img class="active" src="assets/observation/issue2.png" alt="Screenshot for Issue 2 — Incomplete transcription with repeated line" data-label="2">
+                        <button type="button" class="slider-btn next" aria-label="Next image">›</button>
+                    </div>
+                    <div class="slider-footer">
+                        <span class="slider-caption"></span>
+                        <div class="slider-dots"></div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -370,6 +486,60 @@
             <p>Report Generated on July 10, 2026 • Meeting Insight Hub (MIH) Attendee Bot Analysis</p>
         </footer>
     </div>
+
+    <script>
+        (function () {
+            function initSlider(root) {
+                var images = Array.prototype.slice.call(root.querySelectorAll('.slider-viewport img'));
+                if (!images.length) return;
+
+                var caption = root.querySelector('.slider-caption');
+                var dotsWrap = root.querySelector('.slider-dots');
+                var prevBtn = root.querySelector('.slider-btn.prev');
+                var nextBtn = root.querySelector('.slider-btn.next');
+                var index = Math.max(0, images.findIndex(function (img) { return img.classList.contains('active'); }));
+                if (index < 0) index = 0;
+
+                images.forEach(function (_, i) {
+                    var dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.className = 'slider-dot' + (i === index ? ' active' : '');
+                    dot.setAttribute('aria-label', 'Go to image ' + (i + 1));
+                    dot.addEventListener('click', function () { show(i); });
+                    dotsWrap.appendChild(dot);
+                });
+
+                var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('.slider-dot'));
+
+                if (images.length < 2) {
+                    if (prevBtn) prevBtn.hidden = true;
+                    if (nextBtn) nextBtn.hidden = true;
+                }
+
+                function show(i) {
+                    index = (i + images.length) % images.length;
+                    images.forEach(function (img, j) { img.classList.toggle('active', j === index); });
+                    dots.forEach(function (dot, j) { dot.classList.toggle('active', j === index); });
+                    var label = images[index].getAttribute('data-label') || String(index + 1);
+                    caption.textContent = 'Screenshot ' + label + ' · ' + (index + 1) + ' / ' + images.length;
+                }
+
+                if (prevBtn) prevBtn.addEventListener('click', function () { show(index - 1); });
+                if (nextBtn) nextBtn.addEventListener('click', function () { show(index + 1); });
+
+                root.addEventListener('keydown', function (e) {
+                    if (images.length < 2) return;
+                    if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+                    else if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+                });
+                root.tabIndex = 0;
+                show(index);
+            }
+
+            document.querySelectorAll('[data-slider]').forEach(initSlider);
+        })();
+    </script>
+
 </body>
 
 </html>

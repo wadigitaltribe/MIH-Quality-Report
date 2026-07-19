@@ -60,25 +60,6 @@
   }
 
   /* ---------- HEADER ---------- */
-  .backbtn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 28px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    text-decoration: none;
-    background: var(--panel-2);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    transition: border-color 0.15s ease, background 0.15s ease;
-  }
-  .backbtn:hover {
-    border-color: var(--accent);
-    background: rgba(255,122,69,0.08);
-  }
   header{
     padding: 72px 0 40px;
     border-bottom: 1px solid var(--line);
@@ -326,14 +307,13 @@
 <div class="wrap">
 
   <header>
-    <a href="index.html" class="backbtn">← Back to Samples</a>
     <div class="eyebrow">QA Issues Log &middot; Meeting Intelligence Hub</div>
     <h1>MIH Bot Issues Report</h1>
-    <p class="subhead">Field observations from live testing of the meeting bot across concurrent sessions &mdash; covering transcript integrity, join behavior, session stability, and transcript accuracy.</p>
+    <p class="subhead">Field issues from live testing of the meeting bot across concurrent sessions &mdash; covering transcript integrity, join behavior, session stability, and transcript accuracy.</p>
     <div class="meta-row">
       <div><span>Prepared by</span><strong>Bilal &middot; QA</strong></div>
       <div><span>Component</span><strong>MIH Meeting Bot</strong></div>
-      <div><span>Defects logged</span><strong>4</strong></div>
+      <div><span>Defects logged</span><strong>7</strong></div>
       <div><span>Status</span><strong>Open &mdash; pending triage</strong></div>
     </div>
   </header>
@@ -343,6 +323,9 @@
     <a href="#d2" data-sev="medium"><div class="num">02</div><div class="lbl">Duplicate bot joins</div></a>
     <a href="#d3" data-sev="critical"><div class="num">03</div><div class="lbl">Premature termination</div></a>
     <a href="#d4" data-sev="high"><div class="num">04</div><div class="lbl">Phantom transcript text</div></a>
+    <a href="#d5" data-sev="high"><div class="num">05</div><div class="lbl">Missing transcription</div></a>
+    <a href="#d6" data-sev="medium"><div class="num">06</div><div class="lbl">Repeated content</div></a>
+    <a href="#d7" data-sev="critical"><div class="num">07</div><div class="lbl">Language mix-up</div></a>
   </div>
 
   <!-- DEFECT 1 -->
@@ -388,7 +371,7 @@
     </div>
     <div class="defect-body">
       <div class="field">
-        <div class="field-label">Observation</div>
+        <div class="field-label">Issue</div>
         <div class="field-text">While only one or two bots are expected to join, multiple instances are visible in the participants list.</div>
       </div>
       <div class="field">
@@ -419,7 +402,7 @@
         <div class="field-text">Meetings are terminating prematurely, often within two minutes of initiation.</div>
       </div>
       <div class="field">
-        <div class="field-label">Observation</div>
+        <div class="field-label">Issue</div>
         <div class="field-text">There is a discrepancy in the dashboard status, where a meeting is displayed as <strong>"In Progress"</strong>, but upon opening, the status reflects as <strong>"Ended."</strong></div>
       </div>
     </div>
@@ -437,7 +420,7 @@
     </div>
     <div class="defect-body">
       <div class="field">
-        <div class="field-label">Observation</div>
+        <div class="field-label">Issue</div>
         <div class="field-text">There are instances where a "Thank You" message appears in the transcript but was not spoken by any participant during that session.</div>
       </div>
       <div class="field">
@@ -452,9 +435,63 @@
     </div>
   </section>
 
+  <!-- DEFECT 5 -->
+  <section class="defect" id="d5">
+    <div class="defect-head">
+      <div class="defect-top">
+        <span class="defect-id">DEFECT-05</span>
+        <span class="badge high">High</span>
+      </div>
+      <div class="defect-title">Missing Transcription</div>
+      <div class="defect-area">Area: Transcription accuracy &middot; Completeness</div>
+    </div>
+    <div class="defect-body">
+      <div class="field">
+        <div class="field-label">Issue</div>
+        <div class="field-text">Several words, phrases, and sentences were omitted, resulting in incomplete transcripts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEFECT 6 -->
+  <section class="defect" id="d6">
+    <div class="defect-head">
+      <div class="defect-top">
+        <span class="defect-id">DEFECT-06</span>
+        <span class="badge medium">Medium</span>
+      </div>
+      <div class="defect-title">Repeated Content</div>
+      <div class="defect-area">Area: Transcription accuracy &middot; Readability</div>
+    </div>
+    <div class="defect-body">
+      <div class="field">
+        <div class="field-label">Issue</div>
+        <div class="field-text">The transcript contained repeated words and sentences, reducing readability and transcription quality.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEFECT 7 -->
+  <section class="defect" id="d7">
+    <div class="defect-head">
+      <div class="defect-top">
+        <span class="defect-id">DEFECT-07</span>
+        <span class="badge critical">Critical</span>
+      </div>
+      <div class="defect-title">Incorrect Language Transcription</div>
+      <div class="defect-area">Area: Transcription accuracy &middot; Multilingual handling</div>
+    </div>
+    <div class="defect-body">
+      <div class="field">
+        <div class="field-label">Issue</div>
+        <div class="field-text">Spoken English was sometimes transcribed into Urdu (or vice versa), causing incorrect language representation in multilingual conversations.</div>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <span>MIH Bot Issues Report</span>
-    <span>4 defects &middot; QA field testing</span>
+    <span>7 defects &middot; QA field testing</span>
   </footer>
 
 </div>

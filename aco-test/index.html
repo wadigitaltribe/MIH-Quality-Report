@@ -83,7 +83,7 @@
     }
     .dark .table-scroll::-webkit-scrollbar-track { background: rgba(51, 65, 85, 0.5); }
     .dark .table-scroll::-webkit-scrollbar-thumb { background: rgba(129, 140, 248, 0.55); }
-    .report-table { min-width: 720px; }
+    .report-table { min-width: 900px; }
     .report-table th,
     .report-table td { white-space: nowrap; }
     .report-table .sample-title {
@@ -102,7 +102,7 @@
       </div>
       <div>
         <h1 class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">MIH ACO Test Reports</h1>
-        <p class="hidden sm:block text-xs text-slate-500 dark:text-slate-400">ACO mixed, English, and Urdu WER reports — 16/7/26</p>
+        <p class="hidden sm:block text-xs text-slate-500 dark:text-slate-400">ACO mixed, English, and Urdu WER reports — 16/7/26 &amp; 23/7/26</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -127,7 +127,7 @@
 
       <header class="relative z-10 text-center mb-10">
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mb-4">
-          7 samples · 21 ACO reports
+          7 samples · 27 ACO reports
         </span>
         <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
           ACO <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Test Reports</span>
@@ -149,7 +149,8 @@
               <tr>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Report</th>
                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Sample</th>
-                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Test 16/7/26</th>
+                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Test 23/7/26</th>
+                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Test 16/7/26</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200/70 dark:divide-slate-700/70 bg-white/40 dark:bg-slate-950/10">
@@ -158,6 +159,9 @@
                 <td class="px-6 py-4" colspan="2">
                   <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Issues</span>
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Open the ACO transcription issues report for 16/7/26.</p>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-sm text-slate-400 dark:text-slate-500">—</span>
                 </td>
                 <td class="px-6 py-4">
                   <a href="aco-issues-(16-7-26).html" class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm transition-colors" title="Open ACO issues report 16/7/26">
@@ -178,6 +182,13 @@
                 <td class="px-6 py-5 sample-title">
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 4</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Formal Speech EN/UR</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="aco-mix-s4(23-7-26).html" class="metric-link decoration-transparent" title="Open Formal Speech EN/UR — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-bad metric-value">40.31%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 77 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
@@ -203,6 +214,13 @@
                 <td class="px-6 py-5 sample-title">
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 6</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Youth &amp; Unemployment</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="aco-mix-s6(23-7-26).html" class="metric-link decoration-transparent" title="Open Youth &amp; Unemployment — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-bad metric-value">55.88%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 133 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
@@ -237,6 +255,13 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Inside the mind of a master procrastinator — Tim Urban</p>
                 </td>
                 <td class="px-6 py-5">
+                  <a href="aco-en-s3(23-7-26).html" class="metric-link decoration-transparent" title="Open Tim Urban — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-good metric-value">5.92%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 100 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
                     <a href="aco-eng-s3-1.html" class="metric-link decoration-transparent" title="Open Tim Urban — ACO test 1 (16/7/26)">
                       <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 16/7/26</span>
@@ -262,6 +287,13 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Multi-Speaker English WER Test Recording</p>
                 </td>
                 <td class="px-6 py-5">
+                  <a href="aco-en-s5(23-7-26).html" class="metric-link decoration-transparent" title="Open English Sample 5 — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-good metric-value">8.94%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 83 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
                     <a href="aco-eng-s5-1.html" class="metric-link decoration-transparent" title="Open English Sample 5 — ACO test 1 (16/7/26)">
                       <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 16/7/26</span>
@@ -285,6 +317,9 @@
                 <td class="px-6 py-5 sample-title">
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 7</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">What does it take to change a mind? — Lucinda Beaman</p>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-sm text-slate-400 dark:text-slate-500">—</span>
                 </td>
                 <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
@@ -319,6 +354,13 @@
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">Luck, Hard Work &amp; Fortune — Motivational Talk</p>
                 </td>
                 <td class="px-6 py-5">
+                  <a href="aco-ur-s9(23-7-26).html" class="metric-link decoration-transparent" title="Open Luck &amp; Fortune talk — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-good metric-value">8.96%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 273 errors</p>
+                  </a>
+                </td>
+                <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">
                     <a href="aco-ur-s9-1.html" class="metric-link decoration-transparent" title="Open Luck &amp; Fortune talk — ACO test 1 (16/7/26)">
                       <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 16/7/26</span>
@@ -342,6 +384,13 @@
                 <td class="px-6 py-5 sample-title">
                   <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Sample 10</span>
                   <p class="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1 leading-snug">PTI Mashal Yousafzai — Senate Speech</p>
+                </td>
+                <td class="px-6 py-5">
+                  <a href="aco-ur-s10(23-7-26).html" class="metric-link decoration-transparent" title="Open Mashal Yousafzai — ACO test 1 (7/23/26)">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Test 1 · 23/7/26</span>
+                    <span class="block text-2xl font-extrabold metric-bad metric-value">47.41%</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">WER · 550 errors</p>
+                  </a>
                 </td>
                 <td class="px-6 py-5">
                   <div class="flex flex-col gap-3">

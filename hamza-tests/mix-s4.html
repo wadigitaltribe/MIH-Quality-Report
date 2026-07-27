@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WER Report — Urdu-English Bilingual</title>
+<style>
+  :root, [data-theme="light"] {
+    color-scheme: light;
+    --page-bg:#f8fafc; --page-fg:#1f2937; --head:#111827; --muted:#6b7280;
+    --line:#e5e7eb; --card-bg:#fff; --header-bg:#111827; --header-fg:#fff;
+    --header-muted:#9ca3af; --badge-bg:#2563eb; --thead-bg:#f1f5f9;
+    --row-alt:#fafafa; --panel-llm-bg:#faf5ff; --panel-llm-bd:#e9d5ff;
+    --panel-rf-bg:#fffbeb; --panel-rf-bd:#fde68a; --rm-bg:#fee2e2; --rm-fg:#b91c1c;
+    --ins-bg:#fef9c3; --ins-fg:#a16207; --ins-bd:#fde047;
+    --del-bg:#dbeafe; --del-fg:#1d4ed8; --del-bd:#93c5fd;
+    --sub-bg:#fee2e2; --sub-fg:#b91c1c; --sub-bd:#fca5a5;
+    --eq-fg:#7c3aed; --wer-fg:#2563eb; --hi-bg:#dbeafe; --hi-ol:#2563eb;
+    --btn-bg:#fff; --btn-fg:#334155; --btn-bd:#cbd5e1; --btn-hover:#e0e7ff;
+    --menu-bg:#fff; --menu-bd:#d1d5db; --menu-hover:#f3f4f6; --menu-shadow:rgba(0,0,0,.18);
+    --edit-bar-bg:#fffbeb; --edit-bar-bd:#f59e0b; --edit-title:#92400e;
+    --edit-hint:#78716c; --removed-bg:#f3f4f6; --removed-fg:#9ca3af;
+    --theme-btn-bg:rgba(255,255,255,.12); --theme-btn-bd:rgba(255,255,255,.25);
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg:#0b1220; --page-fg:#e6edf7; --head:#f1f5f9; --muted:#8fa3bf;
+    --line:#26334d; --card-bg:#141e31; --header-bg:#060a12; --header-fg:#e6edf7;
+    --header-muted:#8fa3bf; --badge-bg:#2563eb; --thead-bg:#0e1626;
+    --row-alt:#0e1626; --panel-llm-bg:#1a1030; --panel-llm-bd:#4c1d95;
+    --panel-rf-bg:#1c1408; --panel-rf-bd:#92400e; --rm-bg:#7f1d1d; --rm-fg:#fecaca;
+    --ins-bg:#422006; --ins-fg:#fbbf24; --ins-bd:#a16207;
+    --del-bg:#1e3a8a; --del-fg:#93c5fd; --del-bd:#3b82f6;
+    --sub-bg:#7f1d1d; --sub-fg:#fca5a5; --sub-bd:#ef4444;
+    --eq-fg:#c4b5fd; --wer-fg:#60a5fa; --hi-bg:#1e3a8a; --hi-ol:#60a5fa;
+    --btn-bg:#1e293b; --btn-fg:#e2e8f0; --btn-bd:#334155; --btn-hover:#334155;
+    --menu-bg:#141e31; --menu-bd:#334155; --menu-hover:#1e293b; --menu-shadow:rgba(0,0,0,.45);
+    --edit-bar-bg:#1c1408; --edit-bar-bd:#d97706; --edit-title:#fcd34d;
+    --edit-hint:#a8a29e; --removed-bg:#1e293b; --removed-fg:#64748b;
+    --theme-btn-bg:rgba(255,255,255,.1); --theme-btn-bd:rgba(255,255,255,.22);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page-bg); color:var(--page-fg);
+    font-family:"Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif;
+    font-size:15px; line-height:1.9; }
+  header { background:var(--header-bg); color:var(--header-fg);
+    padding:14px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  header h1 { font-size:18px; margin:0; font-weight:600; }
+  header .files { color:var(--header-muted); font-size:13px; }
+  .werbadge { margin-left:auto; background:var(--badge-bg); border-radius:999px;
+    padding:6px 18px; font-size:17px; font-weight:700; color:#fff; }
+  .themebtn { margin-left:10px; padding:6px 14px; font-size:13px; font-weight:600;
+    cursor:pointer; border-radius:999px; border:1px solid var(--theme-btn-bd);
+    background:var(--theme-btn-bg); color:var(--header-fg); font-family:inherit; }
+  .themebtn:hover { filter:brightness(1.15); }
+  main { max-width:1250px; margin:0 auto; padding:20px 16px 60px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px; margin-bottom:18px; }
+  .card { background:var(--card-bg); border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; text-align:center; }
+  .card .v { font-size:26px; font-weight:700; color:var(--head); }
+  .card .l { font-size:12.5px; color:var(--muted); }
+  .card.ins .v { color:var(--ins-fg); } .card.del .v { color:var(--del-fg); }
+  .card.sub .v { color:var(--sub-fg); } .card.wer .v { color:var(--wer-fg); }
+  .legend, .panel { background:var(--card-bg); border:1px solid var(--line);
+    border-radius:10px; padding:12px 16px; margin-bottom:18px; }
+  .legend { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
+    font-size:13.5px; }
+  .panel h3 { margin:2px 0 8px; font-size:15px; color:var(--head); }
+  .panel ul, .panel ol { margin:4px 0; padding-left:22px; }
+  .panel li { margin-bottom:4px; }
+  .panel.llm { background:var(--panel-llm-bg); border-color:var(--panel-llm-bd); }
+  .panel.refine { background:var(--panel-rf-bg); border-color:var(--panel-rf-bd); }
+  .refdiff { background:var(--card-bg); border:1px solid var(--line); border-radius:8px;
+    padding:10px 14px; line-height:2.1; max-height:340px; overflow:auto; }
+  .rm { background:var(--rm-bg); color:var(--rm-fg);
+    text-decoration:line-through; border-radius:4px; padding:0 3px; }
+  .dim { color:var(--muted); }
+  .tk { unicode-bidi:isolate; border-radius:4px; padding:0 2px; }
+  .tk.sub { background:var(--sub-bg); color:var(--sub-fg);
+    border-bottom:2px solid var(--sub-bd); cursor:help; }
+  .tk.del { background:var(--del-bg); color:var(--del-fg);
+    border-bottom:2px solid var(--del-bd); text-decoration:line-through; cursor:help; }
+  .tk.ins { background:var(--ins-bg); color:var(--ins-fg);
+    border-bottom:2px solid var(--ins-bd); cursor:help; }
+  .tk.eq { border-bottom:1.5px dotted var(--eq-fg); cursor:help; }
+  .tk.delmark { color:var(--del-fg); font-weight:700; cursor:help; }
+  /* NOTE: no overflow:hidden here — it disables position:sticky on thead */
+  table { width:100%; border-collapse:separate; border-spacing:0; background:var(--card-bg);
+    border:1px solid var(--line); border-radius:10px; }
+  thead th:first-child { border-top-left-radius:9px; }
+  thead th:last-child { border-top-right-radius:9px; }
+  tr:last-child td:first-child { border-bottom-left-radius:9px; }
+  tr:last-child td:last-child { border-bottom-right-radius:9px; }
+  thead th { position:sticky; top:0; z-index:10; background:var(--thead-bg);
+    color:var(--head); text-align:left; font-size:13px; letter-spacing:.4px;
+    text-transform:uppercase; padding:10px 14px; border-bottom:2px solid var(--line);
+    transform:translateZ(0); box-shadow:0 1px 0 var(--line); }
+  td { padding:8px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:var(--row-alt); }
+  .ln { color:var(--muted); font-size:12px; width:44px; text-align:right;
+    font-variant-numeric:tabular-nums; }
+  .cell { width:50%; }
+  .ln, .tk.delmark { user-select:none; }
+  table.diff.sel-hyp .gt { user-select:none; }
+  table.diff.sel-gt .hyp { user-select:none; }
+  .copybtn { margin-left:10px; padding:2px 12px; font-size:11.5px;
+    font-weight:600; letter-spacing:0; text-transform:none; cursor:pointer;
+    background:var(--btn-bg); color:var(--btn-fg); border:1px solid var(--btn-bd);
+    border-radius:999px; vertical-align:middle; }
+  .copybtn:hover { background:var(--btn-hover); }
+  .copybtn:disabled { opacity:.75; cursor:default; }
+  #align-overlay { position:fixed; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:5; }
+  .tk.op-hi { outline:2px solid var(--hi-ol); outline-offset:1px;
+    background:var(--hi-bg) !important; border-radius:5px; }
+  #edit-bar { position:sticky; top:0; z-index:50; background:var(--edit-bar-bg);
+    border-bottom:2px solid var(--edit-bar-bd); box-shadow:0 2px 10px rgba(0,0,0,.08); }
+  #edit-bar .edit-inner { max-width:1250px; margin:0 auto; padding:10px 16px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  #edit-bar .edit-title { font-weight:700; color:var(--edit-title); font-size:14px; }
+  #edit-bar .edit-hint { flex:1 1 220px; font-size:12.5px; color:var(--edit-hint); }
+  #edit-bar .editbtn { padding:7px 16px; font-size:12.5px; font-weight:600;
+    cursor:pointer; border-radius:999px; border:1px solid var(--btn-bd);
+    background:var(--btn-bg); color:var(--btn-fg); }
+  #edit-bar .editbtn:hover { filter:brightness(1.08); }
+  #edit-bar .editbtn.on { background:var(--edit-bar-bd); color:#fff; border-color:var(--edit-bar-bd); }
+  #edit-bar .editbtn.primary { background:#059669; color:#fff; border-color:#047857; }
+  #edit-bar .editbtn.primary:hover { filter:brightness(1.08); }
+  #edit-bar .editbtn.primary:disabled { opacity:.45; cursor:not-allowed; filter:none; }
+  #edit-bar .editbtn.ghost { background:transparent; color:var(--edit-hint); }
+  table.diff.edit-mode td.hyp, table.diff.edit-mode td.gt { padding:6px 10px; }
+  .edit-txt { min-height:1.9em; outline:none; border:1.5px dashed var(--edit-bar-bd);
+    border-radius:6px; padding:4px 8px; background:var(--edit-bar-bg); line-height:2.1;
+    white-space:pre-wrap; word-break:break-word; cursor:text; color:var(--page-fg); }
+  .edit-txt:focus { border-color:var(--wer-fg); background:var(--card-bg);
+    box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+  table.diff.edit-mode .tk { cursor:default; }
+  #op-menu { position:fixed; z-index:200; display:none; min-width:230px;
+    background:var(--menu-bg); border:1px solid var(--menu-bd); border-radius:10px;
+    box-shadow:0 10px 28px var(--menu-shadow); padding:6px; font-size:13px;
+    color:var(--page-fg); }
+  #op-menu .opm-title { padding:6px 10px 4px; color:var(--muted); font-size:11.5px;
+    font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  #op-menu button { display:block; width:100%; text-align:left; border:none;
+    background:transparent; padding:8px 12px; border-radius:7px; cursor:pointer;
+    font:inherit; color:var(--page-fg); }
+  #op-menu button:hover { background:var(--menu-hover); }
+  #op-menu button.ok { color:#059669; font-weight:600; }
+  #op-menu button.bad { color:#ef4444; font-weight:600; }
+  #op-menu button.rm { color:#d97706; font-weight:600; }
+  #op-menu button.split { color:var(--wer-fg); font-weight:600; }
+  table.diff:not(.edit-mode) .tk[data-op], table.diff:not(.edit-mode) .delmark[data-op] {
+    cursor:pointer; }
+  .tk.ins-removed { opacity:0.5; color:var(--removed-fg) !important;
+    background:var(--removed-bg) !important; border-bottom-color:var(--line) !important;
+    text-decoration:line-through; cursor:default; }
+  button.ins-restore { display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; margin:0 1px; padding:0; border:1px solid var(--btn-bd);
+    border-radius:50%; background:var(--btn-bg); color:#059669; font-weight:700;
+    font-size:13px; line-height:1; cursor:pointer; vertical-align:middle;
+    opacity:1; font-family:inherit; }
+  button.ins-restore:hover { filter:brightness(1.1); border-color:#059669; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Word Error Rate Report</h1>
+  <span class="files">Hypothesis: machine transcription &nbsp;·&nbsp; Reference: ground truth &nbsp;·&nbsp; Urdu · Roman Urdu · English</span>
+  <span class="werbadge">WER 25.13%</span>
+  <button type="button" id="theme-toggle" class="themebtn" title="Toggle light / dark theme">Theme</button>
+</header>
+<main>
+  <div class="cards">
+    <div class="card"><div class="v" id="stat-n">191</div><div class="l">Reference words (N)</div></div>
+    <div class="card"><div class="v" id="stat-c">158</div><div class="l" id="stat-c-lbl">Correct (106 exact + 52 equivalent)</div></div>
+    <div class="card sub"><div class="v" id="stat-s">17</div><div class="l">Substitutions</div></div>
+    <div class="card del"><div class="v" id="stat-d">16</div><div class="l">Deletions</div></div>
+    <div class="card ins"><div class="v" id="stat-i">15</div><div class="l">Insertions</div></div>
+    <div class="card wer"><div class="v" id="stat-wer">25.13%</div><div class="l" id="stat-wer-lbl">WER = (S+D+I)/N = (17+16+15)/191</div></div>
+    
+  </div>
+
+  <div class="legend">
+    <b>Legend:</b>
+    <span><span class="tk ins">inserted word</span> — Insertion (in machine output, not in ground truth)</span>
+    <span><span class="tk del">deleted word</span> — Deletion (missing from machine output)</span>
+    <span><span class="tk sub">substituted word</span> — Substitution (wrong word)</span>
+    <span><span class="tk eq">equivalent match</span> — correct via normalization / transliteration / semantic match (hover for details)</span>
+  </div>
+
+  <div class="panel">
+    <h3>Issues found in the machine transcription</h3>
+    <ul><li>[Manual override] 84 alignment op(s) reclassified by you (local rescore, no AI).</li><li>Insertions dominate: 15 inserted words (31% of all errors). Without insertions the WER would be 17.28% instead of 25.13%.</li><li>17 true substitutions (phonetic mishears), e.g. &#x27;Yahan&#x27; -&gt; &#x27;Yeah,&#x27;, &#x27;har&#x27; -&gt; &#x27;her&#x27;, &#x27;interest&#x27; -&gt; &#x27;آپ&#x27;, &#x27;se&#x27; -&gt; &#x27;اپنے&#x27;.</li><li>16 deletions (words missing from the machine output): &#x27;gaon&#x27;, &#x27;Jab&#x27;, &#x27;hon,&#x27;, &#x27;hon&#x27;, &#x27;tab&#x27;, &#x27;mein&#x27;.</li></ul>
+    <h3>Suggestions to reduce WER</h3>
+    <ul><li>Improve acoustic robustness for mishears: cleaner audio (less noise, better mic), a domain lexicon / hotword list with the expected vocabulary, and a spelling-correction post-processing pass for known confusion pairs.</li><li>Check for audio dropouts / aggressive VAD trimming causing missed words; lower the VAD threshold or use overlapping chunks.</li></ul>
+  </div>
+  
+  <div class="panel llm"><h3>AI Analysis (GLM)</h3><h4>Issues</h4>
+<ol>
+<li><b>Contextual Substitutions:</b> Frequent replacement of English words with Urdu words that lack semantic overlap (e.g., &quot;I&quot; -&gt; &quot;روحانیت&quot;, &quot;Today&quot; -&gt; &quot;کے&quot;).</li>
+<li><b>Sentence Fragmentation:</b> High rate of deletions causing incomplete sentences (e.g., missing &quot;citizen ki representation hoti hai&quot;).</li>
+<li><b>Hallucinated Content:</b> Insertion of non-existent words in runs (e.g., &quot;Health, Electricity bills...&quot;, &quot;National interest...&quot;).</li>
+<li><b>Language Boundary Confusion:</b> Difficulty distinguishing between English and Urdu segments, leading to mixed syntax.</li>
+</ol>
+<h4>Suggestions</h4>
+<ol>
+<li><b>Tune Language Probabilities:</b> Adjust the ASR configuration to better handle mixed-language audio by increasing the penalty for incorrect language switching.</li>
+<li><b>Audio Enhancement:</b> Apply noise reduction to improve signal clarity, which helps the model distinguish between phonetically similar words.</li>
+<li><b>Post-Processing Correction:</b> Develop a script to flag and correct specific substitution patterns (e.g., English prepositions replaced by Urdu particles).</li>
+</ol></div>
+
+  <table class="diff">
+    <thead>
+      <tr><th class="ln">#</th>
+        <th class="hyp">Machine Transcription
+          <button class="copybtn" data-col="1" type="button" title="Copy this column as plain text">Copy</button></th>
+        <th class="gt">Ground Truth
+          <button class="copybtn" data-col="2" type="button" title="Copy this column as plain text">Copy</button></th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="ln">1</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="1" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Assalam-o-Alaikum">السلام علیکم</span> <span class="tk eq" data-op="2" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Respectable">Respected</span> <span class="tk" data-op="3" data-op-type="exact" data-base-op="exact">Speaker,</span> <span class="tk eq" data-op="4" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Honourable">Honorable</span> <span class="tk eq" data-op="5" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Members">Member</span> <span class="tk eq" data-op="6" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aur">اور</span> <span class="tk eq" data-op="7" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: mere">میرے</span> <span class="tk" data-op="8" data-op-type="exact" data-base-op="exact">Dear</span> <span class="tk eq" data-op="9" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistanis.">Pakistanis آج میں</span> <span class="tk" data-op="10" data-op-type="neutral" data-base-op="ins">یہاں</span> <span class="tk" data-op="11" data-op-type="neutral" data-base-op="ins">پاکستان</span> <span class="tk ins" data-op="12" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">سبسکرائب</span> <span class="tk" data-op="13" data-op-type="exact" data-base-op="exact">کے</span> <span class="tk ins" data-op="14" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">روحانیت</span> <span class="tk eq" data-op="15" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">کے</span> <span class="tk" data-op="16" data-op-type="exact" data-base-op="exact">بارے</span> <span class="tk" data-op="17" data-op-type="exact" data-base-op="exact">میں</span> <span class="tk" data-op="18" data-op-type="exact" data-base-op="exact">بات</span> <span class="tk" data-op="19" data-op-type="exact" data-base-op="exact">کرنے</span> <span class="tk" data-op="20" data-op-type="exact" data-base-op="exact">کے</span> <span class="tk" data-op="21" data-op-type="exact" data-base-op="exact">لئے</span> <span class="tk ins" data-op="22" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">یہاں</span> <span class="tk ins" data-op="23" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">مقابلہ</span> <span class="tk eq" data-op="24" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">ہوں۔</span> <span class="tk" data-op="25" data-op-type="exact" data-base-op="exact">Parliament</span> <span class="tk" data-op="26" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="27" data-op-type="exact" data-base-op="exact">not</span> <span class="tk" data-op="28" data-op-type="exact" data-base-op="exact">just</span> <span class="tk" data-op="29" data-op-type="exact" data-base-op="exact">a</span> <span class="tk" data-op="30" data-op-type="exact" data-base-op="exact">building</span> <span class="tk" data-op="31" data-op-type="exact" data-base-op="exact">in</span> <span class="tk" data-op="32" data-op-type="exact" data-base-op="exact">Islamabad.</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="1" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: السلام علیکم">Assalam-o-Alaikum</span> <span class="tk eq" data-op="2" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Respected">Respectable</span> <span class="tk" data-op="3" data-op-type="exact" data-base-op="exact">Speaker,</span> <span class="tk eq" data-op="4" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Honorable">Honourable</span> <span class="tk eq" data-op="5" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Member">Members</span> <span class="tk eq" data-op="6" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">aur</span> <span class="tk eq" data-op="7" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: میرے">mere</span> <span class="tk" data-op="8" data-op-type="exact" data-base-op="exact">dear</span> <span class="tk eq" data-op="9" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistanis آج میں">Pakistanis.</span> <span class="tk" data-op="13" data-op-type="exact" data-base-op="exact">Today</span> <span class="tk eq" data-op="14" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">I</span> <span class="tk del" data-op="15" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">stand</span> <span class="tk" data-op="16" data-op-type="exact" data-base-op="exact">here</span> <span class="tk" data-op="17" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="18" data-op-type="exact" data-base-op="exact">speak</span> <span class="tk" data-op="19" data-op-type="exact" data-base-op="exact">about</span> <span class="tk" data-op="20" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="21" data-op-type="exact" data-base-op="exact">role</span> <span class="tk eq" data-op="22" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">of</span> <span class="tk eq" data-op="23" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">Pakistan</span> <span class="tk del" data-op="24" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">Parliament.</span> <span class="tk" data-op="25" data-op-type="exact" data-base-op="exact">Parliament</span> <span class="tk" data-op="26" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="27" data-op-type="exact" data-base-op="exact">not</span> <span class="tk" data-op="28" data-op-type="exact" data-base-op="exact">just</span> <span class="tk" data-op="29" data-op-type="exact" data-base-op="exact">a</span> <span class="tk" data-op="30" data-op-type="exact" data-base-op="exact">building</span> <span class="tk" data-op="31" data-op-type="exact" data-base-op="exact">in</span> <span class="tk" data-op="32" data-op-type="exact" data-base-op="exact">Islamabad.</span></td></tr>
+<tr><td class="ln">2</td><td class="cell hyp" dir="auto"><span class="tk" data-op="33" data-op-type="exact" data-base-op="exact">It</span> <span class="tk" data-op="34" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="35" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="36" data-op-type="exact" data-base-op="exact">voice</span> <span class="tk" data-op="37" data-op-type="exact" data-base-op="exact">of</span> <span class="tk" data-op="38" data-op-type="exact" data-base-op="exact">people</span> <span class="tk sub" data-op="39" data-op-type="sub" data-base-op="sub" title="Should be: Yahan">Yeah,</span> <span class="tk sub" data-op="40" data-op-type="sub" data-base-op="sub" title="Should be: har">her</span> <span class="tk" data-op="41" data-op-type="exact" data-base-op="exact">province.</span> <span class="tk" data-op="52" data-op-type="exact" data-base-op="exact">This</span> <span class="tk" data-op="53" data-op-type="exact" data-base-op="exact">house</span> <span class="tk" data-op="54" data-op-type="exact" data-base-op="exact">has</span> <span class="tk" data-op="55" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="56" data-op-type="exact" data-base-op="exact">power</span> <span class="tk" data-op="57" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="58" data-op-type="exact" data-base-op="exact">make</span> <span class="tk" data-op="59" data-op-type="exact" data-base-op="exact">laws</span> <span class="tk" data-op="60" data-op-type="exact" data-base-op="exact">Question,</span> <span class="tk" data-op="61" data-op-type="exact" data-base-op="exact">policies</span> <span class="tk" data-op="62" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="63" data-op-type="exact" data-base-op="exact">protect</span> <span class="tk" data-op="64" data-op-type="exact" data-base-op="exact">democracy</span> <span class="tk" data-op="65" data-op-type="neutral" data-base-op="ins">ہر</span></td><td class="cell gt" dir="auto"><span class="tk" data-op="33" data-op-type="exact" data-base-op="exact">It</span> <span class="tk" data-op="34" data-op-type="exact" data-base-op="exact">is</span> <span class="tk" data-op="35" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="36" data-op-type="exact" data-base-op="exact">voice</span> <span class="tk" data-op="37" data-op-type="exact" data-base-op="exact">of</span> <span class="tk" data-op="38" data-op-type="exact" data-base-op="exact">people.</span> <span class="tk sub" data-op="39" data-op-type="sub" data-base-op="sub" title="Substituted with: Yeah,">Yahan</span> <span class="tk sub" data-op="40" data-op-type="sub" data-base-op="sub" title="Substituted with: her">har</span> <span class="tk" data-op="41" data-op-type="exact" data-base-op="exact">province,</span> <span class="tk eq" data-op="42" data-op-type="exact" data-base-op="del" title="Manually accepted">har</span> <span class="tk eq" data-op="43" data-op-type="exact" data-base-op="del" title="Manually accepted">shehar,</span> <span class="tk eq" data-op="44" data-op-type="exact" data-base-op="del" title="Manually accepted">har</span> <span class="tk del" data-op="45" data-op-type="del" data-base-op="del" title="Missing in machine output">gaon</span> <span class="tk eq" data-op="46" data-op-type="exact" data-base-op="del" title="Manually accepted">ke</span> <span class="tk eq" data-op="47" data-op-type="exact" data-base-op="del" title="Manually accepted">citizen</span> <span class="tk eq" data-op="48" data-op-type="exact" data-base-op="del" title="Manually accepted">ki</span> <span class="tk eq" data-op="49" data-op-type="exact" data-base-op="del" title="Manually accepted">representation</span> <span class="tk eq" data-op="50" data-op-type="exact" data-base-op="del" title="Manually accepted">hoti</span> <span class="tk eq" data-op="51" data-op-type="exact" data-base-op="del" title="Manually accepted">hai.</span> <span class="tk" data-op="52" data-op-type="exact" data-base-op="exact">This</span> <span class="tk" data-op="53" data-op-type="exact" data-base-op="exact">house</span> <span class="tk" data-op="54" data-op-type="exact" data-base-op="exact">has</span> <span class="tk" data-op="55" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="56" data-op-type="exact" data-base-op="exact">power</span> <span class="tk" data-op="57" data-op-type="exact" data-base-op="exact">to</span> <span class="tk" data-op="58" data-op-type="exact" data-base-op="exact">make</span> <span class="tk" data-op="59" data-op-type="exact" data-base-op="exact">laws,</span> <span class="tk" data-op="60" data-op-type="exact" data-base-op="exact">question</span> <span class="tk" data-op="61" data-op-type="exact" data-base-op="exact">policies,</span> <span class="tk" data-op="62" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="63" data-op-type="exact" data-base-op="exact">protect</span> <span class="tk" data-op="64" data-op-type="exact" data-base-op="exact">democracy.</span></td></tr>
+<tr><td class="ln">3</td><td class="cell hyp" dir="auto"><span class="tk" data-op="66" data-op-type="exact" data-base-op="exact">شہر</span> <span class="tk" data-op="67" data-op-type="exact" data-base-op="exact">ہر</span> <span class="tk ins" data-op="68" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">گونگ</span> <span class="tk" data-op="69" data-op-type="exact" data-base-op="exact">کہ</span> <span class="tk" data-op="70" data-op-type="exact" data-base-op="exact">سٹیزنز</span> <span class="tk" data-op="71" data-op-type="exact" data-base-op="exact">کی</span> <span class="tk" data-op="72" data-op-type="exact" data-base-op="exact">ریپریزنٹیشن</span> <span class="tk eq" data-op="73" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hota.">ہوتی</span> <span class="tk" data-op="74" data-op-type="neutral" data-base-op="ins">ہے۔</span> <span class="tk" data-op="75" data-op-type="exact" data-base-op="exact">We</span> <span class="tk" data-op="76" data-op-type="exact" data-base-op="exact">need</span> <span class="tk" data-op="77" data-op-type="exact" data-base-op="exact">action</span> <span class="tk" data-op="78" data-op-type="neutral" data-base-op="ins">نہیں</span> <span class="tk" data-op="79" data-op-type="neutral" data-base-op="ins">ہوتا۔</span> <span class="tk" data-op="80" data-op-type="neutral" data-base-op="ins">change</span> <span class="tk" data-op="81" data-op-type="neutral" data-base-op="ins">سے</span> <span class="tk" data-op="82" data-op-type="neutral" data-base-op="ins">ملک</span> <span class="tk" data-op="83" data-op-type="neutral" data-base-op="ins">speeches</span> <span class="tk" data-op="84" data-op-type="neutral" data-base-op="ins">لیکن</span> <span class="tk" data-op="85" data-op-type="neutral" data-base-op="ins">صرف</span> <span class="tk" data-op="86" data-op-type="exact" data-base-op="exact">accountability</span> <span class="tk" data-op="87" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="88" data-op-type="exact" data-base-op="exact">honesty</span> <span class="tk" data-op="89" data-op-type="neutral" data-base-op="ins">Health,</span> <span class="tk" data-op="90" data-op-type="neutral" data-base-op="ins">Electricity</span> <span class="tk" data-op="91" data-op-type="neutral" data-base-op="ins">bills</span> <span class="tk" data-op="92" data-op-type="neutral" data-base-op="ins">اور</span> <span class="tk" data-op="93" data-op-type="neutral" data-base-op="ins">Security</span> <span class="tk" data-op="94" data-op-type="neutral" data-base-op="ins">issues</span> <span class="tk" data-op="95" data-op-type="neutral" data-base-op="ins">کے</span> <span class="tk" data-op="96" data-op-type="neutral" data-base-op="ins">Parliament</span> <span class="tk" data-op="97" data-op-type="neutral" data-base-op="ins">کا</span> <span class="tk" data-op="98" data-op-type="neutral" data-base-op="ins">اصل</span> <span class="tk" data-op="99" data-op-type="neutral" data-base-op="ins">مقصد</span> <span class="tk eq" data-op="100" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Awam">عوام</span> <span class="tk eq" data-op="101" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hum se">ہم سے</span> <span class="tk eq" data-op="102" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: promises">پرومس</span> <span class="tk eq" data-op="103" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nahi">نہیں</span> <span class="tk eq" data-op="104" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: performances">پر فارمنس</span> <span class="tk eq" data-op="105" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: chahti">چاہتی</span> <span class="tk eq" data-op="106" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai.">ہے۔</span></td><td class="cell gt" dir="auto"><span class="tk" data-op="66" data-op-type="exact" data-base-op="exact">Lekin</span> <span class="tk" data-op="67" data-op-type="exact" data-base-op="exact">sirf</span> <span class="tk eq" data-op="68" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">speeches</span> <span class="tk" data-op="69" data-op-type="exact" data-base-op="exact">se</span> <span class="tk" data-op="70" data-op-type="exact" data-base-op="exact">mulk</span> <span class="tk" data-op="71" data-op-type="exact" data-base-op="exact">change</span> <span class="tk" data-op="72" data-op-type="exact" data-base-op="exact">nahi</span> <span class="tk eq" data-op="73" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوتی">hota.</span> <span class="tk" data-op="75" data-op-type="exact" data-base-op="exact">We</span> <span class="tk" data-op="76" data-op-type="exact" data-base-op="exact">need</span> <span class="tk" data-op="77" data-op-type="exact" data-base-op="exact">action,</span> <span class="tk" data-op="86" data-op-type="exact" data-base-op="exact">accountability,</span> <span class="tk" data-op="87" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="88" data-op-type="exact" data-base-op="exact">honesty.</span> <span class="tk eq" data-op="100" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: عوام">Awam</span> <span class="tk eq" data-op="101" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہم سے">hum se</span> <span class="tk eq" data-op="102" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پرومس">promises</span> <span class="tk eq" data-op="103" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہیں">nahi</span> <span class="tk eq" data-op="104" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پر فارمنس">performances</span> <span class="tk eq" data-op="105" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: چاہتی">chahti</span> <span class="tk eq" data-op="106" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے۔">hai.</span></td></tr>
+<tr><td class="ln">4</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="107" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistan">پاکستان</span> <span class="tk eq" data-op="108" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ke">کے</span> <span class="tk eq" data-op="109" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: log">لوگ</span> <span class="tk eq" data-op="110" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: inflation, unemployment,">انگلیشن، ان ایمپلائیمنٹ،</span> <span class="tk eq" data-op="111" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: education,">ایڈیو کیشن،</span> <span class="tk eq" data-op="120" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: solution">سلوشن</span> <span class="tk eq" data-op="121" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: chahte">چاہتے</span> <span class="tk eq" data-op="122" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hain.">ہیں۔</span> <span class="tk" data-op="127" data-op-type="exact" data-base-op="exact">political</span> <span class="tk" data-op="128" data-op-type="exact" data-base-op="exact">fighting</span> <span class="tk eq" data-op="129" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nahi">نہیں</span> <span class="tk" data-op="130" data-op-type="exact" data-base-op="exact">national</span> <span class="tk" data-op="131" data-op-type="exact" data-base-op="exact">problem</span> <span class="tk" data-op="132" data-op-type="exact" data-base-op="exact">solving</span> <span class="tk eq" data-op="133" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai.">ہے</span> <span class="tk" data-op="134" data-op-type="neutral" data-base-op="ins">National</span> <span class="tk" data-op="135" data-op-type="neutral" data-base-op="ins">interest</span> <span class="tk" data-op="136" data-op-type="neutral" data-base-op="ins">کو</span> <span class="tk" data-op="137" data-op-type="neutral" data-base-op="ins">پرائرٹی</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="107" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاکستان">Pakistan</span> <span class="tk eq" data-op="108" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کے">ke</span> <span class="tk eq" data-op="109" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: لوگ">log</span> <span class="tk eq" data-op="110" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: انگلیشن، ان ایمپلائیمنٹ،">inflation, unemployment,</span> <span class="tk eq" data-op="111" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایڈیو کیشن،">education,</span> <span class="tk eq" data-op="112" data-op-type="exact" data-base-op="del" title="Manually accepted">health,</span> <span class="tk eq" data-op="113" data-op-type="exact" data-base-op="del" title="Manually accepted">electricity</span> <span class="tk eq" data-op="114" data-op-type="exact" data-base-op="del" title="Manually accepted">bills</span> <span class="tk eq" data-op="115" data-op-type="exact" data-base-op="del" title="Manually accepted">aur</span> <span class="tk eq" data-op="116" data-op-type="exact" data-base-op="del" title="Manually accepted">security</span> <span class="tk eq" data-op="117" data-op-type="exact" data-base-op="del" title="Manually accepted">jaise</span> <span class="tk eq" data-op="118" data-op-type="exact" data-base-op="del" title="Manually accepted">issues</span> <span class="tk eq" data-op="119" data-op-type="exact" data-base-op="del" title="Manually accepted">ka</span> <span class="tk eq" data-op="120" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سلوشن">solution</span> <span class="tk eq" data-op="121" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: چاہتے">chahte</span> <span class="tk eq" data-op="122" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہیں۔">hain.</span> <span class="tk eq" data-op="123" data-op-type="exact" data-base-op="del" title="Manually accepted">Parliament</span> <span class="tk eq" data-op="124" data-op-type="exact" data-base-op="del" title="Manually accepted">ka</span> <span class="tk eq" data-op="125" data-op-type="exact" data-base-op="del" title="Manually accepted">asal</span> <span class="tk eq" data-op="126" data-op-type="exact" data-base-op="del" title="Manually accepted">maqsad</span> <span class="tk" data-op="127" data-op-type="exact" data-base-op="exact">political</span> <span class="tk" data-op="128" data-op-type="exact" data-base-op="exact">fighting</span> <span class="tk eq" data-op="129" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہیں">nahi</span> <span class="tk" data-op="130" data-op-type="exact" data-base-op="exact">national</span> <span class="tk" data-op="131" data-op-type="exact" data-base-op="exact">problem</span> <span class="tk" data-op="132" data-op-type="exact" data-base-op="exact">solving</span> <span class="tk eq" data-op="133" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے">hai.</span></td></tr>
+<tr><td class="ln">5</td><td class="cell hyp" dir="auto"><span class="tk" data-op="138" data-op-type="exact" data-base-op="exact">دیں۔</span> <span class="tk ins" data-op="139" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">debate</span> <span class="tk eq" data-op="140" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai">ہے کہ</span> <span class="tk eq" data-op="141" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">responsibility</span> <span class="tk eq" data-op="142" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hum party">ہماری</span> <span class="tk ins" data-op="143" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">اگر</span> <span class="tk sub" data-op="144" data-op-type="sub" data-base-op="sub" title="Should be: interest">آپ</span> <span class="tk sub" data-op="145" data-op-type="sub" data-base-op="sub" title="Should be: se">اپنے</span> <span class="tk sub" data-op="146" data-op-type="sub" data-base-op="sub" title="Should be: upar">ایسی</span> <span class="tk sub" data-op="147" data-op-type="sub" data-base-op="sub" title="Should be: uth">دنیا</span> <span class="tk sub" data-op="148" data-op-type="sub" data-base-op="sub" title="Should be: kar">میں</span> <span class="tk sub" data-op="149" data-op-type="sub" data-base-op="sub" title="Should be: national">بیان</span> <span class="tk sub" data-op="150" data-op-type="sub" data-base-op="sub" title="Should be: interest">کریں</span> <span class="tk sub" data-op="151" data-op-type="sub" data-base-op="sub" title="Should be: ko">گے</span> <span class="tk sub" data-op="152" data-op-type="sub" data-base-op="sub" title="Should be: priority">تو</span> <span class="tk sub" data-op="153" data-op-type="sub" data-base-op="sub" title="Should be: dein.">آپ کو</span></td><td class="cell gt" dir="auto"><span class="tk" data-op="138" data-op-type="exact" data-base-op="exact">Humari</span> <span class="tk eq" data-op="139" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">responsibility</span> <span class="tk eq" data-op="140" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے کہ">hai</span> <span class="tk del" data-op="141" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">ke</span> <span class="tk eq" data-op="142" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہماری">hum party</span> <span class="tk sub" data-op="144" data-op-type="sub" data-base-op="sub" title="Substituted with: آپ">interest</span> <span class="tk sub" data-op="145" data-op-type="sub" data-base-op="sub" title="Substituted with: اپنے">se</span> <span class="tk sub" data-op="146" data-op-type="sub" data-base-op="sub" title="Substituted with: ایسی">upar</span> <span class="tk sub" data-op="147" data-op-type="sub" data-base-op="sub" title="Substituted with: دنیا">uth</span> <span class="tk sub" data-op="148" data-op-type="sub" data-base-op="sub" title="Substituted with: میں">kar</span> <span class="tk sub" data-op="149" data-op-type="sub" data-base-op="sub" title="Substituted with: بیان">national</span> <span class="tk sub" data-op="150" data-op-type="sub" data-base-op="sub" title="Substituted with: کریں">interest</span> <span class="tk sub" data-op="151" data-op-type="sub" data-base-op="sub" title="Substituted with: گے">ko</span> <span class="tk sub" data-op="152" data-op-type="sub" data-base-op="sub" title="Substituted with: تو">priority</span> <span class="tk sub" data-op="153" data-op-type="sub" data-base-op="sub" title="Substituted with: آپ کو">dein.</span></td></tr>
+<tr><td class="ln">6</td><td class="cell hyp" dir="auto"><span class="tk sub" data-op="154" data-op-type="sub" data-base-op="sub" title="Should be: Debate">اپنے</span> <span class="tk ins" data-op="155" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">دنیا</span> <span class="tk ins" data-op="156" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">میں</span> <span class="tk ins" data-op="157" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">بیان</span> <span class="tk ins" data-op="158" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">کریں</span> <span class="tk ins" data-op="159" data-op-type="keep_gt" data-base-op="sub" title="Unpaired from substitution → insertion">گے۔</span> <span class="tk eq" data-op="160" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">strongparliament</span> <span class="tk eq" data-op="161" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">means</span> <span class="tk" data-op="162" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="163" data-op-type="exact" data-base-op="exact">with</span> <span class="tk" data-op="164" data-op-type="exact" data-base-op="exact">respect</span> <span class="tk" data-op="165" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="166" data-op-type="exact" data-base-op="exact">purpose</span> <span class="tk" data-op="167" data-op-type="neutral" data-base-op="ins">بھی</span> <span class="tk" data-op="168" data-op-type="neutral" data-base-op="ins">ہونا</span> <span class="tk" data-op="169" data-op-type="neutral" data-base-op="ins">چاہیے</span> <span class="tk" data-op="170" data-op-type="neutral" data-base-op="ins">criticism</span> <span class="tk eq" data-op="171" data-op-type="keep_hyp" data-base-op="sub" title="Kept correct (other side → deletion)">،ضروری</span> <span class="tk" data-op="172" data-op-type="exact" data-base-op="exact">ہونی</span> <span class="tk" data-op="173" data-op-type="exact" data-base-op="exact">چاہیے</span> <span class="tk" data-op="174" data-op-type="exact" data-base-op="exact">a</span> <span class="tk" data-op="175" data-op-type="exact" data-base-op="exact">strong</span> <span class="tk" data-op="176" data-op-type="exact" data-base-op="exact">Pakistan</span> <span class="tk" data-op="178" data-op-type="exact" data-base-op="exact">Laws</span> <span class="tk" data-op="179" data-op-type="exact" data-base-op="exact">fair</span> <span class="tk" data-op="181" data-op-type="exact" data-base-op="exact">institutions</span> <span class="tk" data-op="182" data-op-type="exact" data-base-op="exact">independent</span> <span class="tk eq" data-op="183" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hon">ہوں</span> <span class="tk eq" data-op="184" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aur">اور</span> <span class="tk eq" data-op="185" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: leaders">leader</span> <span class="tk" data-op="186" data-op-type="exact" data-base-op="exact">sincere</span> <span class="tk" data-op="189" data-op-type="exact" data-base-op="exact">democracy</span> <span class="tk" data-op="190" data-op-type="exact" data-base-op="exact">grow.</span> <span class="tk ins" data-op="191" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">میں</span> <span class="tk eq" data-op="192" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: karti">کہتا</span> <span class="tk eq" data-op="193" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai.">ہوں</span> <span class="tk ins" data-op="194" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">کہ</span> <span class="tk ins" data-op="195" data-op-type="ins" data-base-op="ins" title="Inserted (not in ground truth)">اس</span></td><td class="cell gt" dir="auto"><span class="tk sub" data-op="154" data-op-type="sub" data-base-op="sub" title="Substituted with: اپنے">Debate</span> <span class="tk eq" data-op="155" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">zaroori</span> <span class="tk eq" data-op="156" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">honi</span> <span class="tk eq" data-op="157" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">chahiye,</span> <span class="tk eq" data-op="158" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">criticism</span> <span class="tk eq" data-op="159" data-op-type="keep_gt" data-base-op="sub" title="Kept correct (other side → insertion)">bhi</span> <span class="tk del" data-op="160" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">hona</span> <span class="tk del" data-op="161" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">chahiye</span> <span class="tk" data-op="162" data-op-type="exact" data-base-op="exact">but</span> <span class="tk" data-op="163" data-op-type="exact" data-base-op="exact">with</span> <span class="tk" data-op="164" data-op-type="exact" data-base-op="exact">respect</span> <span class="tk" data-op="165" data-op-type="exact" data-base-op="exact">and</span> <span class="tk" data-op="166" data-op-type="exact" data-base-op="exact">purpose.</span> <span class="tk del" data-op="171" data-op-type="keep_hyp" data-base-op="sub" title="Unpaired from substitution → deletion">Agar</span> <span class="tk" data-op="172" data-op-type="exact" data-base-op="exact">strong Parliament</span> <span class="tk" data-op="173" data-op-type="exact" data-base-op="exact">means</span> <span class="tk" data-op="174" data-op-type="exact" data-base-op="exact">a</span> <span class="tk" data-op="175" data-op-type="exact" data-base-op="exact">strong</span> <span class="tk" data-op="176" data-op-type="exact" data-base-op="exact">Pakistan.</span> <span class="tk del" data-op="177" data-op-type="del" data-base-op="del" title="Missing in machine output">Jab</span> <span class="tk" data-op="178" data-op-type="exact" data-base-op="exact">laws</span> <span class="tk" data-op="179" data-op-type="exact" data-base-op="exact">fair</span> <span class="tk del" data-op="180" data-op-type="del" data-base-op="del" title="Missing in machine output">hon,</span> <span class="tk" data-op="181" data-op-type="exact" data-base-op="exact">institutions</span> <span class="tk" data-op="182" data-op-type="exact" data-base-op="exact">independent</span> <span class="tk eq" data-op="183" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوں">hon</span> <span class="tk eq" data-op="184" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">aur</span> <span class="tk eq" data-op="185" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: leader">leaders</span> <span class="tk" data-op="186" data-op-type="exact" data-base-op="exact">sincere</span> <span class="tk del" data-op="187" data-op-type="del" data-base-op="del" title="Missing in machine output">hon</span> <span class="tk del" data-op="188" data-op-type="del" data-base-op="del" title="Missing in machine output">tab</span> <span class="tk" data-op="189" data-op-type="exact" data-base-op="exact">democracy</span> <span class="tk" data-op="190" data-op-type="exact" data-base-op="exact">grow</span> <span class="tk eq" data-op="192" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کہتا">karti</span> <span class="tk eq" data-op="193" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہوں">hai.</span></td></tr>
+<tr><td class="ln">7</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="196" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: In">پارلیمنٹ کو In</span> <span class="tk" data-op="197" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="198" data-op-type="exact" data-base-op="exact">end</span> <span class="tk sub" data-op="203" data-op-type="sub" data-base-op="sub" title="Should be: is">جب</span> <span class="tk sub" data-op="204" data-op-type="sub" data-base-op="sub" title="Should be: Parliament">کرتی</span> <span class="tk sub" data-op="205" data-op-type="sub" data-base-op="sub" title="Should be: ko">ہے۔</span> <span class="tk eq" data-op="206" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ek">ایک</span> <span class="tk eq" data-op="207" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: umeed">امید</span> <span class="tk eq" data-op="208" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ki">کی</span> <span class="tk eq" data-op="209" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aankh">آنکھ</span> <span class="tk eq" data-op="210" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: aur">اور</span> <span class="tk eq" data-op="211" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: service">سروس</span> <span class="tk eq" data-op="212" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: humein">ہمیں</span> <span class="tk eq" data-op="213" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: prove">پروائیڈ</span> <span class="tk eq" data-op="214" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: kare">کرے</span> <span class="tk eq" data-op="215" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ke">کے</span> <span class="tk eq" data-op="216" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: politics">پولٹیکس</span> <span class="tk eq" data-op="217" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: power">پاور</span> <span class="tk eq" data-op="218" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: nahi">نہیں</span> <span class="tk eq" data-op="219" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: hai">ہے</span> <span class="tk" data-op="221" data-op-type="exact" data-base-op="exact">public</span> <span class="tk sub" data-op="222" data-op-type="sub" data-base-op="sub" title="Should be: service.">servers</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="196" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پارلیمنٹ کو In">In</span> <span class="tk" data-op="197" data-op-type="exact" data-base-op="exact">the</span> <span class="tk" data-op="198" data-op-type="exact" data-base-op="exact">end</span> <span class="tk del" data-op="199" data-op-type="del" data-base-op="del" title="Missing in machine output">mein</span> <span class="tk del" data-op="200" data-op-type="del" data-base-op="del" title="Missing in machine output">kehta</span> <span class="tk del" data-op="201" data-op-type="del" data-base-op="del" title="Missing in machine output">hoon</span> <span class="tk del" data-op="202" data-op-type="del" data-base-op="del" title="Missing in machine output">ke</span> <span class="tk sub" data-op="203" data-op-type="sub" data-base-op="sub" title="Substituted with: جب">is</span> <span class="tk sub" data-op="204" data-op-type="sub" data-base-op="sub" title="Substituted with: کرتی">Parliament</span> <span class="tk sub" data-op="205" data-op-type="sub" data-base-op="sub" title="Substituted with: ہے۔">ko</span> <span class="tk eq" data-op="206" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ایک">ek</span> <span class="tk eq" data-op="207" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: امید">umeed</span> <span class="tk eq" data-op="208" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کی">ki</span> <span class="tk eq" data-op="209" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: آنکھ">aankh</span> <span class="tk eq" data-op="210" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: اور">aur</span> <span class="tk eq" data-op="211" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: سروس">service</span> <span class="tk eq" data-op="212" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہمیں">humein</span> <span class="tk eq" data-op="213" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پروائیڈ">prove</span> <span class="tk eq" data-op="214" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کرے">kare</span> <span class="tk eq" data-op="215" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: کے">ke</span> <span class="tk eq" data-op="216" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پولٹیکس">politics</span> <span class="tk eq" data-op="217" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاور">power</span> <span class="tk eq" data-op="218" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: نہیں">nahi</span> <span class="tk eq" data-op="219" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: ہے">hai</span> <span class="tk del" data-op="220" data-op-type="del" data-base-op="del" title="Missing in machine output">balki</span> <span class="tk" data-op="221" data-op-type="exact" data-base-op="exact">public</span> <span class="tk sub" data-op="222" data-op-type="sub" data-base-op="sub" title="Substituted with: servers">service.</span></td></tr>
+<tr><td class="ln">8</td><td class="cell hyp" dir="auto"><span class="tk eq" data-op="223" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Pakistan">پاکستان</span> <span class="tk eq" data-op="224" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Zindabad.">زندہ بات</span> <span class="tk eq" data-op="225" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: Shukriya.">شکریہ</span></td><td class="cell gt" dir="auto"><span class="tk eq" data-op="223" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: پاکستان">Pakistan</span> <span class="tk eq" data-op="224" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: زندہ بات">Zindabad.</span> <span class="tk eq" data-op="225" data-op-type="equiv" data-base-op="equiv" title="Equivalent to: شکریہ">Shukriya.</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="dim" style="font-size:12.5px; margin-top:14px;">
+    Normalization applied: Unicode NFKC + Urdu character folding + diacritic
+    removal, case-insensitive, punctuation/whitespace ignored, lines
+    re-segmented on newlines / script switches / long sentences,
+    transliteration-aware (Urdu &harr; Roman Urdu &harr; English),
+    joined/split-word compound matching (&quot;up on&quot; = &quot;upon&quot;,
+    &quot;ismein&quot; = two Urdu words), spelled-acronym matching (ECP =
+    ای سی پی), phonetic matching (kaun = kon, mujhe = mujhay) and
+    semantic-aware matching. Numbers, currency and percent symbols are
+    normalized before scoring ($5 = five dollars = پانچ ڈالر). WER counts
+    only real errors.
+  </p>
+</main>
+<script>
+(function () {
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  // Independent selection: on mousedown inside one column, the other
+  // column and the line numbers become unselectable until the next click.
+  table.addEventListener('mousedown', function (e) {
+    var cell = e.target.closest('td, th');
+    table.classList.remove('sel-hyp', 'sel-gt');
+    if (!cell) return;
+    if (cell.classList.contains('hyp')) table.classList.add('sel-hyp');
+    else if (cell.classList.contains('gt')) table.classList.add('sel-gt');
+  });
+  function colText(idx) {
+    var lines = [];
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      var td = tr.cells[idx];
+      if (!td) return;
+      var clone = td.cloneNode(true);
+      clone.querySelectorAll('.delmark').forEach(function (n) { n.remove(); });
+      clone.querySelectorAll('.ins-restore').forEach(function (n) { n.remove(); });
+      clone.querySelectorAll('.ins-removed, .tk[data-op-type="removed_ins"]').forEach(
+        function (n) { n.remove(); });
+      var txt = clone.textContent.replace(/\s+/g, ' ').trim();
+      if (txt) lines.push(txt);
+    });
+    return lines.join('\n');
+  }
+  function flash(btn, ok) {
+    var old = btn.textContent;
+    btn.textContent = ok ? 'Copied ✓' : 'Copy failed';
+    btn.disabled = true;
+    setTimeout(function () { btn.textContent = old; btn.disabled = false; },
+               1400);
+  }
+  function fallback(txt, btn) {
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) {}
+    document.body.removeChild(ta);
+    flash(btn, ok);
+  }
+  table.querySelectorAll('.copybtn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var txt = colText(+btn.dataset.col);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(
+          function () { flash(btn, true); },
+          function () { fallback(txt, btn); });
+      } else { fallback(txt, btn); }
+    });
+  });
+
+  // ---- alignment connector lines (lightweight SVG overlay) ----
+  // Each aligned op tags its two spans with the same data-op id; hovering a
+  // word draws a line to its partner in the other column (blue=exact,
+  // purple-dashed=equivalent, red=substitution). A toggle pins every line.
+  var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'align-overlay';
+  document.body.appendChild(svg);
+  function clearLines() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+  function colorFor(sp) {
+    if (sp.classList.contains('sub')) return '#dc2626';
+    if (sp.classList.contains('eq')) return '#7c3aed';
+    return '#2563eb';
+  }
+  function partner(sp) {
+    var other = sp.closest('.hyp') ? '.gt' : '.hyp';
+    return table.querySelector(other + ' [data-op="' + sp.dataset.op + '"]');
+  }
+  function draw(a, b, strong) {
+    var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+    var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1', ra.left + ra.width / 2);
+    ln.setAttribute('y1', ra.top + ra.height / 2);
+    ln.setAttribute('x2', rb.left + rb.width / 2);
+    ln.setAttribute('y2', rb.top + rb.height / 2);
+    ln.setAttribute('stroke', colorFor(a));
+    ln.setAttribute('stroke-width', strong ? 2.2 : 1);
+    ln.setAttribute('stroke-opacity', strong ? 0.95 : 0.3);
+    if (a.classList.contains('eq')) ln.setAttribute('stroke-dasharray', '5 4');
+    svg.appendChild(ln);
+  }
+  var pinned = false;
+  function redrawAll() {
+    clearLines();
+    if (!pinned) return;
+    table.querySelectorAll('.gt [data-op]').forEach(function (g) {
+      var h = table.querySelector('.hyp [data-op="' + g.dataset.op + '"]');
+      if (h) draw(h, g, false);
+    });
+  }
+  table.addEventListener('mouseover', function (e) {
+    var sp = e.target.closest('.tk[data-op]');
+    if (!sp) return;
+    var p = partner(sp);
+    if (!p) return;
+    redrawAll();
+    sp.classList.add('op-hi'); p.classList.add('op-hi');
+    draw(sp, p, true);
+  });
+  table.addEventListener('mouseout', function (e) {
+    if (!e.target.closest('.tk[data-op]')) return;
+    table.querySelectorAll('.op-hi').forEach(function (n) {
+      n.classList.remove('op-hi');
+    });
+    redrawAll();
+  });
+  var toggle = document.getElementById('align-toggle');
+  if (toggle) toggle.addEventListener('click', function () {
+    pinned = !pinned;
+    toggle.classList.toggle('on', pinned);
+    toggle.textContent = pinned ? 'Alignment lines: on' : 'Alignment lines: off';
+    redrawAll();
+  });
+  window.addEventListener('scroll', redrawAll, {passive: true});
+  window.addEventListener('resize', redrawAll);
+})();
+
+
+(function () {
+  var KEY = 'wer-report-theme';
+  var root = document.documentElement;
+  var btn = document.getElementById('theme-toggle');
+  function systemTheme() {
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark' : 'light';
+    } catch (e) { return 'light'; }
+  }
+  function label(theme) {
+    return theme === 'dark' ? '\u2600 Light mode' : '\u263E Dark mode';
+  }
+  function apply(theme, persist) {
+    if (theme !== 'dark' && theme !== 'light') theme = systemTheme();
+    root.setAttribute('data-theme', theme);
+    if (btn) {
+      btn.textContent = label(theme);
+      btn.setAttribute('aria-label', 'Switch to ' +
+        (theme === 'dark' ? 'light' : 'dark') + ' mode');
+    }
+    if (persist) {
+      try { localStorage.setItem(KEY, theme); } catch (e) {}
+    }
+  }
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) {}
+  apply(stored === 'dark' || stored === 'light' ? stored : systemTheme(), false);
+  if (!stored) {
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', function () {
+          var cur = null;
+          try { cur = localStorage.getItem(KEY); } catch (e) {}
+          if (cur !== 'dark' && cur !== 'light') apply(systemTheme(), false);
+        });
+    } catch (e) {}
+  }
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+      apply(next, true);
+    });
+  }
+})();
+
+
+(function () {
+  if (window.parent === window) return;
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  var overrides = {};
+  var menu = document.createElement('div');
+  menu.id = 'op-menu';
+  document.body.appendChild(menu);
+  function isErrorType(t) {
+    return t === 'sub' || t === 'ins' || t === 'del'
+      || t === 'keep_gt' || t === 'keep_hyp';
+  }
+  function effectiveOp(base, ov) {
+    if (!ov) return base;
+    if (ov === 'correct') {
+      if (base === 'sub' || base === 'equiv' || base === 'keep_gt'
+          || base === 'keep_hyp') return 'exact';
+      if (base === 'ins') return 'neutral';
+      if (base === 'del') return 'skip_del';
+    }
+    if (ov === 'remove' && base === 'ins') return 'removed_ins';
+    if (ov === 'keep_gt') {
+      if (base === 'sub' || base === 'equiv' || base === 'keep_hyp') return 'keep_gt';
+    }
+    if (ov === 'keep_hyp') {
+      if (base === 'sub' || base === 'equiv' || base === 'keep_gt') return 'keep_hyp';
+    }
+    if (ov === 'sub') {
+      if (base === 'exact' || base === 'equiv' || base === 'keep_gt'
+          || base === 'keep_hyp') return 'sub';
+      if (base === 'neutral') return 'ins';
+      if (base === 'skip_del') return 'del';
+    }
+    return base;
+  }
+  function hideMenu() { menu.style.display = 'none'; }
+  function clearRestoreBtn(oid) {
+    table.querySelectorAll('.ins-restore[data-for="' + oid + '"]').forEach(
+      function (b) { b.remove(); });
+  }
+  function ensureRestoreBtn(oid, afterNode) {
+    if (table.querySelector('.ins-restore[data-for="' + oid + '"]')) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ins-restore';
+    btn.dataset.for = oid;
+    btn.title = 'Restore insertion';
+    btn.textContent = '+';
+    if (afterNode && afterNode.parentNode) {
+      afterNode.parentNode.insertBefore(btn, afterNode.nextSibling);
+    }
+  }
+  function paintOid(oid) {
+    var nodes = table.querySelectorAll('[data-op="' + oid + '"]');
+    if (!nodes.length) return;
+    var base = nodes[0].dataset.baseOp || nodes[0].dataset.opType || 'exact';
+    var op = effectiveOp(base, overrides[oid]);
+    clearRestoreBtn(oid);
+    nodes.forEach(function (n) {
+      n.style.display = '';
+      n.style.opacity = '';
+      var isMark = n.classList.contains('delmark');
+      var inGt = !!n.closest('.gt');
+      var inHyp = !!n.closest('.hyp');
+      n.className = isMark ? 'tk delmark' : 'tk';
+      if (op === 'removed_ins') {
+        n.classList.add('ins', 'ins-removed');
+        n.dataset.opType = 'removed_ins';
+        if (!isMark && inHyp) ensureRestoreBtn(oid, n);
+        return;
+      }
+      if (op === 'keep_gt') {
+        n.dataset.opType = 'keep_gt';
+        if (inGt) n.classList.add('eq');
+        else if (inHyp) n.classList.add('ins');
+        return;
+      }
+      if (op === 'keep_hyp') {
+        n.dataset.opType = 'keep_hyp';
+        if (inGt) n.classList.add('del');
+        else if (inHyp) n.classList.add('eq');
+        return;
+      }
+      n.dataset.opType = op;
+      if (op === 'sub') n.classList.add('sub');
+      else if (op === 'ins') n.classList.add('ins');
+      else if (op === 'del') n.classList.add('del');
+      else if (op === 'equiv') n.classList.add('eq');
+      else if (op === 'skip_del') {
+        if (!isMark) n.classList.add('eq');
+      } else if (op === 'neutral') { /* plain */ }
+    });
+  }
+  function repaintAll() {
+    var seen = {};
+    table.querySelectorAll('[data-op]').forEach(function (n) {
+      if (!seen[n.dataset.op]) { seen[n.dataset.op] = 1; paintOid(n.dataset.op); }
+    });
+  }
+  function hiPair(oid, on) {
+    table.querySelectorAll('[data-op="' + oid + '"]').forEach(function (n) {
+      n.classList.toggle('op-hi', on);
+    });
+  }
+  function showMenu(sp, ev) {
+    if (table.classList.contains('edit-mode')) return;
+    var oid = sp.dataset.op;
+    var base = sp.dataset.baseOp || sp.dataset.opType || 'exact';
+    var typ = effectiveOp(base, overrides[oid]);
+    var side = sp.closest('.gt') ? 'gt' : 'hyp';
+    var title = (sp.textContent || '').trim().slice(0, 42);
+    var html = '<div class="opm-title">Word: ' + title + '</div>';
+    var ov = overrides[oid];
+    if (typ === 'ins') {
+      if (ov === 'remove') {
+        html += '<button type="button" class="ok" data-act="undo">&#8634; Restore insertion</button>';
+      } else {
+        html += '<button type="button" class="rm" data-act="remove">&#128465; Remove insertion</button>';
+        html += '<button type="button" class="ok" data-act="correct">&#10003; Mark as correct (ignore)</button>';
+      }
+    } else if (typ === 'removed_ins') {
+      html += '<button type="button" class="ok" data-act="undo">&#8634; Restore insertion</button>';
+    } else if (typ === 'keep_gt' || typ === 'keep_hyp') {
+      html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+      html += '<button type="button" class="ok" data-act="correct">&#10003; Mark both as correct</button>';
+    } else if (typ === 'sub') {
+      if (ov === 'correct') {
+        html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+      } else {
+        html += '<button type="button" class="ok" data-act="correct">&#10003; Mark both as correct (ignore error)</button>';
+        if (side === 'gt') {
+          html += '<button type="button" class="split" data-act="keep_gt">'
+            + '&#10003; Keep only this correct — other becomes insertion</button>';
+        } else {
+          html += '<button type="button" class="split" data-act="keep_hyp">'
+            + '&#10003; Keep only this correct — other becomes deletion</button>';
+        }
+      }
+    } else if (isErrorType(typ)) {
+      if (ov === 'correct') {
+        html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+      } else {
+        html += '<button type="button" class="ok" data-act="correct">&#10003; Mark as correct (ignore error)</button>';
+      }
+    } else if (ov === 'sub') {
+      html += '<button type="button" class="ok" data-act="undo">&#8634; Restore automatic scoring</button>';
+    } else {
+      html += '<button type="button" class="bad" data-act="sub">&#10007; Mark as substitution</button>';
+    }
+    menu.innerHTML = html;
+    menu.style.display = 'block';
+    var x = Math.min(ev.clientX, window.innerWidth - menu.offsetWidth - 8);
+    var y = Math.min(ev.clientY, window.innerHeight - 60);
+    menu.style.left = Math.max(8, x) + 'px';
+    menu.style.top = Math.max(8, y) + 'px';
+    hiPair(oid, true);
+    menu.onclick = function (e) {
+      var btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      var act = btn.dataset.act;
+      if (act === 'undo') delete overrides[oid];
+      else overrides[oid] = act;
+      hideMenu();
+      hiPair(oid, false);
+      paintOid(oid);
+      window.parent.postMessage({type: 'wer-override', overrides: overrides, oid: oid}, '*');
+    };
+  }
+  function restoreInsertion(oid) {
+    delete overrides[oid];
+    paintOid(oid);
+    window.parent.postMessage({type: 'wer-override', overrides: overrides, oid: oid}, '*');
+  }
+  table.addEventListener('click', function (e) {
+    if (table.classList.contains('edit-mode')) return;
+    var rb = e.target.closest('.ins-restore');
+    if (rb) {
+      e.preventDefault();
+      e.stopPropagation();
+      restoreInsertion(rb.dataset.for);
+      return;
+    }
+    var sp = e.target.closest('.tk[data-op], .delmark[data-op]');
+    if (!sp || e.target.closest('#op-menu')) return;
+    if (sp.classList.contains('ins-removed') || sp.dataset.opType === 'removed_ins') {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    showMenu(sp, e);
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#op-menu') && !e.target.closest('.tk[data-op], .delmark[data-op]')) {
+      hideMenu();
+      table.querySelectorAll('.op-hi').forEach(function (n) { n.classList.remove('op-hi'); });
+    }
+  });
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'wer-override-init') {
+      overrides = e.data.overrides || {};
+      repaintAll();
+    }
+    if (e.data.type === 'wer-stats-update' && e.data.stats) {
+      var s = e.data.stats;
+      var badge = document.querySelector('.werbadge');
+      if (badge) badge.textContent = 'WER ' + Number(s.WER).toFixed(2) + '%';
+      var el;
+      el = document.getElementById('stat-n'); if (el) el.textContent = s.N;
+      el = document.getElementById('stat-c'); if (el) el.textContent = s.C;
+      el = document.getElementById('stat-s'); if (el) el.textContent = s.S;
+      el = document.getElementById('stat-d'); if (el) el.textContent = s.D;
+      el = document.getElementById('stat-i'); if (el) el.textContent = s.I;
+      el = document.getElementById('stat-wer'); if (el) el.textContent = Number(s.WER).toFixed(2) + '%';
+      el = document.getElementById('stat-wer-lbl');
+      if (el) el.textContent = 'WER = (S+D+I)/N = (' + s.S + '+' + s.D + '+' + s.I + ')/' + s.N;
+      el = document.getElementById('stat-c-lbl');
+      if (el && s.EQ != null) {
+        el.textContent = 'Correct (' + (s.C - s.EQ) + ' exact + ' + s.EQ + ' equivalent)';
+      }
+    }
+  });
+})();
+
+
+(function () {
+  if (window.parent === window) return;
+  var table = document.querySelector('table.diff');
+  if (!table) return;
+  var editOn = false;
+  var snapshot = null;
+  var bar = document.createElement('div');
+  bar.id = 'edit-bar';
+  bar.innerHTML =
+    '<div class="edit-inner">' +
+      '<span class="edit-title">&#9998; Live report editor</span>' +
+      '<span class="edit-hint" id="edit-hint">Turn on edit mode, click into a column and edit the text like a document, then recalculate.</span>' +
+      '<button type="button" class="editbtn" id="edit-toggle">Edit mode: off</button>' +
+      '<button type="button" class="editbtn primary" id="edit-apply" disabled>Yes — recalculate report</button>' +
+      '<button type="button" class="editbtn ghost" id="edit-cancel" style="display:none">Cancel edits</button>' +
+    '</div>';
+  document.body.insertBefore(bar, document.body.firstChild);
+  var hint = document.getElementById('edit-hint');
+  var toggleBtn = document.getElementById('edit-toggle');
+  var applyBtn = document.getElementById('edit-apply');
+  var cancelBtn = document.getElementById('edit-cancel');
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function cellPlain(td) {
+    var clone = td.cloneNode(true);
+    clone.querySelectorAll('.delmark').forEach(function (n) { n.remove(); });
+    clone.querySelectorAll('.ins-restore').forEach(function (n) { n.remove(); });
+    clone.querySelectorAll('.ins-removed, .tk[data-op-type="removed_ins"]').forEach(
+      function (n) { n.remove(); });
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function colText(idx) {
+    var lines = [];
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      var td = tr.cells[idx];
+      if (!td) return;
+      var ed = td.querySelector('.edit-txt');
+      var txt = ed ? ed.textContent.replace(/\s+/g, ' ').trim() : cellPlain(td);
+      if (txt) lines.push(txt);
+    });
+    return lines.join('\n');
+  }
+  function hintDefault() {
+    return 'Turn on edit mode, click into a column and edit the text like a document, then recalculate.';
+  }
+  function hintEditing() {
+    return 'Edit mode on — click any line and type freely (e.g. change "cap" to "cab"). Then click Yes to recalculate.';
+  }
+  function setDirty(dirty) {
+    applyBtn.disabled = !editOn;
+    cancelBtn.style.display = (editOn && dirty) ? 'inline-block' : (editOn ? 'inline-block' : 'none');
+    if (dirty) {
+      hint.textContent = 'Edits pending — click "Yes — recalculate report" when ready.';
+    } else if (editOn) {
+      hint.textContent = hintEditing();
+    } else {
+      hint.textContent = hintDefault();
+    }
+  }
+  function takeSnapshot() {
+    snapshot = table.querySelector('tbody').innerHTML;
+  }
+  function enterEditMode() {
+    takeSnapshot();
+    editOn = true;
+    table.classList.add('edit-mode');
+    toggleBtn.classList.add('on');
+    toggleBtn.textContent = 'Edit mode: on';
+    table.querySelectorAll('tbody tr').forEach(function (tr) {
+      [1, 2].forEach(function (idx) {
+        var td = tr.cells[idx];
+        if (!td) return;
+        var txt = cellPlain(td);
+        td.innerHTML = '<div class="edit-txt" contenteditable="true" dir="auto" spellcheck="false">' +
+          escHtml(txt) + '</div>';
+      });
+    });
+    setDirty(false);
+  }
+  function exitEditMode(restore) {
+    if (restore && snapshot) table.querySelector('tbody').innerHTML = snapshot;
+    editOn = false;
+    snapshot = null;
+    table.classList.remove('edit-mode');
+    toggleBtn.classList.remove('on');
+    toggleBtn.textContent = 'Edit mode: off';
+    applyBtn.disabled = true;
+    cancelBtn.style.display = 'none';
+    hint.textContent = hintDefault();
+  }
+  toggleBtn.addEventListener('click', function () {
+    if (editOn) exitEditMode(true);
+    else enterEditMode();
+  });
+  table.addEventListener('input', function (e) {
+    if (editOn && e.target.classList.contains('edit-txt')) setDirty(true);
+  });
+  cancelBtn.addEventListener('click', function () {
+    exitEditMode(true);
+  });
+  applyBtn.addEventListener('click', function () {
+    var hyp = colText(1);
+    var gt = colText(2);
+    if (!hyp.trim() || !gt.trim()) {
+      hint.textContent = 'Both columns must still have text after editing.';
+      return;
+    }
+    applyBtn.disabled = true;
+    hint.textContent = 'Recalculating…';
+    window.parent.postMessage({type: 'wer-recalc', hyp: hyp, gt: gt}, '*');
+  });
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'wer-recalc-done') return;
+    if (e.data.ok) {
+      exitEditMode(false);
+    } else {
+      applyBtn.disabled = false;
+      hint.textContent = 'Recalculate failed: ' + (e.data.error || 'unknown error');
+    }
+  });
+})();
+</script>
+</body>
+</html>

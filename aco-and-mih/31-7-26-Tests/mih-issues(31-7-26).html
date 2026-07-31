@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIH Transcription Issues Report — 31/7/26</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #003366, #004080);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        section {
+            padding: 30px 40px;
+        }
+
+        h2 {
+            color: #003366;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #0055aa;
+        }
+
+        ul {
+            line-height: 1.6;
+        }
+
+        .issue {
+            background: #f8f9fa;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .slider {
+            position: relative;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .slider-viewport {
+            position: relative;
+            width: 100%;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a0a;
+        }
+
+        .slider-viewport img {
+            display: none;
+            max-width: 100%;
+            max-height: 520px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .slider-viewport img.active {
+            display: block;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 51, 102, 0.9);
+            color: white;
+            font-size: 1.4em;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .slider-btn:hover {
+            background: #004080;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .slider-btn:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+
+        .slider-btn.prev { left: 12px; }
+        .slider-btn.next { right: 12px; }
+        .slider-btn[hidden] { display: none; }
+
+        .slider-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .slider-caption {
+            font-size: 0.9em;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .slider-dots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .slider-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: none;
+            padding: 0;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .slider-dot.active {
+            background: #003366;
+            transform: scale(1.15);
+        }
+
+        .slider-dot:hover { background: #64748b; }
+
+        @media (max-width: 640px) {
+            .slider-btn { width: 36px; height: 36px; font-size: 1.2em; }
+            .slider-viewport { min-height: 200px; }
+            .slider-viewport img { max-height: 360px; }
+        }
+
+        .note {
+            background: #e6f0ff;
+            border-left: 5px solid #003366;
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            border-radius: 4px;
+        }
+
+        footer {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+        }
+
+        .backbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .backbtn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.55);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="backbtn">← Back to 31/7/26 Tests</a>
+            <h1>MIH Transcription Issues Report</h1>
+            <p class="subtitle">Detailed Analysis of Transcription Model Performance — 31/7/26</p>
+        </header>
+
+        <section>
+            <h2>Executive Summary</h2>
+            <p>On the 31/7/26 MIH test run, WER was elevated across mixed, English, and Urdu samples. The main failure mode observed was large stretches of audio that were not transcribed at all, leaving many ground-truth sentences blank or reduced to a few incorrect words.</p>
+        </section>
+
+        <section>
+            <h2>Identified Issues</h2>
+
+            <div class="issue">
+                <h3>1. The System Mostly Failing to Transcribe Many Sentences</h3>
+                <p>Across multiple samples, the machine transcription column is empty for long stretches while the ground truth contains full sentences. In other rows, only one or two words appear against a complete spoken line. This pattern showed up in mixed, English, and Urdu reports (for example mix-s3, eng-s5, ur-s3, and ur-s10).</p>
+                <ul>
+                    <li>Many consecutive rows have no machine output at all.</li>
+                    <li>Partial rows often keep only a fragment (e.g. a single word) while the rest of the sentence is deleted.</li>
+                    <li>This drives the high WER on the 31/7/26 MIH column.</li>
+                </ul>
+                <div class="slider" data-slider>
+                    <div class="slider-viewport">
+                        <button type="button" class="slider-btn prev" aria-label="Previous image">‹</button>
+                        <img class="active" src="assets/1a.png" alt="Screenshot 1a — missing sentences in mixed sample" data-label="1a">
+                        <img src="assets/1b.png" alt="Screenshot 1b — missing sentences in Urdu sample (ur-s3)" data-label="1b">
+                        <img src="assets/1c.png" alt="Screenshot 1c — missing sentences in English sample (eng-s5)" data-label="1c">
+                        <img src="assets/1d.png" alt="Screenshot 1d — missing sentences in Urdu sample (ur-s10)" data-label="1d">
+                        <button type="button" class="slider-btn next" aria-label="Next image">›</button>
+                    </div>
+                    <div class="slider-footer">
+                        <span class="slider-caption"></span>
+                        <div class="slider-dots"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="note">
+                <h3>Gentle Note</h3>
+                <p>These observations are based on the 31/7/26 MIH WER reports in this folder. ACO counterparts for the same date are still pending and will be compared once those reports are added.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Report Generated on July 31, 2026 • Meeting Insight Hub (MIH) Transcription Analysis</p>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            function initSlider(root) {
+                var images = Array.prototype.slice.call(root.querySelectorAll('.slider-viewport img'));
+                if (!images.length) return;
+
+                var caption = root.querySelector('.slider-caption');
+                var dotsWrap = root.querySelector('.slider-dots');
+                var prevBtn = root.querySelector('.slider-btn.prev');
+                var nextBtn = root.querySelector('.slider-btn.next');
+                var index = Math.max(0, images.findIndex(function (img) { return img.classList.contains('active'); }));
+                if (index < 0) index = 0;
+
+                images.forEach(function (_, i) {
+                    var dot = document.createElement('button');
+                    dot.type = 'button';
+                    dot.className = 'slider-dot' + (i === index ? ' active' : '');
+                    dot.setAttribute('aria-label', 'Go to image ' + (i + 1));
+                    dot.addEventListener('click', function () { show(i); });
+                    dotsWrap.appendChild(dot);
+                });
+
+                var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll('.slider-dot'));
+
+                if (images.length < 2) {
+                    if (prevBtn) prevBtn.hidden = true;
+                    if (nextBtn) nextBtn.hidden = true;
+                }
+
+                function show(i) {
+                    index = (i + images.length) % images.length;
+                    images.forEach(function (img, j) { img.classList.toggle('active', j === index); });
+                    dots.forEach(function (dot, j) { dot.classList.toggle('active', j === index); });
+                    var label = images[index].getAttribute('data-label') || String(index + 1);
+                    caption.textContent = 'Screenshot ' + label + ' · ' + (index + 1) + ' / ' + images.length;
+                }
+
+                if (prevBtn) prevBtn.addEventListener('click', function () { show(index - 1); });
+                if (nextBtn) nextBtn.addEventListener('click', function () { show(index + 1); });
+
+                root.addEventListener('keydown', function (e) {
+                    if (images.length < 2) return;
+                    if (e.key === 'ArrowLeft') { e.preventDefault(); show(index - 1); }
+                    else if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+                });
+                root.tabIndex = 0;
+                show(index);
+            }
+
+            document.querySelectorAll('[data-slider]').forEach(initSlider);
+        })();
+    </script>
+
+</body>
+
+</html>
